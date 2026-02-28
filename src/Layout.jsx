@@ -1,47 +1,51 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   LayoutDashboard, GitBranch, FolderKanban,
   DollarSign, BarChart3, FileText, ChevronLeft,
-  ChevronRight, Building2, Bell, User, Menu, X
+  ChevronRight, Bell, User, Menu, X
 } from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", page: "Dashboard", icon: LayoutDashboard },
   { label: "Pipeline", page: "Pipeline", icon: GitBranch },
-  { label: "Projetos em Execução", page: "Projetos", icon: FolderKanban },
+  { label: "Projetos", page: "Projetos", icon: FolderKanban },
   { label: "Financeiro", page: "Financeiro", icon: DollarSign },
   { label: "Budget", page: "Budget", icon: BarChart3 },
   { label: "Relatórios", page: "Relatorios", icon: FileText },
 ];
+
+// Cores APSIS: verde escuro #1A4731, laranja #F47920, cinza claro #E8EDE9
+const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a1fc4b60b4c477ea324579/40af152e2_Design-sem-nome.png";
 
 export default function Layout({ children, currentPageName }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] flex font-sans">
+    <div className="min-h-screen bg-[#F4F6F4] flex font-sans">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         * { font-family: 'Inter', sans-serif; }
         :root {
-          --navy: #0F1B35;
-          --navy-light: #1A2D52;
-          --gold: #C9A84C;
-          --gold-light: #E8C97A;
+          --apsis-green: #1A4731;
+          --apsis-green-light: #245E40;
+          --apsis-orange: #F47920;
+          --apsis-orange-light: #F9A15A;
+          --apsis-gray: #E8EDE9;
           --surface: #FFFFFF;
-          --surface-2: #F7F8FA;
-          --border: #E8ECF0;
-          --text-primary: #0F1B35;
-          --text-secondary: #6B7A99;
+          --surface-2: #F4F6F4;
+          --border: #DDE3DE;
+          --text-primary: #1A2B1F;
+          --text-secondary: #5C7060;
           --success: #22C55E;
-          --warning: #F59E0B;
+          --warning: #F47920;
           --danger: #EF4444;
         }
-        .nav-item { transition: all 0.18s ease; }
-        .nav-item:hover { background: rgba(201,168,76,0.10); }
-        .nav-item.active { background: rgba(201,168,76,0.15); border-right: 3px solid #C9A84C; }
+        .nav-item { transition: all 0.18s ease; border-right: 3px solid transparent; }
+        .nav-item:hover { background: rgba(244,121,32,0.10); }
+        .nav-item.active { background: rgba(244,121,32,0.15); border-right: 3px solid #F47920; }
         .sidebar-transition { transition: width 0.25s cubic-bezier(0.4,0,0.2,1); }
         .fade-in { animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
@@ -49,18 +53,16 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Sidebar Desktop */}
       <aside
-        className={`hidden md:flex flex-col sidebar-transition bg-[var(--navy)] relative z-30 ${collapsed ? "w-[72px]" : "w-[240px]"}`}
+        className={`hidden md:flex flex-col sidebar-transition bg-[var(--apsis-green)] relative z-30 ${collapsed ? "w-[72px]" : "w-[240px]"}`}
         style={{ minHeight: "100vh" }}
       >
         {/* Logo */}
-        <div className={`flex items-center gap-3 px-5 py-6 border-b border-white/10 ${collapsed ? "justify-center px-2" : ""}`}>
-          <div className="w-8 h-8 rounded-lg bg-[var(--gold)] flex items-center justify-center flex-shrink-0">
-            <Building2 size={16} className="text-[var(--navy)]" />
-          </div>
+        <div className={`flex items-center gap-3 px-4 py-5 border-b border-white/10 ${collapsed ? "justify-center px-2" : ""}`}>
+          <img src={LOGO_URL} alt="APSIS" className="w-9 h-9 object-contain flex-shrink-0 rounded" />
           {!collapsed && (
             <div>
-              <div className="text-white font-semibold text-sm leading-tight">TAX & Advisory</div>
-              <div className="text-white/40 text-[10px] font-medium tracking-wider uppercase">Portal de Gestão</div>
+              <div className="text-white font-bold text-base leading-tight tracking-wide">Portal APSIS</div>
+              <div className="text-white/40 text-[10px] font-medium tracking-wider uppercase">Tax & Advisory</div>
             </div>
           )}
         </div>
@@ -73,9 +75,9 @@ export default function Layout({ children, currentPageName }) {
               <Link
                 key={page}
                 to={createPageUrl(page)}
-                className={`nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer ${isActive ? "active" : ""}`}
+                className={`nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer ${isActive ? "active" : ""}`}
               >
-                <Icon size={18} className={isActive ? "text-[var(--gold)]" : "text-white/50"} />
+                <Icon size={18} className={isActive ? "text-[var(--apsis-orange)]" : "text-white/50"} />
                 {!collapsed && (
                   <span className={`text-sm font-medium ${isActive ? "text-white" : "text-white/60"}`}>{label}</span>
                 )}
@@ -87,15 +89,15 @@ export default function Layout({ children, currentPageName }) {
         {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="absolute -right-3 top-[72px] w-6 h-6 bg-[var(--gold)] rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+          className="absolute -right-3 top-[72px] w-6 h-6 bg-[var(--apsis-orange)] rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
         >
-          {collapsed ? <ChevronRight size={12} className="text-[var(--navy)]" /> : <ChevronLeft size={12} className="text-[var(--navy)]" />}
+          {collapsed ? <ChevronRight size={12} className="text-white" /> : <ChevronLeft size={12} className="text-white" />}
         </button>
 
         {/* Bottom user */}
         <div className={`p-3 border-t border-white/10 flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
-          <div className="w-7 h-7 rounded-full bg-[var(--gold)]/20 border border-[var(--gold)]/30 flex items-center justify-center flex-shrink-0">
-            <User size={13} className="text-[var(--gold)]" />
+          <div className="w-7 h-7 rounded-full bg-[var(--apsis-orange)]/20 border border-[var(--apsis-orange)]/30 flex items-center justify-center flex-shrink-0">
+            <User size={13} className="text-[var(--apsis-orange)]" />
           </div>
           {!collapsed && <span className="text-white/50 text-xs">Minha conta</span>}
         </div>
@@ -105,15 +107,13 @@ export default function Layout({ children, currentPageName }) {
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
-          <aside className="relative z-50 w-64 h-full bg-[var(--navy)] flex flex-col">
-            <div className="flex items-center justify-between px-5 py-6 border-b border-white/10">
+          <aside className="relative z-50 w-64 h-full bg-[var(--apsis-green)] flex flex-col">
+            <div className="flex items-center justify-between px-4 py-5 border-b border-white/10">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[var(--gold)] flex items-center justify-center">
-                  <Building2 size={16} className="text-[var(--navy)]" />
-                </div>
+                <img src={LOGO_URL} alt="APSIS" className="w-8 h-8 object-contain rounded" />
                 <div>
-                  <div className="text-white font-semibold text-sm">TAX & Advisory</div>
-                  <div className="text-white/40 text-[10px] uppercase tracking-wider">Portal de Gestão</div>
+                  <div className="text-white font-bold text-sm">Portal APSIS</div>
+                  <div className="text-white/40 text-[10px] uppercase tracking-wider">Tax & Advisory</div>
                 </div>
               </div>
               <button onClick={() => setMobileOpen(false)}><X size={18} className="text-white/50" /></button>
@@ -123,8 +123,8 @@ export default function Layout({ children, currentPageName }) {
                 const isActive = currentPageName === page;
                 return (
                   <Link key={page} to={createPageUrl(page)} onClick={() => setMobileOpen(false)}
-                    className={`nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg ${isActive ? "active" : ""}`}>
-                    <Icon size={18} className={isActive ? "text-[var(--gold)]" : "text-white/50"} />
+                    className={`nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg ${isActive ? "active" : ""}`}>
+                    <Icon size={18} className={isActive ? "text-[var(--apsis-orange)]" : "text-white/50"} />
                     <span className={`text-sm font-medium ${isActive ? "text-white" : "text-white/60"}`}>{label}</span>
                   </Link>
                 );
@@ -142,19 +142,22 @@ export default function Layout({ children, currentPageName }) {
             <button className="md:hidden" onClick={() => setMobileOpen(true)}>
               <Menu size={20} className="text-[var(--text-secondary)]" />
             </button>
-            <div>
-              <h1 className="text-base font-semibold text-[var(--text-primary)]">
-                {navItems.find(n => n.page === currentPageName)?.label || currentPageName}
-              </h1>
-              <p className="text-xs text-[var(--text-secondary)]">Tax & Accounting Advisory</p>
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-6 rounded-full bg-[var(--apsis-orange)]" />
+              <div>
+                <h1 className="text-base font-semibold text-[var(--text-primary)]">
+                  {navItems.find(n => n.page === currentPageName)?.label || currentPageName}
+                </h1>
+                <p className="text-xs text-[var(--text-secondary)]">Portal APSIS · Tax & Accounting Advisory</p>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <button className="relative p-2 rounded-lg hover:bg-[var(--surface-2)] transition-colors">
               <Bell size={18} className="text-[var(--text-secondary)]" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[var(--gold)] rounded-full" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[var(--apsis-orange)] rounded-full" />
             </button>
-            <div className="w-8 h-8 rounded-full bg-[var(--navy)] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-[var(--apsis-green)] flex items-center justify-center">
               <User size={14} className="text-white" />
             </div>
           </div>

@@ -49,12 +49,16 @@
  */
 import Dashboard from './pages/Dashboard';
 import Budget from './pages/Budget';
+import Pipeline from './pages/Pipeline';
+import Projetos from './pages/Projetos';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Dashboard": Dashboard,
     "Budget": Budget,
+    "Pipeline": Pipeline,
+    "Projetos": Projetos,
 }
 
 export const pagesConfig = {

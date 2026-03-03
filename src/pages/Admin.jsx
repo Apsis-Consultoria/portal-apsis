@@ -312,6 +312,55 @@ export default function Admin() {
           </div>
         )}
 
+        {/* COLABORADORES */}
+        {activeTab === "colaboradores" && (
+          <div className="space-y-4">
+            {/* Busca */}
+            <div className="flex flex-wrap gap-3">
+              <div className="relative flex-1 min-w-[250px]">
+                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5C7060]" />
+                <input placeholder="Buscar por nome, email, cargo, área ou departamento..." value={buscaColaboradores} onChange={e => setBuscaColaboradores(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 border border-[#DDE3DE] rounded-xl text-sm bg-white focus:outline-none focus:border-[#F47920]" />
+              </div>
+            </div>
+
+            {/* Tabela colaboradores */}
+            <div className="bg-white rounded-2xl border border-[#DDE3DE] overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[#DDE3DE] bg-[#F4F6F4]">
+                      {["Nome","E-mail","Cargo","Área","Departamento","Status"].map(h => (
+                        <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#5C7060] uppercase tracking-wider">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F4F6F4]">
+                    {loading ? (
+                      <tr><td colSpan={6} className="text-center py-10"><Loader2 className="w-5 h-5 animate-spin mx-auto text-[#F47920]" /></td></tr>
+                    ) : filteredColaboradores.length === 0 ? (
+                      <tr><td colSpan={6} className="text-center py-10 text-[#5C7060] text-sm">{colaboradores.length === 0 ? "Nenhum colaborador cadastrado" : "Nenhum colaborador encontrado"}</td></tr>
+                    ) : filteredColaboradores.map(col => (
+                      <tr key={col.id} className="hover:bg-[#F4F6F4] transition-colors">
+                        <td className="px-4 py-3 font-medium text-[#1A2B1F]">{col.nome || "—"}</td>
+                        <td className="px-4 py-3 text-xs text-[#5C7060]">{col.email || "—"}</td>
+                        <td className="px-4 py-3 text-xs text-[#5C7060]">{col.cargo || "—"}</td>
+                        <td className="px-4 py-3 text-xs text-[#5C7060]">{col.area || "—"}</td>
+                        <td className="px-4 py-3 text-xs text-[#5C7060]">{col.departamento || "—"}</td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${col.ativo ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-400"}`}>
+                            {col.ativo !== false ? "Ativo" : "Inativo"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* DEPARTAMENTOS */}
         {activeTab === "departamentos" && (
           <div className="space-y-4">

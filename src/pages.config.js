@@ -58,6 +58,7 @@ import Admin from './pages/Admin';
 import Recover from './pages/Recover';
 import ResetPassword from './pages/ResetPassword';
 import MarketingComercial from './pages/MarketingComercial';
+import MarketingOrcado from './pages/MarketingOrcado';
 import __Layout from './Layout.jsx';
 
 
@@ -73,6 +74,7 @@ export const PAGES = {
     "Recover": Recover,
     "ResetPassword": ResetPassword,
     "MarketingComercial": MarketingComercial,
+    "MarketingOrcado": MarketingOrcado,
 }
 
 export const pagesConfig = {

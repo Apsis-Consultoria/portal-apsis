@@ -57,6 +57,7 @@ import AccessDenied from './pages/AccessDenied';
 import Admin from './pages/Admin';
 import Recover from './pages/Recover';
 import ResetPassword from './pages/ResetPassword';
+import MarketingComercial from './pages/MarketingComercial';
 import __Layout from './Layout.jsx';
 
 
@@ -71,6 +72,7 @@ export const PAGES = {
     "Admin": Admin,
     "Recover": Recover,
     "ResetPassword": ResetPassword,
+    "MarketingComercial": MarketingComercial,
 }
 
 export const pagesConfig = {

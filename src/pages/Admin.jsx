@@ -278,6 +278,66 @@ export default function Admin() {
           </div>
         )}
 
+        {/* DEPARTAMENTOS */}
+        {activeTab === "departamentos" && (
+          <div className="space-y-4">
+            {/* Criar departamento */}
+            <div className="bg-white rounded-2xl border border-[#DDE3DE] p-5">
+              <p className="text-sm font-semibold text-[#1A2B1F] mb-3">Novo Departamento</p>
+              <div className="flex flex-wrap gap-3">
+                <input placeholder="Nome do departamento" value={novoDeptNome} onChange={e => setNovoDeptNome(e.target.value)}
+                  className="flex-1 min-w-[180px] border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#F47920]" />
+                <input placeholder="Descrição (opcional)" value={novoDeptDesc} onChange={e => setNovoDeptDesc(e.target.value)}
+                  className="flex-1 min-w-[200px] border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#F47920]" />
+                <button onClick={createDept} disabled={savingDept || !novoDeptNome.trim()}
+                  className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40] disabled:opacity-50">
+                  {savingDept ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Criar
+                </button>
+              </div>
+            </div>
+
+            {/* Lista */}
+            <div className="bg-white rounded-2xl border border-[#DDE3DE] overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[#DDE3DE] bg-[#F4F6F4]">
+                      {["Departamento","Descrição","Status","Ações"].map(h => (
+                        <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#5C7060] uppercase tracking-wider">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F4F6F4]">
+                    {loading ? (
+                      <tr><td colSpan={4} className="text-center py-10"><Loader2 className="w-5 h-5 animate-spin mx-auto text-[#F47920]" /></td></tr>
+                    ) : departamentos.length === 0 ? (
+                      <tr><td colSpan={4} className="text-center py-10 text-[#5C7060] text-sm">Nenhum departamento cadastrado</td></tr>
+                    ) : departamentos.map(d => (
+                      <tr key={d.id} className="hover:bg-[#F4F6F4] transition-colors">
+                        <td className="px-4 py-3 font-medium text-[#1A2B1F]">{d.nome}</td>
+                        <td className="px-4 py-3 text-xs text-[#5C7060]">{d.descricao || "—"}</td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${d.ativo ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-400"}`}>
+                            {d.ativo ? "Ativo" : "Inativo"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 flex items-center gap-2">
+                          <button onClick={() => toggleDept(d)}
+                            className="p-1.5 hover:bg-[#E8EDE9] rounded-lg text-xs text-[#5C7060]">
+                            {d.ativo ? <XCircle size={13} /> : <CheckCircle size={13} />}
+                          </button>
+                          <button onClick={() => deleteDept(d)}
+                            className="p-1.5 hover:bg-red-50 rounded-lg"><X size={13} className="text-red-400" /></button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* MÓDULOS */}
         {activeTab === "modulos" && (
           <div className="space-y-4">

@@ -360,6 +360,150 @@ export default function Admin() {
           </div>
         )}
 
+        {/* ASSISTENTE IA */}
+        {activeTab === "assistente" && (
+          <div className="space-y-5">
+            {/* Status do widget */}
+            <div className="bg-white rounded-2xl border border-[#DDE3DE] p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-[#1A2B1F]">Widget Flutuante</p>
+                  <p className="text-xs text-[#5C7060] mt-0.5">Ativar ou desativar o Assistente APSIS para todos os usuários</p>
+                </div>
+                <button onClick={toggleWidgetEnabled}
+                  className="flex items-center gap-2 text-sm font-medium">
+                  {assistantConfig['widget_enabled']?.value === 'false' ? (
+                    <><ToggleLeft size={28} className="text-gray-400" /> <span className="text-gray-500">Desativado</span></>
+                  ) : (
+                    <><ToggleRight size={28} className="text-[#1A4731]" /> <span className="text-[#1A4731]">Ativado</span></>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Logs de uso */}
+            <div className="bg-white rounded-2xl border border-[#DDE3DE] p-5">
+              <p className="font-semibold text-[#1A2B1F] mb-3">Últimas Interações (50)</p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-[#DDE3DE] bg-[#F4F6F4]">
+                      {["Usuário","Módulo","Status","Fontes","Data"].map(h => (
+                        <th key={h} className="text-left px-3 py-2 font-semibold text-[#5C7060] uppercase tracking-wider">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F4F6F4]">
+                    {assistantLogs.length === 0 ? (
+                      <tr><td colSpan={5} className="text-center py-6 text-[#5C7060]">Nenhuma interação registrada</td></tr>
+                    ) : assistantLogs.map(log => (
+                      <tr key={log.id} className="hover:bg-[#F4F6F4]">
+                        <td className="px-3 py-2 text-[#1A2B1F]">{log.user_email}</td>
+                        <td className="px-3 py-2 text-[#5C7060]">{log.modulo || '—'}</td>
+                        <td className="px-3 py-2">
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold ${log.status === 'success' ? 'bg-emerald-50 text-emerald-700' : log.status === 'blocked' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-600'}`}>
+                            {log.status}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 text-[#5C7060]">{log.sources_count ?? 0}</td>
+                        <td className="px-3 py-2 text-[#5C7060]">{log.created_date ? new Date(log.created_date).toLocaleString('pt-BR') : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Base de conhecimento */}
+            <div className="bg-white rounded-2xl border border-[#DDE3DE] overflow-hidden">
+              <div className="p-5 border-b border-[#DDE3DE] flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-[#1A2B1F] flex items-center gap-2"><BookOpen size={15} /> Base de Conhecimento</p>
+                  <p className="text-xs text-[#5C7060] mt-0.5">{knowledgeDocs.length} documento(s) cadastrado(s)</p>
+                </div>
+                <button onClick={() => setShowDocForm(!showDocForm)}
+                  className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40]">
+                  <Plus size={13} /> Novo Documento
+                </button>
+              </div>
+
+              {showDocForm && (
+                <div className="p-5 border-b border-[#DDE3DE] bg-[#F4F6F4] space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input placeholder="Título *" value={newDoc.title} onChange={e => setNewDoc(d => ({ ...d, title: e.target.value }))}
+                      className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#F47920]" />
+                    <input placeholder="Tags (ex: budget, proposta, laudo)" value={newDoc.tags} onChange={e => setNewDoc(d => ({ ...d, tags: e.target.value }))}
+                      className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#F47920]" />
+                  </div>
+                  <textarea placeholder="Conteúdo do documento *" value={newDoc.content} onChange={e => setNewDoc(d => ({ ...d, content: e.target.value }))}
+                    rows={4} className="w-full border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#F47920] resize-none" />
+                  <div className="flex flex-wrap gap-3">
+                    <select value={newDoc.category} onChange={e => setNewDoc(d => ({ ...d, category: e.target.value }))}
+                      className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none">
+                      {["FAQ","Manual","Política","Procedimento","Relatório","Outro"].map(c => <option key={c}>{c}</option>)}
+                    </select>
+                    <select value={newDoc.module} onChange={e => setNewDoc(d => ({ ...d, module: e.target.value }))}
+                      className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none">
+                      {["Geral","Dashboard","Pipeline","Projetos","Financeiro","Budget","Marketing","Admin"].map(m => <option key={m}>{m}</option>)}
+                    </select>
+                    <select value={newDoc.sensitivity} onChange={e => setNewDoc(d => ({ ...d, sensitivity: e.target.value }))}
+                      className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none">
+                      {["PUBLICO","INTERNO","RESTRITO"].map(s => <option key={s}>{s}</option>)}
+                    </select>
+                    <button onClick={saveDoc} disabled={savingDoc || !newDoc.title.trim() || !newDoc.content.trim()}
+                      className="flex items-center gap-2 bg-[#F47920] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#D4640D] disabled:opacity-50 ml-auto">
+                      {savingDoc ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />} Salvar
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[#DDE3DE] bg-[#F4F6F4]">
+                      {["Título","Categoria","Módulo","Sensibilidade","Status","Ações"].map(h => (
+                        <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#5C7060] uppercase tracking-wider">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F4F6F4]">
+                    {loading ? (
+                      <tr><td colSpan={6} className="text-center py-10"><Loader2 className="w-5 h-5 animate-spin mx-auto text-[#F47920]" /></td></tr>
+                    ) : knowledgeDocs.length === 0 ? (
+                      <tr><td colSpan={6} className="text-center py-10 text-[#5C7060] text-sm">Nenhum documento cadastrado</td></tr>
+                    ) : knowledgeDocs.map(doc => (
+                      <tr key={doc.id} className="hover:bg-[#F4F6F4] transition-colors">
+                        <td className="px-4 py-3 font-medium text-[#1A2B1F] max-w-[200px] truncate">{doc.title}</td>
+                        <td className="px-4 py-3 text-xs text-[#5C7060]">{doc.category}</td>
+                        <td className="px-4 py-3 text-xs text-[#5C7060]">{doc.module}</td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold ${doc.sensitivity === 'PUBLICO' ? 'bg-emerald-50 text-emerald-700' : doc.sensitivity === 'RESTRITO' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-700'}`}>
+                            {doc.sensitivity}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold ${doc.ativo ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-400'}`}>
+                            {doc.ativo ? 'Ativo' : 'Inativo'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 flex items-center gap-2">
+                          <button onClick={() => toggleDoc(doc)} className="p-1.5 hover:bg-[#E8EDE9] rounded-lg">
+                            {doc.ativo ? <XCircle size={13} className="text-[#5C7060]" /> : <CheckCircle size={13} className="text-emerald-600" />}
+                          </button>
+                          <button onClick={() => deleteDoc(doc)} className="p-1.5 hover:bg-red-50 rounded-lg">
+                            <Trash2 size={13} className="text-red-400" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* PRIVILÉGIOS — quem pode acessar Configurações */}
         {activeTab === "privilegios" && (
           <div className="space-y-4">

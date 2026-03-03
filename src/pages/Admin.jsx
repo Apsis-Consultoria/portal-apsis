@@ -444,6 +444,16 @@ export default function Admin() {
                   {ROLES.map(r => <option key={r}>{r}</option>)}
                 </select>
               </div>
+              <div>
+                <label className="block text-xs font-medium text-[#5C7060] mb-1">Departamento</label>
+                <select className="w-full border border-[#DDE3DE] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#F47920]"
+                  value={modalUser.departamento || ""}
+                  onChange={e => setModalUser(u => ({ ...u, departamento: e.target.value }))}>
+                  <option value="">— Nenhum —</option>
+                  {departamentos.filter(d => d.ativo).map(d => <option key={d.id} value={d.nome}>{d.nome}</option>)}
+                </select>
+                <p className="text-[10px] text-[#5C7060] mt-1">Será exibido na sidebar do usuário após o login.</p>
+              </div>
             </div>
             <div className="flex justify-end gap-3 px-6 pb-6">
               <button onClick={() => setModalUser(null)} className="px-4 py-2 border border-[#DDE3DE] rounded-xl text-sm text-[#5C7060] hover:bg-[#F4F6F4]">Cancelar</button>

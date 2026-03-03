@@ -55,6 +55,8 @@ import Projetos from './pages/Projetos';
 import Relatorios from './pages/Relatorios';
 import AccessDenied from './pages/AccessDenied';
 import Admin from './pages/Admin';
+import Recover from './pages/Recover';
+import ResetPassword from './pages/ResetPassword';
 import __Layout from './Layout.jsx';
 
 
@@ -67,6 +69,8 @@ export const PAGES = {
     "Relatorios": Relatorios,
     "AccessDenied": AccessDenied,
     "Admin": Admin,
+    "Recover": Recover,
+    "ResetPassword": ResetPassword,
 }
 
 export const pagesConfig = {

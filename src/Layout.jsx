@@ -185,8 +185,39 @@ export default function Layout({ children, currentPageName }) {
               <button onClick={() => setMobileOpen(false)}><X size={18} className="text-white/50" /></button>
             </div>
             <nav className="flex-1 py-4 px-2 space-y-0.5">
-              {navItems.map(({ label, page, icon: Icon }) => {
+              {navItems.map(({ label, page, icon: Icon, children: subItems }) => {
                 const isActive = currentPageName === page;
+                const hasChildren = subItems && subItems.length > 0;
+                const isGroupActive = hasChildren && subItems.some(s => s.page === currentPageName);
+                const submenuOpen = openSubmenus[label] ?? isGroupActive;
+
+                if (hasChildren) {
+                  return (
+                    <div key={label}>
+                      <button onClick={() => toggleSubmenu(label)}
+                        className={`nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-l-lg ${isGroupActive ? "active" : ""}`}>
+                        <Icon size={18} className={isGroupActive ? "text-[var(--apsis-orange)]" : "text-white/50"} />
+                        <span className={`flex-1 text-left text-sm font-medium ${isGroupActive ? "text-white" : "text-white/60"}`}>{label}</span>
+                        <ChevronRight size={13} className={`text-white/30 transition-transform ${submenuOpen ? "rotate-90" : ""}`} />
+                      </button>
+                      {submenuOpen && (
+                        <div className="ml-4 mt-0.5 space-y-0.5 border-l border-white/10 pl-3">
+                          {subItems.map(({ label: subLabel, page: subPage, icon: SubIcon }) => {
+                            const subActive = currentPageName === subPage;
+                            return (
+                              <Link key={subPage} to={createPageUrl(subPage)} onClick={() => setMobileOpen(false)}
+                                className={`nav-item flex items-center gap-2 px-2 py-2 rounded-l-lg ${subActive ? "active" : ""}`}>
+                                <SubIcon size={14} className={subActive ? "text-[var(--apsis-orange)]" : "text-white/40"} />
+                                <span className={`text-xs font-medium ${subActive ? "text-white" : "text-white/50"}`}>{subLabel}</span>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
                 return (
                   <Link key={page} to={createPageUrl(page)} onClick={() => setMobileOpen(false)}
                     className={`nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg ${isActive ? "active" : ""}`}>

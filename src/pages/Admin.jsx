@@ -58,14 +58,12 @@ export default function Admin() {
 
   const loadAll = async () => {
     setLoading(true);
-    const [u, m, l, d, c] = await Promise.all([
+    const [u, d, c] = await Promise.all([
       base44.entities.User.list(),
-      base44.entities.Modulo.list(),
-      base44.entities.AuditLog.list("-created_date", 100),
       base44.entities.Departamento.list(),
       base44.entities.Colaborador.list(),
     ]);
-    setUsers(u); setModulos(m); setLogs(l); setDepartamentos(d); setColaboradores(c);
+    setUsers(u); setDepartamentos(d); setColaboradores(c);
     setLoading(false);
   };
 

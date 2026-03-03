@@ -47,36 +47,36 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AccessDenied from './pages/AccessDenied';
+import Admin from './pages/Admin';
 import Budget from './pages/Budget';
 import Dashboard from './pages/Dashboard';
 import Financeiro from './pages/Financeiro';
-import Pipeline from './pages/Pipeline';
-import Projetos from './pages/Projetos';
-import Relatorios from './pages/Relatorios';
-import AccessDenied from './pages/AccessDenied';
-import Admin from './pages/Admin';
-import Recover from './pages/Recover';
-import ResetPassword from './pages/ResetPassword';
+import Marketing from './pages/Marketing';
 import MarketingComercial from './pages/MarketingComercial';
 import MarketingOrcado from './pages/MarketingOrcado';
-import Marketing from './pages/Marketing';
+import Pipeline from './pages/Pipeline';
+import Projetos from './pages/Projetos';
+import Recover from './pages/Recover';
+import Relatorios from './pages/Relatorios';
+import ResetPassword from './pages/ResetPassword';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AccessDenied": AccessDenied,
+    "Admin": Admin,
     "Budget": Budget,
     "Dashboard": Dashboard,
     "Financeiro": Financeiro,
-    "Pipeline": Pipeline,
-    "Projetos": Projetos,
-    "Relatorios": Relatorios,
-    "AccessDenied": AccessDenied,
-    "Admin": Admin,
-    "Recover": Recover,
-    "ResetPassword": ResetPassword,
+    "Marketing": Marketing,
     "MarketingComercial": MarketingComercial,
     "MarketingOrcado": MarketingOrcado,
-    "Marketing": Marketing,
+    "Pipeline": Pipeline,
+    "Projetos": Projetos,
+    "Recover": Recover,
+    "Relatorios": Relatorios,
+    "ResetPassword": ResetPassword,
 }
 
 export const pagesConfig = {

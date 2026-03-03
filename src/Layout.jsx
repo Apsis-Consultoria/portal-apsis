@@ -20,9 +20,19 @@ const navItems = [
 // Cores APSIS: verde escuro #1A4731, laranja #F47920, cinza claro #E8EDE9
 const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a1fc4b60b4c477ea324579/40af152e2_Design-sem-nome.png";
 
+const SETORES = [
+  "Tax & Accounting Advisory",
+  "Business Valuation",
+  "Ativo Fixo",
+  "E&A Valuation",
+  "Capital Employed",
+  "Alta Liderança",
+];
+
 export default function Layout({ children, currentPageName }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [setor, setSetor] = useState(SETORES[0]);
 
   return (
     <div className="min-h-screen bg-[#F4F6F4] flex font-sans">

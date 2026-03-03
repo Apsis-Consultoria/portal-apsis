@@ -11,6 +11,7 @@ const ROLES = ["admin","manager","user"];
 
 const tabs = [
   { id:"usuarios", label:"Usuários", icon: Users },
+  { id:"departamentos", label:"Departamentos", icon: Building2 },
   { id:"modulos", label:"Módulos", icon: Layers },
   { id:"auditoria", label:"Auditoria", icon: ScrollText },
 ];

@@ -86,39 +86,6 @@ export default function Admin() {
     loadAll();
   };
 
-  const seedModulos = async () => {
-    const defaults = [
-      { nome:"Dashboard", descricao:"Painel principal de indicadores", ativo:true, perfis_acesso:["admin","manager","user"], pagina:"Dashboard" },
-      { nome:"Pipeline", descricao:"Gestão de propostas e oportunidades", ativo:true, perfis_acesso:["admin","manager","user"], pagina:"Pipeline" },
-      { nome:"Projetos", descricao:"Ordens de serviço e projetos ativos", ativo:true, perfis_acesso:["admin","manager","user"], pagina:"Projetos" },
-      { nome:"Financeiro", descricao:"Parcelas e controle financeiro", ativo:true, perfis_acesso:["admin","manager"], pagina:"Financeiro" },
-      { nome:"Budget", descricao:"Orçamento vs realizado", ativo:true, perfis_acesso:["admin","manager"], pagina:"Budget" },
-      { nome:"Relatórios", descricao:"Relatórios e exportações", ativo:true, perfis_acesso:["admin","manager"], pagina:"Relatorios" },
-      { nome:"Admin Console", descricao:"Painel administrativo", ativo:true, perfis_acesso:["admin"], pagina:"Admin" },
-    ];
-    await Promise.all(defaults.map(d => base44.entities.Modulo.create(d)));
-    await loadAll();
-  };
-
-  const toggleModulo = async (mod) => {
-    await base44.entities.Modulo.update(mod.id, { ativo: !mod.ativo });
-    await base44.entities.AuditLog.create({
-      usuario: currentUser?.full_name,
-      email: currentUser?.email,
-      acao: `Módulo "${mod.nome}" ${!mod.ativo ? "ativado" : "desativado"}`,
-      resultado: "Sucesso",
-      modulo: "Admin"
-    });
-    loadAll();
-  };
-
-  const updateModuloRoles = async (mod, role) => {
-    const roles = mod.perfis_acesso || [];
-    const newRoles = roles.includes(role) ? roles.filter(r => r !== role) : [...roles, role];
-    await base44.entities.Modulo.update(mod.id, { perfis_acesso: newRoles });
-    loadAll();
-  };
-
   const updateUserRole = async (user, newRole) => {
     await base44.entities.User.update(user.id, { role: newRole });
     // Atualiza ou cria colaborador vinculando departamento

@@ -243,7 +243,9 @@ export default function Layout({ children, currentPageName }) {
               <div className="w-1 h-6 rounded-full bg-[var(--apsis-orange)]" />
               <div>
                 <h1 className="text-base font-semibold text-[var(--text-primary)]">
-                  {navItems.find(n => n.page === currentPageName)?.label || currentPageName}
+                  {navItems.find(n => n.page === currentPageName)?.label ||
+                   navItems.flatMap(n => n.children || []).find(n => n.page === currentPageName)?.label ||
+                   currentPageName}
                 </h1>
                 <p className="text-xs text-[var(--text-secondary)]">Portal APSIS</p>
               </div>

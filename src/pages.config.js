@@ -53,6 +53,8 @@ import Financeiro from './pages/Financeiro';
 import Pipeline from './pages/Pipeline';
 import Projetos from './pages/Projetos';
 import Relatorios from './pages/Relatorios';
+import AccessDenied from './pages/AccessDenied';
+import Admin from './pages/Admin';
 import __Layout from './Layout.jsx';
 
 
@@ -63,6 +65,8 @@ export const PAGES = {
     "Pipeline": Pipeline,
     "Projetos": Projetos,
     "Relatorios": Relatorios,
+    "AccessDenied": AccessDenied,
+    "Admin": Admin,
 }
 
 export const pagesConfig = {

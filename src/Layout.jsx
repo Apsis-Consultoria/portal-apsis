@@ -22,6 +22,7 @@ const navItems = [
       { label: "Orçado vs Real", page: "MarketingOrcado", icon: PieChart },
     ]
   },
+  { label: "Configurações", page: "Configuracoes", icon: Settings },
 ];
 
 // Cores APSIS: verde escuro #1A4731, laranja #F47920, cinza claro #E8EDE9

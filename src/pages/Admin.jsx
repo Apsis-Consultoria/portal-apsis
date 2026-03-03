@@ -27,6 +27,7 @@ export default function Admin() {
   const [modulos, setModulos] = useState([]);
   const [logs, setLogs] = useState([]);
   const [departamentos, setDepartamentos] = useState([]);
+  const [colaboradores, setColaboradores] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // Departamentos

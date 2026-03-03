@@ -25,7 +25,13 @@ export default function Admin() {
   const [users, setUsers] = useState([]);
   const [modulos, setModulos] = useState([]);
   const [logs, setLogs] = useState([]);
+  const [departamentos, setDepartamentos] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // Departamentos
+  const [novoDeptNome, setNovoDeptNome] = useState("");
+  const [novoDeptDesc, setNovoDeptDesc] = useState("");
+  const [savingDept, setSavingDept] = useState(false);
 
   // Filtros
   const [busca, setBusca] = useState("");

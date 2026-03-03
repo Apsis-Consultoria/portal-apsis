@@ -63,13 +63,53 @@ export default function Admin() {
 
   const loadAll = async () => {
     setLoading(true);
-    const [u, d, c] = await Promise.all([
+    const [u, d, c, kb, cfg, logs] = await Promise.all([
       base44.entities.User.list(),
       base44.entities.Departamento.list(),
       base44.entities.Colaborador.list(),
+      base44.entities.KnowledgeBase.list(),
+      base44.entities.AssistantConfig.list(),
+      base44.entities.AssistantLog.list('-created_date', 50),
     ]);
     setUsers(u); setDepartamentos(d); setColaboradores(c);
+    setKnowledgeDocs(kb);
+    // Transformar configs em objeto key:value
+    const cfgObj = {};
+    (cfg || []).forEach(c => { cfgObj[c.key] = { id: c.id, value: c.value }; });
+    setAssistantConfig(cfgObj);
+    setAssistantLogs(logs || []);
     setLoading(false);
+  };
+
+  const toggleWidgetEnabled = async () => {
+    const current = assistantConfig['widget_enabled'];
+    const newValue = current?.value === 'false' ? 'true' : 'false';
+    if (current?.id) {
+      await base44.entities.AssistantConfig.update(current.id, { value: newValue });
+    } else {
+      await base44.entities.AssistantConfig.create({ key: 'widget_enabled', value: newValue, descricao: 'Ativar/desativar widget do Assistente APSIS' });
+    }
+    loadAll();
+  };
+
+  const saveDoc = async () => {
+    if (!newDoc.title.trim() || !newDoc.content.trim()) return;
+    setSavingDoc(true);
+    await base44.entities.KnowledgeBase.create({ ...newDoc, ativo: true });
+    setNewDoc({ title: "", content: "", category: "FAQ", module: "Geral", sensitivity: "INTERNO", tags: "" });
+    setShowDocForm(false);
+    setSavingDoc(false);
+    loadAll();
+  };
+
+  const deleteDoc = async (doc) => {
+    await base44.entities.KnowledgeBase.delete(doc.id);
+    loadAll();
+  };
+
+  const toggleDoc = async (doc) => {
+    await base44.entities.KnowledgeBase.update(doc.id, { ativo: !doc.ativo });
+    loadAll();
   };
 
   const createDept = async () => {

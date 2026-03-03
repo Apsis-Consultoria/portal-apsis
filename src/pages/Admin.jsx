@@ -120,10 +120,19 @@ export default function Admin() {
 
   const updateUserRole = async (user, newRole) => {
     await base44.entities.User.update(user.id, { role: newRole });
+    // Atualiza ou cria colaborador vinculando departamento
+    if (user.departamento !== undefined) {
+      const cols = await base44.entities.Colaborador.filter({ email: user.email });
+      if (cols && cols.length > 0) {
+        await base44.entities.Colaborador.update(cols[0].id, { departamento: user.departamento || "" });
+      } else if (user.departamento) {
+        await base44.entities.Colaborador.create({ nome: user.full_name, email: user.email, departamento: user.departamento });
+      }
+    }
     await base44.entities.AuditLog.create({
       usuario: currentUser?.full_name,
       email: currentUser?.email,
-      acao: `Perfil de ${user.full_name} alterado para ${newRole}`,
+      acao: `Perfil de ${user.full_name} alterado para ${newRole}${user.departamento ? ` | Depto: ${user.departamento}` : ""}`,
       resultado: "Sucesso",
       modulo: "Admin"
     });

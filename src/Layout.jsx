@@ -63,7 +63,9 @@ export default function Layout({ children, currentPageName }) {
           {!collapsed && (
             <div>
               <div className="text-white font-bold text-base leading-tight tracking-wide">Portal APSIS</div>
-              <div className="text-white/40 text-[10px] font-medium tracking-wider uppercase">Tax & Advisory</div>
+              <div className="text-white/40 text-[10px] font-medium tracking-wider uppercase">
+                {navItems.find(n => n.page === currentPageName)?.sub || "Tax & Advisory"}
+              </div>
             </div>
           )}
         </div>

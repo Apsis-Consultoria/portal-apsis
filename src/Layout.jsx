@@ -13,7 +13,12 @@ import AssistantWidget from "@/components/AssistantWidget";
 const navItems = [
   { label: "Dashboard", page: "Dashboard", icon: LayoutDashboard },
   { label: "Pipeline", page: "Pipeline", icon: GitBranch },
-  { label: "Projetos", page: "Projetos", icon: FolderKanban },
+  {
+    label: "Projetos", page: "Projetos", icon: FolderKanban,
+    children: [
+      { label: "Horas e Alocações", page: "AlocacoesHoras", icon: Clock },
+    ]
+  },
   { label: "Financeiro", page: "Financeiro", icon: DollarSign },
   { label: "Budget", page: "Budget", icon: BarChart3 },
   { label: "Relatórios", page: "Relatorios", icon: FileText },
@@ -28,7 +33,6 @@ const navItems = [
     label: "Qualidade", page: "DashboardQualidade", icon: ClipboardCheck,
     children: [
       { label: "Dashboard", page: "DashboardQualidade", icon: LayoutDashboard },
-      { label: "Horas e Alocações", page: "AlocacoesHoras", icon: Clock },
       { label: "Questionário de Revisão", page: "QuestionarioRevisao", icon: ClipboardCheck },
     ]
   },

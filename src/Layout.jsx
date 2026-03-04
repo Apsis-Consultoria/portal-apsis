@@ -27,6 +27,7 @@ const navItems = [
     label: "Qualidade", page: "DashboardQualidade", icon: ClipboardCheck,
     children: [
       { label: "Dashboard", page: "DashboardQualidade", icon: LayoutDashboard },
+      { label: "Horas e Alocações", page: "AlocacoesHoras", icon: TrendingUp },
       { label: "Questionário de Revisão", page: "QuestionarioRevisao", icon: ClipboardCheck },
     ]
   },

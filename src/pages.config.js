@@ -48,9 +48,11 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import AccessDenied from './pages/AccessDenied';
+import Admin from './pages/Admin';
 import Budget from './pages/Budget';
 import Configuracoes from './pages/Configuracoes';
 import Dashboard from './pages/Dashboard';
+import DashboardQualidade from './pages/DashboardQualidade';
 import Financeiro from './pages/Financeiro';
 import Marketing from './pages/Marketing';
 import MarketingComercial from './pages/MarketingComercial';
@@ -60,16 +62,16 @@ import Projetos from './pages/Projetos';
 import Recover from './pages/Recover';
 import Relatorios from './pages/Relatorios';
 import ResetPassword from './pages/ResetPassword';
-import Admin from './pages/Admin';
-import DashboardQualidade from './pages/DashboardQualidade';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AccessDenied": AccessDenied,
+    "Admin": Admin,
     "Budget": Budget,
     "Configuracoes": Configuracoes,
     "Dashboard": Dashboard,
+    "DashboardQualidade": DashboardQualidade,
     "Financeiro": Financeiro,
     "Marketing": Marketing,
     "MarketingComercial": MarketingComercial,
@@ -79,8 +81,6 @@ export const PAGES = {
     "Recover": Recover,
     "Relatorios": Relatorios,
     "ResetPassword": ResetPassword,
-    "Admin": Admin,
-    "DashboardQualidade": DashboardQualidade,
 }
 
 export const pagesConfig = {

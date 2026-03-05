@@ -153,6 +153,11 @@ export default function AlocacoesHoras() {
           <option value="Todos">Todos status</option>
           {["Planejada", "Em andamento", "Concluída", "Suspensa"].map(s => <option key={s}>{s}</option>)}
         </select>
+        <select className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm bg-white focus:outline-none"
+          value={filtroColaborador} onChange={e => setFiltroColaborador(e.target.value)}>
+          <option value="Todos">Todos colaboradores</option>
+          {colaboradores.map(c => <option key={c}>{c}</option>)}
+        </select>
         <div className="flex-1" />
         <button onClick={() => setModal({ data: {}, editing: null })}
           className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40]">

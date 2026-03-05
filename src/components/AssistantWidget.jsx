@@ -62,16 +62,16 @@ export default function AssistantWidget({ currentPageName }) {
   const inputRef = useRef(null);
 
   useEffect(() => {
-    if (open && !minimized && activeTab === "oraculo") {
+    if (open && !minimized) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, open, minimized, activeTab]);
+  }, [messages, open, minimized]);
 
   useEffect(() => {
-    if (open && !minimized && activeTab === "oraculo" && inputRef.current) {
+    if (open && !minimized && inputRef.current) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [open, minimized, activeTab]);
+  }, [open, minimized]);
 
   const sendMessage = async () => {
     const text = input.trim();

@@ -36,6 +36,9 @@ const navItems = [
       { label: "Questionário de Revisão", page: "QuestionarioRevisao", icon: ClipboardCheck },
     ]
   },
+  {
+    label: "AXON IA", page: "AxonIA", icon: Sparkles, externalUrl: "https://apsis.qi140.ai/auth?redirect=%2Fauth%3Fredirect%3D%252F"
+  },
   { label: "Configurações", page: "Configuracoes", icon: Settings },
 ];
 

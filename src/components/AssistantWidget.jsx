@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { MessageCircle, X, Minimize2, Send, RefreshCw, User, Loader2, BookOpen, ExternalLink, Sparkles } from "lucide-react";
+import { MessageCircle, X, Minimize2, Send, RefreshCw, User, Loader2, BookOpen } from "lucide-react";
 
 const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a1fc4b60b4c477ea324579/40af152e2_Design-sem-nome.png";
 const AXON_URL = "https://apsis.qi140.ai/auth?redirect=%2Fauth%3Fredirect%3D%252F";

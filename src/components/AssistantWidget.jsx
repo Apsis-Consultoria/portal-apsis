@@ -175,107 +175,54 @@ export default function AssistantWidget({ currentPageName }) {
 
           {!minimized && (
             <>
-              {/* Abas */}
-              <div className="flex border-b border-[#DDE3DE] bg-white flex-shrink-0">
-                <button
-                  onClick={() => setActiveTab("oraculo")}
-                  className={`flex-1 py-2.5 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 ${
-                    activeTab === "oraculo"
-                      ? "text-[#1A4731] border-b-2 border-[#1A4731]"
-                      : "text-[#5C7060] hover:text-[#1A2B1F]"
-                  }`}
-                >
-                  <MessageCircle size={12} />
-                  Oráculo APSIS
-                </button>
-                <button
-                  onClick={() => setActiveTab("axon")}
-                  className={`flex-1 py-2.5 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 ${
-                    activeTab === "axon"
-                      ? "text-[#F47920] border-b-2 border-[#F47920]"
-                      : "text-[#5C7060] hover:text-[#1A2B1F]"
-                  }`}
-                >
-                  <Sparkles size={12} />
-                  AXON IA
-                </button>
-              </div>
-
-              {/* Conteúdo Oráculo */}
-              {activeTab === "oraculo" && (
-                <>
-                  <div className="flex-1 overflow-y-auto p-4 space-y-1">
-                    {messages.map((msg, i) => (
-                      <MessageBubble key={i} msg={msg} />
-                    ))}
-                    {loading && (
-                      <div className="flex gap-2 justify-start mb-3">
-                        <div className="w-7 h-7 rounded-full bg-[#1A4731] flex items-center justify-center flex-shrink-0">
-                          <img src={LOGO_URL} alt="APSIS" className="w-5 h-5 object-contain rounded-full" />
-                        </div>
-                        <div className="bg-white border border-[#DDE3DE] rounded-2xl rounded-tl-sm px-4 py-3">
-                          <div className="flex items-center gap-1.5">
-                            <div className="flex gap-1">
-                              <span className="w-1.5 h-1.5 bg-[#F47920] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                              <span className="w-1.5 h-1.5 bg-[#F47920] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                              <span className="w-1.5 h-1.5 bg-[#F47920] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                            </div>
-                            <span className="text-xs text-[#5C7060]">Pensando...</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    <div ref={messagesEndRef} />
-                  </div>
-                  <div className="p-3 border-t border-[#DDE3DE] bg-white flex-shrink-0">
-                    <div className="flex gap-2 items-end">
-                      <textarea
-                        ref={inputRef}
-                        value={input}
-                        onChange={e => setInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Digite sua mensagem..."
-                        rows={1}
-                        disabled={loading}
-                        className="flex-1 resize-none border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#F47920] transition-colors bg-[#F4F6F4] max-h-24 disabled:opacity-50"
-                        style={{ minHeight: "38px" }}
-                      />
-                      <button
-                        onClick={sendMessage}
-                        disabled={!input.trim() || loading}
-                        className="w-9 h-9 bg-[#F47920] hover:bg-[#D4640D] disabled:opacity-40 rounded-xl flex items-center justify-center transition-colors flex-shrink-0"
-                      >
-                        {loading ? <Loader2 size={15} className="text-white animate-spin" /> : <Send size={15} className="text-white" />}
-                      </button>
+              <div className="flex-1 overflow-y-auto p-4 space-y-1">
+                {messages.map((msg, i) => (
+                  <MessageBubble key={i} msg={msg} />
+                ))}
+                {loading && (
+                  <div className="flex gap-2 justify-start mb-3">
+                    <div className="w-7 h-7 rounded-full bg-[#1A4731] flex items-center justify-center flex-shrink-0">
+                      <img src={LOGO_URL} alt="APSIS" className="w-5 h-5 object-contain rounded-full" />
                     </div>
-                    <p className="text-[10px] text-[#5C7060] mt-1.5 text-center">
-                      Oráculo APSIS · Não compartilhe senhas ou dados sensíveis
-                    </p>
+                    <div className="bg-white border border-[#DDE3DE] rounded-2xl rounded-tl-sm px-4 py-3">
+                      <div className="flex items-center gap-1.5">
+                        <div className="flex gap-1">
+                          <span className="w-1.5 h-1.5 bg-[#F47920] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <span className="w-1.5 h-1.5 bg-[#F47920] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <span className="w-1.5 h-1.5 bg-[#F47920] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                        </div>
+                        <span className="text-xs text-[#5C7060]">Pensando...</span>
+                      </div>
+                    </div>
                   </div>
-                </>
-              )}
-
-              {/* Conteúdo AXON IA */}
-              {activeTab === "axon" && (
-                <div className="flex-1 flex flex-col overflow-hidden">
-                  <iframe
-                    src={AXON_URL}
-                    className="flex-1 w-full border-0"
-                    title="AXON IA"
-                    allow="clipboard-write"
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+              <div className="p-3 border-t border-[#DDE3DE] bg-white flex-shrink-0">
+                <div className="flex gap-2 items-end">
+                  <textarea
+                    ref={inputRef}
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Digite sua mensagem..."
+                    rows={1}
+                    disabled={loading}
+                    className="flex-1 resize-none border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#F47920] transition-colors bg-[#F4F6F4] max-h-24 disabled:opacity-50"
+                    style={{ minHeight: "38px" }}
                   />
-                  <div className="p-2 border-t border-[#DDE3DE] bg-white flex-shrink-0 flex items-center justify-center">
-                    <a
-                      href={AXON_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-[10px] text-[#F47920] hover:underline"
-                    >
-                      <ExternalLink size={10} /> Abrir AXON IA em nova aba
-                    </a>
-                  </div>
+                  <button
+                    onClick={sendMessage}
+                    disabled={!input.trim() || loading}
+                    className="w-9 h-9 bg-[#F47920] hover:bg-[#D4640D] disabled:opacity-40 rounded-xl flex items-center justify-center transition-colors flex-shrink-0"
+                  >
+                    {loading ? <Loader2 size={15} className="text-white animate-spin" /> : <Send size={15} className="text-white" />}
+                  </button>
                 </div>
-              )}
+                <p className="text-[10px] text-[#5C7060] mt-1.5 text-center">
+                  Oráculo APSIS · Não compartilhe senhas ou dados sensíveis
+                </p>
+              </div>
             </>
           )}
         </div>

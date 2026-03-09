@@ -58,6 +58,22 @@ export default function Dashboard() {
   const propostasAtivas = propostas.filter(p => ["Em elaboração","Enviada"].includes(p.status));
   const valorPipeline = propostasAtivas.reduce((s, p) => s + (p.valor_total || 0), 0);
   const propostasGanhas = propostas.filter(p => p.status === "Ganha").length;
+  
+  // Métricas extraídas dos gráficos
+  const laudosRealizados = 47290.64;
+  const consultoriaRealizada = 113891.63;
+  const totalRealizado = laudosRealizados + consultoriaRealizada;
+  const laudosOrcado = 6200000;
+  const consultoriaOrcado = 2500000;
+  const totalOrcado = laudosOrcado + consultoriaOrcado;
+  
+  // Pipeline status
+  const pipelineEmElaboracao = propostas.filter(p => p.status === "Em elaboração").length;
+  const pipelineEnviada = propostas.filter(p => p.status === "Enviada").length;
+  
+  // Alocação máxima de colaboradores
+  const maxAlocacao = 39749;
+  const utilizacaoMedia = ((alocData.reduce((s, d) => s + d.value, 0) / (alocData.length * maxAlocacao)) * 100).toFixed(1);
 
   // Real vs Orçado — usa dados planilha 2026 se ano=2026
   const budgetData = anoSel === 2026

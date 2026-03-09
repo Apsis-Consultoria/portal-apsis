@@ -53,7 +53,13 @@ import AlocacoesHoras from './pages/AlocacoesHoras';
 import Budget from './pages/Budget';
 import Configuracoes from './pages/Configuracoes';
 import Dashboard from './pages/Dashboard';
+import DashboardAtivos from './pages/DashboardAtivos';
+import DashboardContabil from './pages/DashboardContabil';
+import DashboardEstrategica from './pages/DashboardEstrategica';
+import DashboardMA from './pages/DashboardMA';
+import DashboardProjetos from './pages/DashboardProjetos';
 import DashboardQualidade from './pages/DashboardQualidade';
+import DashboardValuation from './pages/DashboardValuation';
 import Financeiro from './pages/Financeiro';
 import Marketing from './pages/Marketing';
 import MarketingComercial from './pages/MarketingComercial';
@@ -63,12 +69,6 @@ import Projetos from './pages/Projetos';
 import Recover from './pages/Recover';
 import Relatorios from './pages/Relatorios';
 import ResetPassword from './pages/ResetPassword';
-import DashboardValuation from './pages/DashboardValuation';
-import DashboardContabil from './pages/DashboardContabil';
-import DashboardAtivos from './pages/DashboardAtivos';
-import DashboardEstrategica from './pages/DashboardEstrategica';
-import DashboardMA from './pages/DashboardMA';
-import DashboardProjetos from './pages/DashboardProjetos';
 import __Layout from './Layout.jsx';
 
 
@@ -79,7 +79,13 @@ export const PAGES = {
     "Budget": Budget,
     "Configuracoes": Configuracoes,
     "Dashboard": Dashboard,
+    "DashboardAtivos": DashboardAtivos,
+    "DashboardContabil": DashboardContabil,
+    "DashboardEstrategica": DashboardEstrategica,
+    "DashboardMA": DashboardMA,
+    "DashboardProjetos": DashboardProjetos,
     "DashboardQualidade": DashboardQualidade,
+    "DashboardValuation": DashboardValuation,
     "Financeiro": Financeiro,
     "Marketing": Marketing,
     "MarketingComercial": MarketingComercial,
@@ -89,12 +95,6 @@ export const PAGES = {
     "Recover": Recover,
     "Relatorios": Relatorios,
     "ResetPassword": ResetPassword,
-    "DashboardValuation": DashboardValuation,
-    "DashboardContabil": DashboardContabil,
-    "DashboardAtivos": DashboardAtivos,
-    "DashboardEstrategica": DashboardEstrategica,
-    "DashboardMA": DashboardMA,
-    "DashboardProjetos": DashboardProjetos,
 }
 
 export const pagesConfig = {

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import StatCard from "@/components/ui/StatCard";
+import VendasTicketChart from "@/components/dashboards/VendasTicketChart";
+import VendasPorGrupoTable from "@/components/dashboards/VendasPorGrupoTable";
+import OrcadoRealizadoChart from "@/components/dashboards/OrcadoRealizadoChart";
 
 export default function DashboardValuation() {
   const [proposals, setProposals] = useState([]);

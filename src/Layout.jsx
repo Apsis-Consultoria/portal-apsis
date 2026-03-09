@@ -58,6 +58,15 @@ const navItems = [
   {
     label: "AXON IA", page: "AxonIA", icon: Sparkles, externalUrl: "https://apsis.qi140.ai/auth?redirect=%2Fauth%3Fredirect%3D%252F"
   },
+  {
+    label: "Apps APSIS", page: "AppsAPSIS", icon: Sparkles,
+    children: [
+      { label: "App Ativo Fixo", page: "AppAtivoFixo", icon: FolderKanban },
+      { label: "App Conciliação", page: "AppConciliacao", icon: BarChart3 },
+      { label: "App Imóveis", page: "AppImoveis", icon: FolderKanban },
+      { label: "App Cubus", page: "AppCubus", icon: BarChart3 },
+    ]
+  },
   { label: "Configurações", page: "Configuracoes", icon: Settings },
 ];
 

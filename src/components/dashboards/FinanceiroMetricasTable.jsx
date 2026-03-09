@@ -53,11 +53,11 @@ export default function FinanceiroMetricasTable() {
             <tbody>
               <tr className="border-t border-[#DDE3DE] hover:bg-[#F4F6F4]">
                 <td className="px-6 py-4 text-sm font-medium text-[#1A2B1F]"></td>
-                <td className="px-6 py-4 text-center text-sm font-semibold text-[#1A2B1F]">43%</td>
-                <td className="px-6 py-4 text-center text-sm font-semibold text-[#1A2B1F]">51%</td>
-                <td className="px-6 py-4 text-center text-sm font-semibold text-[#1A2B1F]">17%</td>
-                <td className="px-6 py-4 text-center text-sm font-semibold text-[#1A2B1F]">52%</td>
-                <td className="px-6 py-4 text-center text-sm font-semibold text-[#1A2B1F]">40%</td>
+                <td className="px-6 py-4 text-center text-sm font-semibold text-[#1A2B1F] bg-[#FFC69F]">43%</td>
+                <td className="px-6 py-4 text-center text-sm font-semibold text-[#1A2B1F] bg-[#FFC69F]">51%</td>
+                <td className="px-6 py-4 text-center text-sm font-semibold text-[#1A2B1F] bg-[#FFC69F]">17%</td>
+                <td className="px-6 py-4 text-center text-sm font-semibold text-[#1A2B1F] bg-[#FFC69F]">52%</td>
+                <td className="px-6 py-4 text-center text-sm font-semibold text-[#1A2B1F] bg-[#FFC69F]">40%</td>
               </tr>
             </tbody>
           </table>

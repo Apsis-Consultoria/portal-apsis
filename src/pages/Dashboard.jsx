@@ -138,8 +138,8 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Orçado 2026" value={fmt(ORCADO_TOTAL_2026)} icon={Target} color="green" sub="Meta anual total" />
         <StatCard label="Realizado 2026" value={fmt(REALIZADO_2026)} icon={DollarSign} color="gold" sub={`${PCT_ATINGIDO}% da meta`} />
-        <StatCard label="Falta Realizar" value={fmt(FALTA_REALIZAR)} icon={AlertTriangle} color="red" sub="Restante do ano" />
-        <StatCard label="Pipeline Ativo" value={fmt(valorPipeline || 136946)} icon={GitBranch} color="blue" sub={`${propostasAtivas.length || 8} propostas`} />
+        <StatCard label="Propostas Ativas" value={propostasAtivas.length} icon={GitBranch} color="blue" sub={`${pipelineEmElaboracao} em elaboração, ${pipelineEnviada} enviadas`} />
+        <StatCard label="Propostas Ganhas" value={propostasGanhas} icon={TrendingUp} color="green" sub={`${((propostasGanhas / propostas.length) * 100 || 0).toFixed(1)}% de conversão`} />
       </div>
 
       {/* Indicadores Budget 2026 da planilha */}

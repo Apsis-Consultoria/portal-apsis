@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import StatCard from "@/components/ui/StatCard";
 import VendasTicketChart from "@/components/dashboards/VendasTicketChart";
+import ClientesVolumeConversaoChart from "@/components/dashboards/ClientesVolumeConversaoChart";
 import VendasPorGrupoTable from "@/components/dashboards/VendasPorGrupoTable";
 import OrcadoRealizadoChart from "@/components/dashboards/OrcadoRealizadoChart";
 

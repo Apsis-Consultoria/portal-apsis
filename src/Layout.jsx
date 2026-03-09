@@ -41,7 +41,6 @@ const navItems = [
       { label: "Contas a Receber", page: "ContasAReceber", icon: DollarSign },
     ]
   },
-  { label: "Budget", page: "Budget", icon: BarChart3 },
   { label: "Relatórios", page: "Relatorios", icon: FileText },
   {
     label: "Marketing", page: "Marketing", icon: Megaphone,

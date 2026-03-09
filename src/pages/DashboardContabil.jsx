@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import StatCard from "@/components/ui/StatCard";
 import VendasTicketContabilChart from "@/components/dashboards/VendasTicketContabilChart";
 import LaudosContabeisTable from "@/components/dashboards/LaudosContabeisTable";
+import ConsultoriaContabilFiscalTable from "@/components/dashboards/ConsultoriaContabilFiscalTable";
 
 export default function DashboardContabil() {
   const [proposals, setProposals] = useState([]);

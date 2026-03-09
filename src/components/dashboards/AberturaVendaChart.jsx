@@ -57,9 +57,6 @@ export default function AberturaVendaChart() {
           <Line yAxisId="right" type="monotone" dataKey="peso" stroke="#F47920" strokeWidth={3} name="Peso (%)" dot={{ fill: '#F47920', r: 5 }} />
         </ComposedChart>
       </ResponsiveContainer>
-      <div className="mt-6 bg-[#1A4731] text-white rounded-lg p-4">
-        <p className="text-sm font-medium">R$ 2.701.390 de venda são de clientes da carteira dos Executivo de Conta</p>
-      </div>
     </div>
   );
 }

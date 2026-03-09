@@ -52,11 +52,16 @@ import Admin from './pages/Admin';
 import AlocacoesHoras from './pages/AlocacoesHoras';
 import Budget from './pages/Budget';
 import Configuracoes from './pages/Configuracoes';
+import ContasAPagar from './pages/ContasAPagar';
+import ContasAReceber from './pages/ContasAReceber';
 import Dashboard from './pages/Dashboard';
 import DashboardAtivos from './pages/DashboardAtivos';
+import DashboardCapitalHumano from './pages/DashboardCapitalHumano';
 import DashboardContabil from './pages/DashboardContabil';
 import DashboardEstrategica from './pages/DashboardEstrategica';
+import DashboardFinanceiro from './pages/DashboardFinanceiro';
 import DashboardMA from './pages/DashboardMA';
+import DashboardMercadoClientes from './pages/DashboardMercadoClientes';
 import DashboardProjetos from './pages/DashboardProjetos';
 import DashboardQualidade from './pages/DashboardQualidade';
 import DashboardValuation from './pages/DashboardValuation';
@@ -69,11 +74,6 @@ import Projetos from './pages/Projetos';
 import Recover from './pages/Recover';
 import Relatorios from './pages/Relatorios';
 import ResetPassword from './pages/ResetPassword';
-import DashboardFinanceiro from './pages/DashboardFinanceiro';
-import DashboardCapitalHumano from './pages/DashboardCapitalHumano';
-import DashboardMercadoClientes from './pages/DashboardMercadoClientes';
-import ContasAPagar from './pages/ContasAPagar';
-import ContasAReceber from './pages/ContasAReceber';
 import __Layout from './Layout.jsx';
 
 
@@ -83,11 +83,16 @@ export const PAGES = {
     "AlocacoesHoras": AlocacoesHoras,
     "Budget": Budget,
     "Configuracoes": Configuracoes,
+    "ContasAPagar": ContasAPagar,
+    "ContasAReceber": ContasAReceber,
     "Dashboard": Dashboard,
     "DashboardAtivos": DashboardAtivos,
+    "DashboardCapitalHumano": DashboardCapitalHumano,
     "DashboardContabil": DashboardContabil,
     "DashboardEstrategica": DashboardEstrategica,
+    "DashboardFinanceiro": DashboardFinanceiro,
     "DashboardMA": DashboardMA,
+    "DashboardMercadoClientes": DashboardMercadoClientes,
     "DashboardProjetos": DashboardProjetos,
     "DashboardQualidade": DashboardQualidade,
     "DashboardValuation": DashboardValuation,
@@ -100,11 +105,6 @@ export const PAGES = {
     "Recover": Recover,
     "Relatorios": Relatorios,
     "ResetPassword": ResetPassword,
-    "DashboardFinanceiro": DashboardFinanceiro,
-    "DashboardCapitalHumano": DashboardCapitalHumano,
-    "DashboardMercadoClientes": DashboardMercadoClientes,
-    "ContasAPagar": ContasAPagar,
-    "ContasAReceber": ContasAReceber,
 }
 
 export const pagesConfig = {

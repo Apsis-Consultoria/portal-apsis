@@ -40,7 +40,6 @@ const navItems = [
       { label: "Contas a Receber", page: "ContasAReceber", icon: DollarSign },
     ]
   },
-  { label: "Relatórios", page: "Relatorios", icon: FileText },
   {
     label: "Marketing", page: "Marketing", icon: Megaphone,
     children: [
@@ -67,6 +66,7 @@ const navItems = [
       { label: "App Cubus", page: "AppCubus", icon: BarChart3 },
     ]
   },
+  { label: "Relatórios", page: "Relatorios", icon: FileText },
   { label: "Configurações", page: "Configuracoes", icon: Settings },
 ];
 

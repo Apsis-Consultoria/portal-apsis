@@ -126,24 +126,14 @@ export default function Financeiro() {
       </div>
 
       {/* Carteira total */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl border border-[#DDE3DE] p-5 sm:col-span-1">
-          <p className="text-xs font-medium text-[#5C7060] uppercase tracking-wider mb-2">Carteira Total</p>
-          <p className="text-2xl font-bold text-[#1A2B1F]">{fmt(totalCarteira)}</p>
-          <p className="text-xs text-[#5C7060] mt-1">{parcelas.length} parcelas cadastradas</p>
-        </div>
-        <div className="bg-white rounded-2xl border border-[#DDE3DE] p-5 sm:col-span-2">
-          <p className="text-xs font-medium text-[#5C7060] uppercase tracking-wider mb-1">Evolução — Recebimentos vs Vencimentos</p>
-          <ResponsiveContainer width="100%" height={80}>
-            <BarChart data={receitaMes} barSize={8} barGap={2}>
-              <XAxis dataKey="mes" tick={{ fontSize:9, fill:"#5C7060" }} axisLine={false} tickLine={false} />
-              <Tooltip formatter={v => fmt(v)} contentStyle={{ borderRadius:8, fontSize:11, border:"1px solid #DDE3DE" }} />
-              <Bar dataKey="recebido" name="Recebido" fill="#F47920" radius={[3,3,0,0]} />
-              <Bar dataKey="faturado" name="Vencimento" fill="#E8EDE9" radius={[3,3,0,0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="bg-white rounded-2xl border border-[#DDE3DE] p-5">
+        <p className="text-xs font-medium text-[#5C7060] uppercase tracking-wider mb-2">Carteira Total</p>
+        <p className="text-2xl font-bold text-[#1A2B1F]">{fmt(totalCarteira)}</p>
+        <p className="text-xs text-[#5C7060] mt-1">{parcelas.length} parcelas cadastradas</p>
       </div>
+
+      {/* Métricas Financeiras */}
+      <FinanceiroMetricasTable />
 
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row gap-3">

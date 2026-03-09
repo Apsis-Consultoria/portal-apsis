@@ -150,38 +150,7 @@ export default function MarketingComercial() {
 
       <AnalisisTipoVendaChart />
 
-      {/* Tabela por Área */}
-      <div className="bg-white rounded-2xl border border-[#DDE3DE] p-6">
-        <h3 className="font-semibold text-[#1A2B1F] mb-4">Indicadores por Área</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[#DDE3DE]">
-                {["Área","Vendas","Clientes","Ticket Médio","Conversão"].map(h => (
-                  <th key={h} className="text-left text-xs text-[#5C7060] font-medium pb-2 pr-4">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {areaData.length > 0 ? areaData.map((row, i) => (
-                <tr key={i} className="border-b border-[#F4F6F4] hover:bg-[#F4F6F4] transition-colors">
-                  <td className="py-3 pr-4 font-medium text-[#1A2B1F]">{row.nome}</td>
-                  <td className="py-3 pr-4 text-[#5C7060]">{fmt(row.vendas)}</td>
-                  <td className="py-3 pr-4 text-[#5C7060]">{row.clientes}</td>
-                  <td className="py-3 pr-4 text-[#5C7060]">{fmt(row.ticket)}</td>
-                  <td className="py-3 pr-4">
-                    <span className={`text-xs font-semibold px-2 py-1 rounded-full ${parseFloat(row.conversao) >= 50 ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}>
-                      {row.conversao}%
-                    </span>
-                  </td>
-                </tr>
-              )) : (
-                <tr><td colSpan={5} className="py-8 text-center text-sm text-[#5C7060]">Nenhum dado encontrado para os filtros selecionados.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <AberturaVendaChart />
     </div>
   );
 }

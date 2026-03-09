@@ -58,6 +58,8 @@ export default function DashboardAtivos() {
       <AvaliacaoImoveisTable />
 
       <InventarioConciliacaoTable />
+
+      <OrcadoRealizadoAtivoChart />
     </div>
   );
 }

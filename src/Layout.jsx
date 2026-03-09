@@ -5,13 +5,13 @@ import { base44 } from "@/api/base44Client";
 import {
   LayoutDashboard, GitBranch, FolderKanban,
   DollarSign, BarChart3, FileText, ChevronLeft,
-  ChevronRight, Bell, User, Menu, X, Megaphone, TrendingUp, PieChart, Settings, ClipboardCheck, Sparkles, Users, Grid3x3
+  ChevronRight, Bell, User, Menu, X, Megaphone, TrendingUp, PieChart, Settings, ClipboardCheck, Sparkles, Users, Grid3x3, Home
 } from "lucide-react";
 import { Clock } from "lucide-react";
 import AssistantWidget from "@/components/AssistantWidget";
 
 const navItems = [
-  { label: "Boas-Vindas", page: "BoasVindas", icon: Sparkles },
+  { label: "Boas-Vindas", page: "BoasVindas", icon: Home },
   {
     label: "Dashboard", page: "Dashboard", icon: LayoutDashboard,
     children: [

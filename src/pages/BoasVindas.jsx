@@ -88,9 +88,6 @@ export default function BoasVindas() {
                 key={page}
                 to={createPageUrl(page)}
                 className="group"
-                onClick={() => {
-                  // Força atualização do sidebar por navegar para a página
-                }}
               >
                 <div className={`bg-gradient-to-br ${color} rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 p-8 cursor-pointer h-full flex flex-col items-center justify-center text-center`}>
                   <div className="mb-4 p-4 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import StatCard from "@/components/ui/StatCard";
 import VendasTicketContabilChart from "@/components/dashboards/VendasTicketContabilChart";
+import LaudosContabeisTable from "@/components/dashboards/LaudosContabeisTable";
 
 export default function DashboardContabil() {
   const [proposals, setProposals] = useState([]);

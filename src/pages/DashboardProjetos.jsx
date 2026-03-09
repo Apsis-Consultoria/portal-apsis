@@ -38,36 +38,7 @@ export default function DashboardProjetos() {
         <StatCard label="Projetos Ativos" value="28" subLabel="em execução" trend={9} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-[#DDE3DE]">
-          <h3 className="text-sm font-semibold text-[#1A2B1F] mb-4">Horas e Receita Mensais</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={monthlyMetrics}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#DDE3DE" />
-              <XAxis dataKey="month" stroke="#5C7060" />
-              <YAxis stroke="#5C7060" />
-              <Tooltip contentStyle={{ backgroundColor: "#FFF", border: "1px solid #DDE3DE" }} />
-              <Legend />
-              <Bar dataKey="receita" fill="#1A4731" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-[#DDE3DE]">
-          <h3 className="text-sm font-semibold text-[#1A2B1F] mb-4">Status dos Projetos</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie data={projectDistribution} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100}>
-                {projectDistribution.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index]} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={{ backgroundColor: "#FFF", border: "1px solid #DDE3DE" }} />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+      <VendasProjetosChart />
     </div>
   );
 }

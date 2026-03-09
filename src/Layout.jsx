@@ -11,7 +11,17 @@ import { Clock } from "lucide-react";
 import AssistantWidget from "@/components/AssistantWidget";
 
 const navItems = [
-  { label: "Dashboard", page: "Dashboard", icon: LayoutDashboard },
+  {
+    label: "Dashboard", page: "Dashboard", icon: LayoutDashboard,
+    children: [
+      { label: "Business Valuation", page: "DashboardValuation", icon: DollarSign },
+      { label: "Consultoria Contábil & Fiscal", page: "DashboardContabil", icon: FileText },
+      { label: "Ativos Fixos", page: "DashboardAtivos", icon: FolderKanban },
+      { label: "Consultoria Estratégica", page: "DashboardEstrategica", icon: BarChart3 },
+      { label: "M&A", page: "DashboardMA", icon: GitBranch },
+      { label: "Projetos Especiais", page: "DashboardProjetos", icon: Sparkles },
+    ]
+  },
   { label: "Pipeline", page: "Pipeline", icon: GitBranch },
   {
     label: "Projetos", page: "Projetos", icon: FolderKanban,

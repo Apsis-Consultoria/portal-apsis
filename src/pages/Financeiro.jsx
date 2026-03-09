@@ -7,6 +7,7 @@ import {
 } from "recharts";
 import { Plus, X, Edit2, Trash2, DollarSign, Clock, AlertTriangle, CheckCircle, TrendingUp, Search } from "lucide-react";
 import { format, isPast } from "date-fns";
+import FinanceiroMetricasTable from "@/components/dashboards/FinanceiroMetricasTable";
 
 const fmt = (v) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(v || 0);
 const MESES = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];

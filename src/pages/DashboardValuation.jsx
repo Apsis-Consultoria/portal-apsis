@@ -28,21 +28,7 @@ export default function DashboardValuation() {
   const wonProposals = proposals.filter(p => p.is_won).length;
   const conversionRate = totalProposals > 0 ? ((wonProposals / totalProposals) * 100).toFixed(1) : 0;
 
-  const revenueByQuarter = [
-    { quarter: "Q1", revenue: 45000, budget: 50000 },
-    { quarter: "Q2", revenue: 52000, budget: 50000 },
-    { quarter: "Q3", revenue: 38000, budget: 45000 },
-    { quarter: "Q4", revenue: 61000, budget: 55000 }
-  ];
 
-  const pipelineStage = [
-    { stage: "Qualificação", value: 120000 },
-    { stage: "Proposta", value: 180000 },
-    { stage: "Negociação", value: 240000 },
-    { stage: "Fechamento", value: 90000 }
-  ];
-
-  const colors = ["#F47920", "#1A4731", "#245E40", "#F9A15A"];
 
   return (
     <div className="space-y-6">

@@ -47,36 +47,7 @@ export default function DashboardMA() {
         <StatCard label="Win Rate" value={`${winRate}%`} subLabel="taxa sucesso" trend={11} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-[#DDE3DE]">
-          <h3 className="text-sm font-semibold text-[#1A2B1F] mb-4">Pipeline de Deals</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie data={dealPipeline} dataKey="value" nameKey="stage" cx="50%" cy="50%" outerRadius={100}>
-                {dealPipeline.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={{ backgroundColor: "#FFF", border: "1px solid #DDE3DE" }} />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-[#DDE3DE]">
-          <h3 className="text-sm font-semibold text-[#1A2B1F] mb-4">Receita M&A Acumulada</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={dealTimeline}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#DDE3DE" />
-              <XAxis dataKey="month" stroke="#5C7060" />
-              <YAxis stroke="#5C7060" />
-              <Tooltip contentStyle={{ backgroundColor: "#FFF", border: "1px solid #DDE3DE" }} />
-              <Legend />
-              <Bar dataKey="value" fill="#F47920" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+      <VendasTicketMAChart />
     </div>
   );
 }

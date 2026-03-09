@@ -39,36 +39,10 @@ export default function DashboardValuation() {
         <StatCard label="Ticket Médio" value={`R$ ${totalProposals > 0 ? (totalRevenue / totalProposals / 1000).toFixed(0) : 0}k`} subLabel="por proposta" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-[#DDE3DE]">
-          <h3 className="text-sm font-semibold text-[#1A2B1F] mb-4">Receita vs Orçado</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={revenueByQuarter}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#DDE3DE" />
-              <XAxis dataKey="quarter" stroke="#5C7060" />
-              <YAxis stroke="#5C7060" />
-              <Tooltip contentStyle={{ backgroundColor: "#FFF", border: "1px solid #DDE3DE" }} />
-              <Legend />
-              <Bar dataKey="budget" fill="#1A4731" />
-              <Bar dataKey="revenue" fill="#F47920" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-[#DDE3DE]">
-          <h3 className="text-sm font-semibold text-[#1A2B1F] mb-4">Pipeline por Estágio</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie data={pipelineStage} dataKey="value" nameKey="stage" cx="50%" cy="50%" outerRadius={100}>
-                {pipelineStage.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={{ backgroundColor: "#FFF", border: "1px solid #DDE3DE" }} />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="space-y-6">
+        <VendasTicketChart />
+        <VendasPorGrupoTable />
+        <OrcadoRealizadoChart />
       </div>
     </div>
   );

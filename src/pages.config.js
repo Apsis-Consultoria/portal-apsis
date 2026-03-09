@@ -72,6 +72,8 @@ import ResetPassword from './pages/ResetPassword';
 import DashboardFinanceiro from './pages/DashboardFinanceiro';
 import DashboardCapitalHumano from './pages/DashboardCapitalHumano';
 import DashboardMercadoClientes from './pages/DashboardMercadoClientes';
+import ContasAPagar from './pages/ContasAPagar';
+import ContasAReceber from './pages/ContasAReceber';
 import __Layout from './Layout.jsx';
 
 
@@ -101,6 +103,8 @@ export const PAGES = {
     "DashboardFinanceiro": DashboardFinanceiro,
     "DashboardCapitalHumano": DashboardCapitalHumano,
     "DashboardMercadoClientes": DashboardMercadoClientes,
+    "ContasAPagar": ContasAPagar,
+    "ContasAReceber": ContasAReceber,
 }
 
 export const pagesConfig = {

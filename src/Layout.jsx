@@ -30,9 +30,17 @@ const navItems = [
     label: "Projetos", page: "Projetos", icon: FolderKanban,
     children: [
       { label: "Horas e Alocações", page: "AlocacoesHoras", icon: Clock },
+      { label: "Pipeline", page: "Pipeline", icon: GitBranch },
+      { label: "Budget", page: "Budget", icon: BarChart3 },
     ]
   },
-  { label: "Financeiro", page: "Financeiro", icon: DollarSign },
+  {
+    label: "Financeiro", page: "Financeiro", icon: DollarSign,
+    children: [
+      { label: "Contas a Pagar", page: "ContasAPagar", icon: DollarSign },
+      { label: "Contas a Receber", page: "ContasAReceber", icon: DollarSign },
+    ]
+  },
   { label: "Budget", page: "Budget", icon: BarChart3 },
   { label: "Relatórios", page: "Relatorios", icon: FileText },
   {

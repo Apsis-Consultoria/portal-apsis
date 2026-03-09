@@ -22,6 +22,7 @@ const navItems = [
       { label: "Projetos Especiais", page: "DashboardProjetos", icon: Sparkles },
       { label: "Financeiro", page: "DashboardFinanceiro", icon: DollarSign },
       { label: "Capital Humano", page: "DashboardCapitalHumano", icon: DollarSign },
+      { label: "Mercado / Clientes", page: "DashboardMercadoClientes", icon: DollarSign },
     ]
   },
   { label: "Pipeline", page: "Pipeline", icon: GitBranch },

@@ -36,6 +36,8 @@ export default function DashboardContabil() {
 
       <VendasTicketContabilChart />
 
+      <OrcadoRealizadoContabilChart />
+
       <ConsultoriaContabilFiscalTable />
 
       <LaudosContabeisTable />

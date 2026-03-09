@@ -66,6 +66,7 @@ import ResetPassword from './pages/ResetPassword';
 import DashboardValuation from './pages/DashboardValuation';
 import DashboardContabil from './pages/DashboardContabil';
 import DashboardAtivos from './pages/DashboardAtivos';
+import DashboardEstrategica from './pages/DashboardEstrategica';
 import __Layout from './Layout.jsx';
 
 
@@ -89,6 +90,7 @@ export const PAGES = {
     "DashboardValuation": DashboardValuation,
     "DashboardContabil": DashboardContabil,
     "DashboardAtivos": DashboardAtivos,
+    "DashboardEstrategica": DashboardEstrategica,
 }
 
 export const pagesConfig = {

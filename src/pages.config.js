@@ -70,6 +70,7 @@ import Recover from './pages/Recover';
 import Relatorios from './pages/Relatorios';
 import ResetPassword from './pages/ResetPassword';
 import DashboardFinanceiro from './pages/DashboardFinanceiro';
+import DashboardCapitalHumano from './pages/DashboardCapitalHumano';
 import __Layout from './Layout.jsx';
 
 
@@ -97,6 +98,7 @@ export const PAGES = {
     "Relatorios": Relatorios,
     "ResetPassword": ResetPassword,
     "DashboardFinanceiro": DashboardFinanceiro,
+    "DashboardCapitalHumano": DashboardCapitalHumano,
 }
 
 export const pagesConfig = {

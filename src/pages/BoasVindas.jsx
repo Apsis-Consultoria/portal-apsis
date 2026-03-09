@@ -14,10 +14,10 @@ const modules = [
   { name: "Projetos", icon: FolderKanban, color: "from-[#1A4731] to-[#245E40]", page: "Projetos" },
   { name: "Financeiro", icon: DollarSign, color: "from-[#2B5E47] to-[#3A7A5F]", page: "Financeiro" },
   { name: "Marketing", icon: Megaphone, color: "from-[#F47920] to-[#F9A15A]", page: "Marketing" },
-  { name: "Pipeline", icon: TrendingUp, color: "from-[#1A4731] to-[#245E40]", page: "Pipeline" },
-  { name: "Budget", icon: BarChart3, color: "from-[#2B5E47] to-[#3A7A5F]", page: "Budget" },
   { name: "Qualidade", icon: Users, color: "from-[#F47920] to-[#F9A15A]", page: "DashboardQualidade" },
-  { name: "Configurações", icon: Settings, color: "from-[#1A4731] to-[#245E40]", page: "Configuracoes" },
+  { name: "Apps APSIS", icon: BarChart3, color: "from-[#1A4731] to-[#245E40]", page: "AppsAPSIS" },
+  { name: "Relatórios", icon: FileText, color: "from-[#2B5E47] to-[#3A7A5F]", page: "Relatorios" },
+  { name: "AXON IA", icon: Sparkles, color: "from-[#F47920] to-[#F9A15A]", page: "AxonIA" },
 ];
 
 export default function BoasVindas() {

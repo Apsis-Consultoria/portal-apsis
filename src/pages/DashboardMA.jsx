@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import StatCard from "@/components/ui/StatCard";
 import VendasTicketMAChart from "@/components/dashboards/VendasTicketMAChart";
+import ClientesVolumeConversaoMAChart from "@/components/dashboards/ClientesVolumeConversaoMAChart";
 
 export default function DashboardMA() {
   const [proposals, setProposals] = useState([]);

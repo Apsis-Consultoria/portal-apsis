@@ -14,6 +14,13 @@ export default function ContasAreceberTable() {
     { label: "Taxa de Recebimento", data: ["92%", "94%", "90%", "93%", "92%", "92%"] }
   ];
 
+  const indicadoresAvancados = [
+    { label: "Dias Médios de Recebimento", data: ["28", "25", "32", "26", "29", "28"] },
+    { label: "Ticket Médio de Venda", data: ["R$ 22.8K", "R$ 23.9K", "R$ 22.7K", "R$ 23.6K", "R$ 23.3K", "R$ 23.2K"] },
+    { label: "Concentração Top 10 Clientes", data: ["42%", "45%", "40%", "43%", "42%", "42%"] },
+    { label: "Taxa de Inadimplência", data: ["8%", "6%", "10%", "7%", "8%", "8%"] }
+  ];
+
   return (
     <div className="space-y-8">
       <div className="bg-white rounded-xl shadow-sm p-6 border border-[#DDE3DE]">
@@ -27,6 +34,9 @@ export default function ContasAreceberTable() {
 
         <h3 className="text-base font-semibold text-[#1A2B1F] mb-6 mt-8">Valores por Período</h3>
         <MetricTableComponent title="Período" rows={valueRows} />
+
+        <h3 className="text-base font-semibold text-[#1A2B1F] mb-6 mt-8">Indicadores Avançados</h3>
+        <MetricTableComponent title="Indicador" rows={indicadoresAvancados} />
       </div>
     </div>
   );

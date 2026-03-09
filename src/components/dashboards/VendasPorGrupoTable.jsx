@@ -136,8 +136,9 @@ export default function VendasPorGrupoTable() {
                   <td className="px-3 py-2 font-medium text-[#1A2B1F] bg-gray-50">{metric}</td>
                   {[2023, 2024, 2025].map((year) => {
                     const yearData = group.data.filter(d => d.year === year);
+                    const bgColor = year === 2023 ? "#D3D3D3" : year === 2024 ? "#A8D5BA" : "#F5B87A";
                     return (
-                      <td key={`${year}-data`} colSpan="5">
+                      <td key={`${year}-data`} colSpan="5" style={{ backgroundColor: bgColor }}>
                         <div className="flex justify-around text-center">
                           {yearData.map((d, i) => {
                             let value = "";

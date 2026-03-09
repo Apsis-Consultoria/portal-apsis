@@ -22,21 +22,7 @@ export default function DashboardMA() {
   const avgDealSize = maSales.length > 0 ? (totalRevenue / maSales.length) : 0;
   const winRate = proposals.length > 0 ? ((proposals.filter(p => p.is_won).length / proposals.length) * 100).toFixed(1) : 0;
 
-  const dealPipeline = [
-    { stage: "Prospecção", value: 500000 },
-    { stage: "Apresentação", value: 800000 },
-    { stage: "Negociação", value: 1200000 },
-    { stage: "Finalização", value: 600000 }
-  ];
 
-  const dealTimeline = [
-    { month: "Jan", volume: 1, value: 180000 },
-    { month: "Fev", value: 220000, volume: 1 },
-    { month: "Mar", value: 280000, volume: 2 },
-    { month: "Abr", value: 350000, volume: 1 }
-  ];
-
-  const colors = ["#1A4731", "#F47920", "#245E40", "#F9A15A"];
 
   return (
     <div className="space-y-6">

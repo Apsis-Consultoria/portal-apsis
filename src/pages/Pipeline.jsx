@@ -43,7 +43,22 @@ export default function Pipeline() {
     base44.entities.OAP.list("-created_date", 200),
   ]).then(([p, o]) => { setPropostas(p); setOaps(o); });
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    base44.auth.me().then(async (user) => {
+      if (!user) return;
+      setUserRole(user.role);
+      if (user.role === "admin" || user.role === "diretor" || user.role === "manager") return; // vê tudo
+      const cols = await base44.entities.Colaborador.filter({ email: user.email });
+      if (cols && cols.length > 0) {
+        const col = cols[0];
+        let depts = [];
+        if (col.departamentos) { try { depts = JSON.parse(col.departamentos); } catch {} }
+        else if (col.departamento) { depts = [col.departamento]; }
+        if (depts.length > 0) setUserDepts(depts);
+      }
+    }).catch(() => {});
+  }, []);
 
   // Alertas de follow-up (planilha: AP-01645, AP-01646, AP-01647 com 77 dias)
   const alertasPlanilha = AP_PLANILHA.filter(p => p.status === "Enviada" && p.observacoes?.includes("dias"));

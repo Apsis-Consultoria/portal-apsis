@@ -172,6 +172,13 @@ export default function Pipeline() {
         </button>
       </div>
 
+      {/* Aviso de filtro por departamento */}
+      {userDepts && (
+        <div className="bg-[#E8EDE9] border border-[#1A4731]/20 rounded-xl px-4 py-2.5 flex items-center gap-2 text-xs text-[#1A4731]">
+          <span className="font-semibold">Filtro ativo:</span> exibindo apenas propostas do(s) departamento(s) <span className="font-bold">{userDepts.join(", ")}</span>
+        </div>
+      )}
+
       {/* Total pipeline */}
       {tab === "ap" && (
         <div className="flex gap-3 flex-wrap">

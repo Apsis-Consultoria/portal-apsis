@@ -33,6 +33,8 @@ export default function Pipeline() {
   const [saving, setSaving] = useState(false);
   const [mostrarPlanilha, setMostrarPlanilha] = useState(true);
   const [expandedRows, setExpandedRows] = useState({});
+  const [userDepts, setUserDepts] = useState(null); // null = admin/sem filtro
+  const [userRole, setUserRole] = useState(null);
 
   const toggleRow = (key) => setExpandedRows(prev => ({ ...prev, [key]: !prev[key] }));
 

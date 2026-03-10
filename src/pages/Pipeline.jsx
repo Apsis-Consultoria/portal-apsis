@@ -74,7 +74,8 @@ export default function Pipeline() {
   const filtradas = todasPropostas.filter(p => {
     const matchBusca = p.cliente_nome?.toLowerCase().includes(busca.toLowerCase()) || p.numero_ap?.toLowerCase().includes(busca.toLowerCase());
     const matchStatus = statusFiltro === "Todos" || p.status === statusFiltro;
-    return matchBusca && matchStatus;
+    const matchDept = !userDepts || !p.departamento || userDepts.some(d => d.toLowerCase() === p.departamento?.toLowerCase());
+    return matchBusca && matchStatus && matchDept;
   });
 
   const filtrarOAPs = () => oaps.filter(o => o.cliente_nome?.toLowerCase().includes(busca.toLowerCase()));

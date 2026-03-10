@@ -10,6 +10,35 @@ import {
 import { Clock } from "lucide-react";
 import AssistantWidget from "@/components/AssistantWidget";
 
+// Páginas sempre visíveis independente do perfil
+const ALWAYS_VISIBLE = ["BoasVindas"];
+
+// Páginas visíveis por perfil (padrão, caso não haja permissões customizadas)
+const DEFAULT_ROLE_PAGES = {
+  admin: null, // null = tudo liberado
+  diretor: null,
+  gerente: [
+    "BoasVindas",
+    "Dashboard","DashboardValuation","DashboardContabil","DashboardAtivos",
+    "DashboardEstrategica","DashboardMA","DashboardProjetos","DashboardFinanceiro",
+    "DashboardCapitalHumano","DashboardMercadoClientes",
+    "Projetos","AlocacoesHoras","Pipeline","Budget",
+    "AppsAPSIS","AppAtivoFixo","AppConciliacao","AppImoveis","AppCubus",
+  ],
+  analista: [
+    "BoasVindas",
+    "Projetos","AlocacoesHoras","Pipeline","Budget",
+    "AppsAPSIS","AppAtivoFixo","AppConciliacao","AppImoveis","AppCubus",
+  ],
+  // fallback para roles legados
+  manager: null,
+  user: [
+    "BoasVindas",
+    "Projetos","AlocacoesHoras","Pipeline","Budget",
+    "AppsAPSIS","AppAtivoFixo","AppConciliacao","AppImoveis","AppCubus",
+  ],
+};
+
 const navItems = [
   { label: "Boas-Vindas", page: "BoasVindas", icon: Home },
   {
@@ -66,42 +95,151 @@ const navItems = [
   },
   { label: "Relatórios", page: "Relatorios", icon: FileText },
   {
-    label: "AXON IA", page: "AxonIA", icon: Sparkles, externalUrl: "https://apsis.qi140.ai/auth?redirect=%2Fauth%3Fredirect%3D%252F"
+    label: "AXON IA", page: "AxonIA", icon: Sparkles,
+    externalUrl: "https://apsis.qi140.ai/auth?redirect=%2Fauth%3Fredirect%3D%252F"
   },
   { label: "Configurações", page: "Configuracoes", icon: Settings },
 ];
 
-// Cores APSIS: verde escuro #1A4731, laranja #F47920, cinza claro #E8EDE9
 const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a1fc4b60b4c477ea324579/40af152e2_Design-sem-nome.png";
 
 export default function Layout({ children, currentPageName }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [userDepartamento, setUserDepartamento] = useState(null);
   const [openSubmenus, setOpenSubmenus] = useState({});
 
-  const toggleSubmenu = (label) => setOpenSubmenus(prev => ({ ...prev, [label]: !prev[label] }));
+  const [userRole, setUserRole] = useState(null);
+  const [userDepartamento, setUserDepartamento] = useState(null);
+  const [pagePermissions, setPagePermissions] = useState(null); // null = usa padrão do perfil
 
-  const isMarketingPage = ["Marketing","MarketingComercial","MarketingOrcado"].includes(currentPageName);
+  const toggleSubmenu = (label) => setOpenSubmenus(prev => ({ ...prev, [label]: !prev[label] }));
 
   useEffect(() => {
     base44.auth.me().then(async (user) => {
       if (!user) return;
-      // Busca colaborador pelo email do usuário logado
+      setUserRole(user.role || "user");
+
       const cols = await base44.entities.Colaborador.filter({ email: user.email });
       if (cols && cols.length > 0) {
+        const col = cols[0];
+
+        // Departamento (exibição na sidebar)
         let dept = "";
-        if (cols[0].departamentos) {
+        if (col.departamentos) {
+          try { const depts = JSON.parse(col.departamentos); dept = depts[0] || ""; } catch {}
+        }
+        if (!dept && col.departamento) dept = col.departamento;
+        if (dept) setUserDepartamento(dept);
+
+        // Permissões customizadas de páginas
+        if (col.paginas_permissoes) {
           try {
-            const depts = JSON.parse(cols[0].departamentos);
-            dept = depts[0] || "";
+            const perms = JSON.parse(col.paginas_permissoes);
+            setPagePermissions(perms);
           } catch {}
         }
-        if (!dept && cols[0].departamento) dept = cols[0].departamento;
-        if (dept) setUserDepartamento(dept);
       }
     }).catch(() => {});
   }, []);
+
+  // Verifica se o usuário pode visualizar uma página
+  const canView = (pageId) => {
+    if (ALWAYS_VISIBLE.includes(pageId)) return true;
+    if (!userRole) return false; // ainda carregando
+
+    const role = userRole;
+
+    // Admin e Diretor veem tudo
+    if (role === "admin" || role === "diretor" || role === "manager") return true;
+
+    // Se tem permissões customizadas, usa elas
+    if (pagePermissions && pagePermissions[pageId]) {
+      return pagePermissions[pageId].view === true;
+    }
+
+    // Caso contrário, usa o padrão do perfil
+    const defaultPages = DEFAULT_ROLE_PAGES[role];
+    if (defaultPages === null) return true; // perfil com acesso total
+    if (defaultPages) return defaultPages.includes(pageId);
+
+    return false;
+  };
+
+  // Filtra navItems por permissão
+  const visibleNavItems = navItems
+    .map(item => {
+      if (item.externalUrl) return item; // links externos sempre visíveis
+      if (item.children) {
+        const visibleChildren = item.children.filter(c => canView(c.page));
+        if (visibleChildren.length === 0 && !canView(item.page)) return null;
+        return { ...item, children: visibleChildren };
+      }
+      if (!canView(item.page)) return null;
+      return item;
+    })
+    .filter(Boolean);
+
+  const renderNavItems = (items, onLinkClick = null) =>
+    items.map(({ label, page, icon: Icon, children: subItems, externalUrl }) => {
+      const isActive = currentPageName === page;
+      const hasChildren = subItems && subItems.length > 0;
+      const isGroupActive = hasChildren && subItems.some(s => s.page === currentPageName);
+      const submenuOpen = openSubmenus[label] ?? isGroupActive;
+
+      if (hasChildren) {
+        return (
+          <div key={label}>
+            <button
+              onClick={() => !collapsed && toggleSubmenu(label)}
+              className={`nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer ${isGroupActive ? "active" : ""}`}
+            >
+              <Icon size={18} className={isGroupActive ? "text-[var(--apsis-orange)]" : "text-white/50"} />
+              {!collapsed && (
+                <>
+                  <span className={`flex-1 text-left text-sm font-medium ${isGroupActive ? "text-white" : "text-white/60"}`}>{label}</span>
+                  <ChevronRight size={13} className={`text-white/30 transition-transform ${submenuOpen ? "rotate-90" : ""}`} />
+                </>
+              )}
+            </button>
+            {!collapsed && submenuOpen && subItems.length > 0 && (
+              <div className="ml-4 mt-0.5 space-y-0.5 border-l border-white/10 pl-3">
+                {subItems.map(({ label: subLabel, page: subPage, icon: SubIcon }) => {
+                  const subActive = currentPageName === subPage;
+                  return (
+                    <Link key={subPage} to={createPageUrl(subPage)}
+                      onClick={onLinkClick}
+                      className={`nav-item flex items-center gap-2 px-2 py-2 rounded-l-lg ${subActive ? "active" : ""}`}>
+                      <SubIcon size={14} className={subActive ? "text-[var(--apsis-orange)]" : "text-white/40"} />
+                      <span className={`text-xs font-medium ${subActive ? "text-white" : "text-white/50"}`}>{subLabel}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      if (externalUrl) {
+        return (
+          <a key={page} href={externalUrl} target="_blank" rel="noopener noreferrer"
+            className="nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer">
+            <Icon size={18} className="text-white/50" />
+            {!collapsed && <span className="text-sm font-medium text-white/60">{label}</span>}
+          </a>
+        );
+      }
+
+      return (
+        <Link key={page} to={createPageUrl(page)} onClick={onLinkClick}
+          className={`nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer ${isActive ? "active" : ""}`}>
+          <Icon size={18} className={isActive ? "text-[var(--apsis-orange)]" : "text-white/50"} />
+          {!collapsed && (
+            <span className={`text-sm font-medium ${isActive ? "text-white" : "text-white/60"}`}>{label}</span>
+          )}
+        </Link>
+      );
+    });
 
   return (
     <div className="min-h-screen bg-[#F4F6F4] flex font-sans">
@@ -149,77 +287,9 @@ export default function Layout({ children, currentPageName }) {
           )}
         </div>
 
-        {/* Nav */}
-        <nav className="flex-1 py-4 px-2 space-y-0.5">
-          {navItems.map(({ label, page, icon: Icon, children: subItems, externalUrl }) => {
-            const isActive = currentPageName === page;
-            const hasChildren = subItems && subItems.length > 0;
-            const isGroupActive = hasChildren && subItems.some(s => s.page === currentPageName);
-            const submenuOpen = openSubmenus[label] ?? isGroupActive;
-
-            if (hasChildren) {
-              return (
-                <div key={label}>
-                  <button
-                    onClick={() => !collapsed && toggleSubmenu(label)}
-                    className={`nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer ${isGroupActive ? "active" : ""}`}
-                  >
-                    <Icon size={18} className={isGroupActive ? "text-[var(--apsis-orange)]" : "text-white/50"} />
-                    {!collapsed && (
-                      <>
-                        <span className={`flex-1 text-left text-sm font-medium ${isGroupActive ? "text-white" : "text-white/60"}`}>{label}</span>
-                        <ChevronRight size={13} className={`text-white/30 transition-transform ${submenuOpen ? "rotate-90" : ""}`} />
-                      </>
-                    )}
-                  </button>
-                  {!collapsed && submenuOpen && (
-                    <div className="ml-4 mt-0.5 space-y-0.5 border-l border-white/10 pl-3">
-                      {subItems.map(({ label: subLabel, page: subPage, icon: SubIcon }) => {
-                        const subActive = currentPageName === subPage;
-                        return (
-                          <Link key={subPage} to={createPageUrl(subPage)}
-                            className={`nav-item flex items-center gap-2 px-2 py-2 rounded-l-lg ${subActive ? "active" : ""}`}>
-                            <SubIcon size={14} className={subActive ? "text-[var(--apsis-orange)]" : "text-white/40"} />
-                            <span className={`text-xs font-medium ${subActive ? "text-white" : "text-white/50"}`}>{subLabel}</span>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
-            if (externalUrl) {
-              return (
-                <a
-                  key={page}
-                  href={externalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer"
-                >
-                  <Icon size={18} className="text-white/50" />
-                  {!collapsed && (
-                    <span className="text-sm font-medium text-white/60">{label}</span>
-                  )}
-                </a>
-              );
-            }
-
-            return (
-              <Link
-                key={page}
-                to={createPageUrl(page)}
-                className={`nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer ${isActive ? "active" : ""}`}
-              >
-                <Icon size={18} className={isActive ? "text-[var(--apsis-orange)]" : "text-white/50"} />
-                {!collapsed && (
-                  <span className={`text-sm font-medium ${isActive ? "text-white" : "text-white/60"}`}>{label}</span>
-                )}
-              </Link>
-            );
-          })}
+        {/* Nav filtrado por permissão */}
+        <nav className="flex-1 py-4 px-2 space-y-0.5 overflow-y-auto">
+          {renderNavItems(visibleNavItems)}
         </nav>
 
         {/* Collapse toggle */}
@@ -250,65 +320,14 @@ export default function Layout({ children, currentPageName }) {
                 <div>
                   <div className="text-white font-bold text-sm">Portal APSIS</div>
                   {userDepartamento && (
-                    <div className="text-white/40 text-[10px] uppercase tracking-wider truncate max-w-[150px]">{userDepartamento}</div>
+                    <div className="text-[#F47920] text-[10px] font-bold tracking-widest uppercase truncate max-w-[150px]">{userDepartamento}</div>
                   )}
                 </div>
               </div>
               <button onClick={() => setMobileOpen(false)}><X size={18} className="text-white/50" /></button>
             </div>
-            <nav className="flex-1 py-4 px-2 space-y-0.5">
-              {navItems.map(({ label, page, icon: Icon, children: subItems, externalUrl }) => {
-                const isActive = currentPageName === page;
-                const hasChildren = subItems && subItems.length > 0;
-                const isGroupActive = hasChildren && subItems.some(s => s.page === currentPageName);
-                const submenuOpen = openSubmenus[label] ?? isGroupActive;
-
-                if (hasChildren) {
-                  return (
-                    <div key={label}>
-                      <button onClick={() => toggleSubmenu(label)}
-                        className={`nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-l-lg ${isGroupActive ? "active" : ""}`}>
-                        <Icon size={18} className={isGroupActive ? "text-[var(--apsis-orange)]" : "text-white/50"} />
-                        <span className={`flex-1 text-left text-sm font-medium ${isGroupActive ? "text-white" : "text-white/60"}`}>{label}</span>
-                        <ChevronRight size={13} className={`text-white/30 transition-transform ${submenuOpen ? "rotate-90" : ""}`} />
-                      </button>
-                      {submenuOpen && (
-                        <div className="ml-4 mt-0.5 space-y-0.5 border-l border-white/10 pl-3">
-                          {subItems.map(({ label: subLabel, page: subPage, icon: SubIcon }) => {
-                            const subActive = currentPageName === subPage;
-                            return (
-                              <Link key={subPage} to={createPageUrl(subPage)} onClick={() => setMobileOpen(false)}
-                                className={`nav-item flex items-center gap-2 px-2 py-2 rounded-l-lg ${subActive ? "active" : ""}`}>
-                                <SubIcon size={14} className={subActive ? "text-[var(--apsis-orange)]" : "text-white/40"} />
-                                <span className={`text-xs font-medium ${subActive ? "text-white" : "text-white/50"}`}>{subLabel}</span>
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-
-                if (externalUrl) {
-                  return (
-                    <a key={page} href={externalUrl} target="_blank" rel="noopener noreferrer"
-                      onClick={() => setMobileOpen(false)}
-                      className="nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg">
-                      <Icon size={18} className="text-white/50" />
-                      <span className="text-sm font-medium text-white/60">{label}</span>
-                    </a>
-                  );
-                }
-
-                return (
-                  <Link key={page} to={createPageUrl(page)} onClick={() => setMobileOpen(false)}
-                    className={`nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg ${isActive ? "active" : ""}`}>
-                    <Icon size={18} className={isActive ? "text-[var(--apsis-orange)]" : "text-white/50"} />
-                    <span className={`text-sm font-medium ${isActive ? "text-white" : "text-white/60"}`}>{label}</span>
-                  </Link>
-                );
-              })}
+            <nav className="flex-1 py-4 px-2 space-y-0.5 overflow-y-auto">
+              {renderNavItems(visibleNavItems, () => setMobileOpen(false))}
             </nav>
           </aside>
         </div>

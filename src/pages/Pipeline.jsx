@@ -203,7 +203,7 @@ export default function Pipeline() {
               </thead>
               <tbody className="divide-y divide-[#F4F6F4]">
                 {filtradas.length === 0 ? (
-                  <tr><td colSpan={9} className="text-center py-12 text-[#5C7060] text-sm">Nenhuma proposta encontrada</td></tr>
+                  <tr><td colSpan={10} className="text-center py-12 text-[#5C7060] text-sm">Nenhuma proposta encontrada</td></tr>
                 ) : filtradas.map((p, idx) => {
                   const rowKey = p.id || p.numero_ap || idx;
                   const expanded = !!expandedRows[rowKey];

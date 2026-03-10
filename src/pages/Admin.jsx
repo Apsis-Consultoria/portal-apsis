@@ -3,17 +3,66 @@ import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import {
   Users, Shield, Plus, X, Edit2,
-  CheckCircle, XCircle, Loader2, Search, Building2, Bot, BookOpen, ToggleLeft, ToggleRight, Trash2
+  CheckCircle, XCircle, Loader2, Search, Building2, Bot, BookOpen,
+  ToggleLeft, ToggleRight, Trash2, Printer, FileSpreadsheet, ChevronDown, ChevronUp
 } from "lucide-react";
 
 const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a1fc4b60b4c477ea324579/19aad65cc_Logohorizontal-Fundobranco.png";
-const ROLES = ["admin","manager","user"];
+
+const ROLES = [
+  { value: "admin", label: "Admin", desc: "Acesso Total" },
+  { value: "diretor", label: "Diretor", desc: "Acesso Total" },
+  { value: "gerente", label: "Gerente", desc: "Dashboard do Departamento + Projetos + Apps APSIS" },
+  { value: "analista", label: "Analista", desc: "Projetos + Apps APSIS" },
+];
+
+const TODAS_PAGINAS = [
+  { id: "Dashboard", label: "Dashboard (Geral)" },
+  { id: "DashboardValuation", label: "Dashboard — Business Valuation" },
+  { id: "DashboardContabil", label: "Dashboard — Contábil & Fiscal" },
+  { id: "DashboardAtivos", label: "Dashboard — Ativos Fixos" },
+  { id: "DashboardEstrategica", label: "Dashboard — Consultoria Estratégica" },
+  { id: "DashboardMA", label: "Dashboard — M&A" },
+  { id: "DashboardProjetos", label: "Dashboard — Projetos Especiais" },
+  { id: "DashboardFinanceiro", label: "Dashboard — Financeiro" },
+  { id: "DashboardCapitalHumano", label: "Dashboard — Capital Humano" },
+  { id: "DashboardMercadoClientes", label: "Dashboard — Mercado/Clientes" },
+  { id: "Projetos", label: "Projetos" },
+  { id: "AlocacoesHoras", label: "Projetos — Horas e Alocações" },
+  { id: "Pipeline", label: "Projetos — Pipeline" },
+  { id: "Budget", label: "Projetos — Budget" },
+  { id: "Financeiro", label: "Financeiro" },
+  { id: "ContasAPagar", label: "Financeiro — Contas a Pagar" },
+  { id: "ContasAReceber", label: "Financeiro — Contas a Receber" },
+  { id: "Marketing", label: "Marketing" },
+  { id: "MarketingComercial", label: "Marketing — Comercial" },
+  { id: "MarketingOrcado", label: "Marketing — Orçado vs Real" },
+  { id: "DashboardQualidade", label: "Qualidade" },
+  { id: "QuestionarioRevisao", label: "Qualidade — Questionário de Revisão" },
+  { id: "AppsAPSIS", label: "Apps APSIS" },
+  { id: "Relatorios", label: "Relatórios" },
+  { id: "Configuracoes", label: "Configurações" },
+];
+
+// Permissões padrão por perfil
+const DEFAULT_PERMISSIONS = {
+  admin: TODAS_PAGINAS.reduce((acc, p) => ({ ...acc, [p.id]: { view: true, edit: true, write: true } }), {}),
+  diretor: TODAS_PAGINAS.reduce((acc, p) => ({ ...acc, [p.id]: { view: true, edit: true, write: true } }), {}),
+  gerente: TODAS_PAGINAS.reduce((acc, p) => {
+    const allowed = ["Dashboard","DashboardValuation","DashboardContabil","DashboardAtivos","DashboardEstrategica","DashboardMA","DashboardProjetos","DashboardFinanceiro","DashboardCapitalHumano","DashboardMercadoClientes","Projetos","AlocacoesHoras","Pipeline","Budget","AppsAPSIS"];
+    return { ...acc, [p.id]: { view: allowed.includes(p.id), edit: false, write: false } };
+  }, {}),
+  analista: TODAS_PAGINAS.reduce((acc, p) => {
+    const allowed = ["Projetos","AlocacoesHoras","Pipeline","Budget","AppsAPSIS"];
+    return { ...acc, [p.id]: { view: allowed.includes(p.id), edit: false, write: false } };
+  }, {}),
+};
 
 const tabs = [
-  { id:"usuarios", label:"Usuários", icon: Users },
-  { id:"departamentos", label:"Departamentos", icon: Building2 },
-  { id:"privilegios", label:"Privilégios", icon: Shield },
-  { id:"assistente", label:"Assistente IA", icon: Bot },
+  { id: "usuarios", label: "Usuários", icon: Users },
+  { id: "departamentos", label: "Departamentos", icon: Building2 },
+  { id: "privilegios", label: "Privilégios", icon: Shield },
+  { id: "assistente", label: "Assistente IA", icon: Bot },
 ];
 
 export default function Admin() {
@@ -21,7 +70,6 @@ export default function Admin() {
   const [authLoading, setAuthLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("usuarios");
 
-  // Dados
   const [users, setUsers] = useState([]);
   const [departamentos, setDepartamentos] = useState([]);
   const [colaboradores, setColaboradores] = useState([]);
@@ -46,8 +94,15 @@ export default function Admin() {
 
   // Modal usuário
   const [modalUser, setModalUser] = useState(null);
+  const [modalPermissions, setModalPermissions] = useState({});
+  const [modalDepts, setModalDepts] = useState([]);
+  const [modalAllowPrint, setModalAllowPrint] = useState(false);
+  const [modalAllowExcel, setModalAllowExcel] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState({});
+
+  // Invite
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState("user");
+  const [inviteRole, setInviteRole] = useState("analista");
   const [inviting, setInviting] = useState(false);
   const [inviteMsg, setInviteMsg] = useState("");
 
@@ -73,12 +128,94 @@ export default function Admin() {
     ]);
     setUsers(u); setDepartamentos(d); setColaboradores(c);
     setKnowledgeDocs(kb);
-    // Transformar configs em objeto key:value
     const cfgObj = {};
     (cfg || []).forEach(c => { cfgObj[c.key] = { id: c.id, value: c.value }; });
     setAssistantConfig(cfgObj);
     setAssistantLogs(logs || []);
     setLoading(false);
+  };
+
+  const openModal = (u) => {
+    const col = colaboradores.find(c => c.email === u.email);
+    const role = u.role || "analista";
+    let perms = DEFAULT_PERMISSIONS[role] || DEFAULT_PERMISSIONS["analista"];
+    if (col?.paginas_permissoes) {
+      try { perms = JSON.parse(col.paginas_permissoes); } catch {}
+    }
+    let depts = [];
+    if (col?.departamentos) {
+      try { depts = JSON.parse(col.departamentos); } catch {}
+    } else if (col?.departamento) {
+      depts = [col.departamento];
+    }
+    setModalUser({ ...u, role });
+    setModalPermissions(perms);
+    setModalDepts(depts);
+    setModalAllowPrint(col?.allow_print || false);
+    setModalAllowExcel(col?.allow_excel || false);
+    setExpandedGroups({});
+  };
+
+  const handleRoleChange = (newRole) => {
+    setModalUser(u => ({ ...u, role: newRole }));
+    setModalPermissions(DEFAULT_PERMISSIONS[newRole] || DEFAULT_PERMISSIONS["analista"]);
+  };
+
+  const toggleDeptSelection = (deptNome) => {
+    setModalDepts(prev =>
+      prev.includes(deptNome) ? prev.filter(d => d !== deptNome) : [...prev, deptNome]
+    );
+  };
+
+  const togglePagePerm = (pageId, type) => {
+    setModalPermissions(prev => ({
+      ...prev,
+      [pageId]: { ...prev[pageId], [type]: !prev[pageId]?.[type] }
+    }));
+  };
+
+  const toggleExpandGroup = (group) => {
+    setExpandedGroups(prev => ({ ...prev, [group]: !prev[group] }));
+  };
+
+  const saveUser = async () => {
+    if (!modalUser) return;
+    await base44.entities.User.update(modalUser.id, { role: modalUser.role });
+
+    const col = colaboradores.find(c => c.email === modalUser.email);
+    const colData = {
+      paginas_permissoes: JSON.stringify(modalPermissions),
+      departamentos: JSON.stringify(modalDepts),
+      departamento: modalDepts[0] || "",
+      allow_print: modalAllowPrint,
+      allow_excel: modalAllowExcel,
+    };
+    if (col) {
+      await base44.entities.Colaborador.update(col.id, colData);
+    } else {
+      await base44.entities.Colaborador.create({
+        nome: modalUser.full_name || modalUser.email,
+        email: modalUser.email,
+        ...colData,
+      });
+    }
+    loadAll();
+    setModalUser(null);
+  };
+
+  const handleInvite = async () => {
+    if (!inviteEmail) return;
+    setInviting(true);
+    setInviteMsg("");
+    try {
+      await base44.users.inviteUser(inviteEmail, inviteRole === "admin" ? "admin" : "user");
+      setInviteMsg("Convite enviado com sucesso!");
+      setInviteEmail("");
+      loadAll();
+    } catch (e) {
+      setInviteMsg("Erro ao enviar convite: " + e.message);
+    }
+    setInviting(false);
   };
 
   const toggleWidgetEnabled = async () => {
@@ -102,16 +239,8 @@ export default function Admin() {
     loadAll();
   };
 
-  const deleteDoc = async (doc) => {
-    await base44.entities.KnowledgeBase.delete(doc.id);
-    loadAll();
-  };
-
-  const toggleDoc = async (doc) => {
-    await base44.entities.KnowledgeBase.update(doc.id, { ativo: !doc.ativo });
-    loadAll();
-  };
-
+  const deleteDoc = async (doc) => { await base44.entities.KnowledgeBase.delete(doc.id); loadAll(); };
+  const toggleDoc = async (doc) => { await base44.entities.KnowledgeBase.update(doc.id, { ativo: !doc.ativo }); loadAll(); };
   const createDept = async () => {
     if (!novoDeptNome.trim()) return;
     setSavingDept(true);
@@ -120,73 +249,33 @@ export default function Admin() {
     setSavingDept(false);
     loadAll();
   };
-
-  const toggleDept = async (dept) => {
-    await base44.entities.Departamento.update(dept.id, { ativo: !dept.ativo });
-    loadAll();
-  };
-
-  const deleteDept = async (dept) => {
-    await base44.entities.Departamento.delete(dept.id);
-    loadAll();
-  };
-
-  const updateUserRole = async (user, newRole) => {
-    await base44.entities.User.update(user.id, { role: newRole });
-    // Atualiza ou cria colaborador vinculando departamento
-    if (user.departamento !== undefined) {
-      const cols = await base44.entities.Colaborador.filter({ email: user.email });
-      if (cols && cols.length > 0) {
-        await base44.entities.Colaborador.update(cols[0].id, { departamento: user.departamento || "" });
-      } else if (user.departamento) {
-        await base44.entities.Colaborador.create({ nome: user.full_name, email: user.email, departamento: user.departamento });
-      }
-    }
-    await base44.entities.AuditLog.create({
-      usuario: currentUser?.full_name,
-      email: currentUser?.email,
-      acao: `Perfil de ${user.full_name} alterado para ${newRole}${user.departamento ? ` | Depto: ${user.departamento}` : ""}`,
-      resultado: "Sucesso",
-      modulo: "Admin"
-    });
-    try {
-      await base44.integrations.Core.SendEmail({
-        to: user.email,
-        subject: "Portal APSIS — Perfil atualizado",
-        body: `Olá ${user.full_name},\n\nSeu perfil de acesso no Portal APSIS foi atualizado para: ${newRole}.\n\nEm caso de dúvidas, entre em contato com o administrador.\n\nEquipe APSIS`
-      });
-    } catch {}
-    loadAll();
-    setModalUser(null);
-  };
-
-  const handleInvite = async () => {
-    if (!inviteEmail) return;
-    setInviting(true);
-    setInviteMsg("");
-    try {
-      await base44.users.inviteUser(inviteEmail, inviteRole);
-      await base44.entities.AuditLog.create({
-        usuario: currentUser?.full_name,
-        email: currentUser?.email,
-        acao: `Usuário convidado: ${inviteEmail} (${inviteRole})`,
-        resultado: "Sucesso",
-        modulo: "Admin"
-      });
-      setInviteMsg("Convite enviado com sucesso!");
-      setInviteEmail("");
-      loadAll();
-    } catch (e) {
-      setInviteMsg("Erro ao enviar convite: " + e.message);
-    }
-    setInviting(false);
-  };
+  const toggleDept = async (dept) => { await base44.entities.Departamento.update(dept.id, { ativo: !dept.ativo }); loadAll(); };
+  const deleteDept = async (dept) => { await base44.entities.Departamento.delete(dept.id); loadAll(); };
 
   const filteredUsers = users.filter(u => {
     const b = !busca || u.full_name?.toLowerCase().includes(busca.toLowerCase()) || u.email?.toLowerCase().includes(busca.toLowerCase());
     const r = filtroRole === "Todos" || u.role === filtroRole;
     return b && r;
   });
+
+  // Agrupar páginas por categoria
+  const pageGroups = [
+    { label: "Dashboard", pages: TODAS_PAGINAS.filter(p => p.id.startsWith("Dashboard")) },
+    { label: "Projetos", pages: TODAS_PAGINAS.filter(p => ["Projetos","AlocacoesHoras","Pipeline","Budget"].includes(p.id)) },
+    { label: "Financeiro", pages: TODAS_PAGINAS.filter(p => ["Financeiro","ContasAPagar","ContasAReceber"].includes(p.id)) },
+    { label: "Marketing", pages: TODAS_PAGINAS.filter(p => ["Marketing","MarketingComercial","MarketingOrcado"].includes(p.id)) },
+    { label: "Qualidade", pages: TODAS_PAGINAS.filter(p => ["DashboardQualidade","QuestionarioRevisao"].includes(p.id)) },
+    { label: "Outros", pages: TODAS_PAGINAS.filter(p => ["AppsAPSIS","Relatorios","Configuracoes"].includes(p.id)) },
+  ];
+
+  const roleColors = {
+    admin: "bg-[#1A4731]/10 text-[#1A4731]",
+    diretor: "bg-purple-100 text-purple-700",
+    gerente: "bg-[#F47920]/10 text-[#F47920]",
+    analista: "bg-blue-100 text-blue-700",
+    manager: "bg-[#F47920]/10 text-[#F47920]",
+    user: "bg-gray-100 text-gray-600",
+  };
 
   if (authLoading) return (
     <div className="min-h-screen bg-[#F4F6F4] flex items-center justify-center">
@@ -216,7 +305,7 @@ export default function Admin() {
 
       <div className="max-w-6xl mx-auto p-6 space-y-5">
         {/* Tabs */}
-        <div className="flex gap-1 bg-white border border-[#DDE3DE] p-1 rounded-2xl w-fit">
+        <div className="flex gap-1 bg-white border border-[#DDE3DE] p-1 rounded-2xl w-fit flex-wrap">
           {tabs.map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === t.id ? "bg-[#1A4731] text-white shadow" : "text-[#5C7060] hover:text-[#1A2B1F]"}`}>
@@ -237,7 +326,7 @@ export default function Admin() {
                   className="flex-1 min-w-[200px] border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#F47920]" />
                 <select value={inviteRole} onChange={e => setInviteRole(e.target.value)}
                   className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none">
-                  {ROLES.map(r => <option key={r}>{r}</option>)}
+                  {ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
                 </select>
                 <button onClick={handleInvite} disabled={inviting}
                   className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40] disabled:opacity-50">
@@ -257,7 +346,7 @@ export default function Admin() {
               <select value={filtroRole} onChange={e => setFiltroRole(e.target.value)}
                 className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm bg-white focus:outline-none">
                 <option>Todos</option>
-                {ROLES.map(r => <option key={r}>{r}</option>)}
+                {ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
               </select>
             </div>
 
@@ -267,32 +356,47 @@ export default function Admin() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-[#DDE3DE] bg-[#F4F6F4]">
-                      {["Nome","E-mail","Perfil","Cadastro","Ações"].map(h => (
+                      {["Nome","E-mail","Perfil","Departamentos","Impressão/Excel","Ações"].map(h => (
                         <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#5C7060] uppercase tracking-wider">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#F4F6F4]">
                     {loading ? (
-                      <tr><td colSpan={5} className="text-center py-10"><Loader2 className="w-5 h-5 animate-spin mx-auto text-[#F47920]" /></td></tr>
+                      <tr><td colSpan={6} className="text-center py-10"><Loader2 className="w-5 h-5 animate-spin mx-auto text-[#F47920]" /></td></tr>
                     ) : filteredUsers.length === 0 ? (
-                      <tr><td colSpan={5} className="text-center py-10 text-[#5C7060] text-sm">Nenhum usuário encontrado</td></tr>
-                    ) : filteredUsers.map(u => (
-                      <tr key={u.id} className="hover:bg-[#F4F6F4] transition-colors">
-                        <td className="px-4 py-3 font-medium text-[#1A2B1F]">{u.full_name || "—"}</td>
-                        <td className="px-4 py-3 text-xs text-[#5C7060]">{u.email}</td>
-                        <td className="px-4 py-3">
-                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${u.role==="admin"?"bg-[#1A4731]/10 text-[#1A4731]":u.role==="manager"?"bg-[#F47920]/10 text-[#F47920]":"bg-gray-100 text-gray-600"}`}>
-                            {u.role || "user"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-xs text-[#5C7060]">{u.created_date ? new Date(u.created_date).toLocaleDateString("pt-BR") : "—"}</td>
-                        <td className="px-4 py-3">
-                          <button onClick={() => setModalUser(u)}
-                            className="p-1.5 hover:bg-[#E8EDE9] rounded-lg"><Edit2 size={13} className="text-[#5C7060]" /></button>
-                        </td>
-                      </tr>
-                    ))}
+                      <tr><td colSpan={6} className="text-center py-10 text-[#5C7060] text-sm">Nenhum usuário encontrado</td></tr>
+                    ) : filteredUsers.map(u => {
+                      const col = colaboradores.find(c => c.email === u.email);
+                      let depts = [];
+                      if (col?.departamentos) { try { depts = JSON.parse(col.departamentos); } catch {} }
+                      else if (col?.departamento) { depts = [col.departamento]; }
+                      return (
+                        <tr key={u.id} className="hover:bg-[#F4F6F4] transition-colors">
+                          <td className="px-4 py-3 font-medium text-[#1A2B1F]">{u.full_name || "—"}</td>
+                          <td className="px-4 py-3 text-xs text-[#5C7060]">{u.email}</td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${roleColors[u.role] || roleColors.user}`}>
+                              {ROLES.find(r => r.value === u.role)?.label || u.role || "user"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-xs text-[#5C7060]">
+                            {depts.length > 0 ? depts.join(", ") : "—"}
+                          </td>
+                          <td className="px-4 py-3 text-xs">
+                            <div className="flex gap-2">
+                              {col?.allow_print && <span className="flex items-center gap-1 text-[#1A4731]"><Printer size={11} /> Impressão</span>}
+                              {col?.allow_excel && <span className="flex items-center gap-1 text-[#F47920]"><FileSpreadsheet size={11} /> Excel</span>}
+                              {!col?.allow_print && !col?.allow_excel && <span className="text-[#5C7060]">—</span>}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <button onClick={() => openModal(u)}
+                              className="p-1.5 hover:bg-[#E8EDE9] rounded-lg"><Edit2 size={13} className="text-[#5C7060]" /></button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -303,7 +407,6 @@ export default function Admin() {
         {/* DEPARTAMENTOS */}
         {activeTab === "departamentos" && (
           <div className="space-y-4">
-            {/* Criar departamento */}
             <div className="bg-white rounded-2xl border border-[#DDE3DE] p-5">
               <p className="text-sm font-semibold text-[#1A2B1F] mb-3">Novo Departamento</p>
               <div className="flex flex-wrap gap-3">
@@ -317,8 +420,6 @@ export default function Admin() {
                 </button>
               </div>
             </div>
-
-            {/* Lista */}
             <div className="bg-white rounded-2xl border border-[#DDE3DE] overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -344,12 +445,10 @@ export default function Admin() {
                           </span>
                         </td>
                         <td className="px-4 py-3 flex items-center gap-2">
-                          <button onClick={() => toggleDept(d)}
-                            className="p-1.5 hover:bg-[#E8EDE9] rounded-lg text-xs text-[#5C7060]">
+                          <button onClick={() => toggleDept(d)} className="p-1.5 hover:bg-[#E8EDE9] rounded-lg text-xs text-[#5C7060]">
                             {d.ativo ? <XCircle size={13} /> : <CheckCircle size={13} />}
                           </button>
-                          <button onClick={() => deleteDept(d)}
-                            className="p-1.5 hover:bg-red-50 rounded-lg"><X size={13} className="text-red-400" /></button>
+                          <button onClick={() => deleteDept(d)} className="p-1.5 hover:bg-red-50 rounded-lg"><X size={13} className="text-red-400" /></button>
                         </td>
                       </tr>
                     ))}
@@ -360,18 +459,78 @@ export default function Admin() {
           </div>
         )}
 
+        {/* PRIVILÉGIOS */}
+        {activeTab === "privilegios" && (
+          <div className="space-y-4">
+            <div className="bg-white rounded-2xl border border-[#DDE3DE] p-5">
+              <p className="font-semibold text-[#1A2B1F] mb-4">Perfis de Acesso — Referência</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {ROLES.map(r => (
+                  <div key={r.value} className="flex items-start gap-3 bg-[#F4F6F4] rounded-xl p-4">
+                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold mt-0.5 ${roleColors[r.value]}`}>{r.label}</span>
+                    <p className="text-xs text-[#5C7060]">{r.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-[#DDE3DE] overflow-hidden">
+              <div className="p-4 border-b border-[#DDE3DE]">
+                <p className="font-semibold text-[#1A2B1F] text-sm">Usuários e suas Permissões</p>
+                <p className="text-xs text-[#5C7060] mt-0.5">Edite um usuário na aba Usuários para ajustar permissões detalhadas</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[#DDE3DE] bg-[#F4F6F4]">
+                      {["Nome","Perfil","Departamentos","Páginas com Acesso","Impressão","Excel"].map(h => (
+                        <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#5C7060] uppercase tracking-wider">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F4F6F4]">
+                    {loading ? (
+                      <tr><td colSpan={6} className="text-center py-8"><Loader2 className="w-5 h-5 animate-spin mx-auto text-[#F47920]" /></td></tr>
+                    ) : users.map(u => {
+                      const col = colaboradores.find(c => c.email === u.email);
+                      let depts = [];
+                      if (col?.departamentos) { try { depts = JSON.parse(col.departamentos); } catch {} }
+                      else if (col?.departamento) { depts = [col.departamento]; }
+                      let perms = {};
+                      if (col?.paginas_permissoes) { try { perms = JSON.parse(col.paginas_permissoes); } catch {} }
+                      const viewCount = Object.values(perms).filter(p => p.view).length;
+                      return (
+                        <tr key={u.id} className="hover:bg-[#F4F6F4] transition-colors">
+                          <td className="px-4 py-3 font-medium text-[#1A2B1F] text-sm">{u.full_name || "—"}</td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${roleColors[u.role] || roleColors.user}`}>
+                              {ROLES.find(r => r.value === u.role)?.label || u.role || "user"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-xs text-[#5C7060]">{depts.length > 0 ? depts.join(", ") : "—"}</td>
+                          <td className="px-4 py-3 text-xs text-[#5C7060]">{viewCount > 0 ? `${viewCount} página(s)` : "Padrão do perfil"}</td>
+                          <td className="px-4 py-3 text-center">{col?.allow_print ? <CheckCircle size={14} className="text-emerald-600 mx-auto" /> : <XCircle size={14} className="text-gray-300 mx-auto" />}</td>
+                          <td className="px-4 py-3 text-center">{col?.allow_excel ? <CheckCircle size={14} className="text-emerald-600 mx-auto" /> : <XCircle size={14} className="text-gray-300 mx-auto" />}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ASSISTENTE IA */}
         {activeTab === "assistente" && (
           <div className="space-y-5">
-            {/* Status do widget */}
             <div className="bg-white rounded-2xl border border-[#DDE3DE] p-5">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold text-[#1A2B1F]">Widget Flutuante</p>
                   <p className="text-xs text-[#5C7060] mt-0.5">Ativar ou desativar o Assistente APSIS para todos os usuários</p>
                 </div>
-                <button onClick={toggleWidgetEnabled}
-                  className="flex items-center gap-2 text-sm font-medium">
+                <button onClick={toggleWidgetEnabled} className="flex items-center gap-2 text-sm font-medium">
                   {assistantConfig['widget_enabled']?.value === 'false' ? (
                     <><ToggleLeft size={28} className="text-gray-400" /> <span className="text-gray-500">Desativado</span></>
                   ) : (
@@ -381,7 +540,6 @@ export default function Admin() {
               </div>
             </div>
 
-            {/* Logs de uso */}
             <div className="bg-white rounded-2xl border border-[#DDE3DE] p-5">
               <p className="font-semibold text-[#1A2B1F] mb-3">Últimas Interações (50)</p>
               <div className="overflow-x-auto">
@@ -414,7 +572,6 @@ export default function Admin() {
               </div>
             </div>
 
-            {/* Base de conhecimento */}
             <div className="bg-white rounded-2xl border border-[#DDE3DE] overflow-hidden">
               <div className="p-5 border-b border-[#DDE3DE] flex items-center justify-between">
                 <div>
@@ -426,28 +583,24 @@ export default function Admin() {
                   <Plus size={13} /> Novo Documento
                 </button>
               </div>
-
               {showDocForm && (
                 <div className="p-5 border-b border-[#DDE3DE] bg-[#F4F6F4] space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <input placeholder="Título *" value={newDoc.title} onChange={e => setNewDoc(d => ({ ...d, title: e.target.value }))}
                       className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#F47920]" />
-                    <input placeholder="Tags (ex: budget, proposta, laudo)" value={newDoc.tags} onChange={e => setNewDoc(d => ({ ...d, tags: e.target.value }))}
+                    <input placeholder="Tags (ex: budget, proposta)" value={newDoc.tags} onChange={e => setNewDoc(d => ({ ...d, tags: e.target.value }))}
                       className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#F47920]" />
                   </div>
-                  <textarea placeholder="Conteúdo do documento *" value={newDoc.content} onChange={e => setNewDoc(d => ({ ...d, content: e.target.value }))}
+                  <textarea placeholder="Conteúdo *" value={newDoc.content} onChange={e => setNewDoc(d => ({ ...d, content: e.target.value }))}
                     rows={4} className="w-full border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#F47920] resize-none" />
                   <div className="flex flex-wrap gap-3">
-                    <select value={newDoc.category} onChange={e => setNewDoc(d => ({ ...d, category: e.target.value }))}
-                      className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    <select value={newDoc.category} onChange={e => setNewDoc(d => ({ ...d, category: e.target.value }))} className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none">
                       {["FAQ","Manual","Política","Procedimento","Relatório","Outro"].map(c => <option key={c}>{c}</option>)}
                     </select>
-                    <select value={newDoc.module} onChange={e => setNewDoc(d => ({ ...d, module: e.target.value }))}
-                      className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    <select value={newDoc.module} onChange={e => setNewDoc(d => ({ ...d, module: e.target.value }))} className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none">
                       {["Geral","Dashboard","Pipeline","Projetos","Financeiro","Budget","Marketing","Admin"].map(m => <option key={m}>{m}</option>)}
                     </select>
-                    <select value={newDoc.sensitivity} onChange={e => setNewDoc(d => ({ ...d, sensitivity: e.target.value }))}
-                      className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    <select value={newDoc.sensitivity} onChange={e => setNewDoc(d => ({ ...d, sensitivity: e.target.value }))} className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm focus:outline-none">
                       {["PUBLICO","INTERNO","RESTRITO"].map(s => <option key={s}>{s}</option>)}
                     </select>
                     <button onClick={saveDoc} disabled={savingDoc || !newDoc.title.trim() || !newDoc.content.trim()}
@@ -457,7 +610,6 @@ export default function Admin() {
                   </div>
                 </div>
               )}
-
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -503,116 +655,111 @@ export default function Admin() {
             </div>
           </div>
         )}
-
-        {/* PRIVILÉGIOS — quem pode acessar Configurações */}
-        {activeTab === "privilegios" && (
-          <div className="space-y-4">
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-              <p className="text-sm text-amber-800 font-medium">Gestores com acesso à página de Configurações</p>
-              <p className="text-xs text-amber-700 mt-1">
-                Usuários com perfil <strong>manager</strong> já têm acesso à página de Configurações e podem cadastrar colaboradores do próprio departamento.
-                Para conceder esse acesso a um usuário com perfil <strong>user</strong>, altere seu perfil para <strong>manager</strong> na aba Usuários.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-[#DDE3DE] overflow-hidden">
-              <div className="p-4 border-b border-[#DDE3DE]">
-                <p className="font-semibold text-[#1A2B1F] text-sm">Usuários com privilégio de Gestor (manager)</p>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-[#DDE3DE] bg-[#F4F6F4]">
-                      {["Nome","E-mail","Departamento","Acesso Configurações","Ação"].map(h => (
-                        <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#5C7060] uppercase tracking-wider">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#F4F6F4]">
-                    {loading ? (
-                      <tr><td colSpan={5} className="text-center py-8"><Loader2 className="w-5 h-5 animate-spin mx-auto text-[#F47920]" /></td></tr>
-                    ) : users.filter(u => u.role === "manager" || u.role === "admin").length === 0 ? (
-                      <tr><td colSpan={5} className="text-center py-8 text-[#5C7060] text-sm">Nenhum gestor cadastrado</td></tr>
-                    ) : users.filter(u => u.role === "manager" || u.role === "admin").map(u => (
-                      <tr key={u.id} className="hover:bg-[#F4F6F4] transition-colors">
-                        <td className="px-4 py-3 font-medium text-[#1A2B1F]">{u.full_name || "—"}</td>
-                        <td className="px-4 py-3 text-xs text-[#5C7060]">{u.email}</td>
-                        <td className="px-4 py-3 text-xs text-[#5C7060]">
-                          {(() => {
-                            const col = colaboradores.find ? colaboradores.find(c => c.email === u.email) : null;
-                            return col?.departamento || "—";
-                          })()}
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${u.role === "admin" ? "bg-[#1A4731]/10 text-[#1A4731]" : "bg-[#F47920]/10 text-[#F47920]"}`}>
-                            {u.role === "admin" ? "Admin (total)" : "Gestor (dept.)"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          {u.role === "manager" && (
-                            <button onClick={() => { setModalUser(u); setActiveTab("usuarios"); }}
-                              className="text-xs text-[#5C7060] hover:text-red-500 border border-[#DDE3DE] px-2 py-1 rounded-lg hover:border-red-200 transition-colors">
-                              Revogar
-                            </button>
-                          )}
-                          {u.role === "admin" && <span className="text-xs text-[#5C7060]">Irrevogável</span>}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div className="p-4 border-t border-[#DDE3DE] bg-[#F4F6F4]">
-                <p className="text-xs text-[#5C7060]">
-                  Para <strong>conceder</strong> acesso de gestor: vá na aba <strong>Usuários</strong>, edite o usuário e altere o perfil para <strong>manager</strong>.<br/>
-                  Para <strong>revogar</strong>: clique em "Revogar" acima — isso abrirá o modal de edição do usuário.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-
       </div>
 
-      {/* Modal editar usuário */}
+      {/* MODAL EDITAR USUÁRIO */}
       {modalUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 overflow-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-4">
             <div className="flex items-center justify-between p-6 border-b border-[#DDE3DE]">
-              <h2 className="font-semibold text-[#1A2B1F]">Editar Perfil</h2>
+              <div>
+                <h2 className="font-semibold text-[#1A2B1F]">Editar Usuário</h2>
+                <p className="text-xs text-[#5C7060]">{modalUser.full_name} · {modalUser.email}</p>
+              </div>
               <button onClick={() => setModalUser(null)}><X size={18} className="text-[#5C7060]" /></button>
             </div>
-            <div className="p-6 space-y-4">
+
+            <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+              {/* Perfil de Acesso */}
               <div>
-                <p className="text-xs text-[#5C7060]">Usuário</p>
-                <p className="font-medium text-[#1A2B1F]">{modalUser.full_name}</p>
-                <p className="text-xs text-[#5C7060]">{modalUser.email}</p>
+                <label className="block text-xs font-semibold text-[#1A2B1F] mb-2">Perfil de Acesso</label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {ROLES.map(r => (
+                    <button key={r.value} onClick={() => handleRoleChange(r.value)}
+                      className={`text-left p-3 rounded-xl border-2 transition-all ${modalUser.role === r.value ? "border-[#1A4731] bg-[#1A4731]/5" : "border-[#DDE3DE] hover:border-[#1A4731]/30"}`}>
+                      <p className="text-xs font-semibold text-[#1A2B1F]">{r.label}</p>
+                      <p className="text-[10px] text-[#5C7060] mt-0.5">{r.desc}</p>
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {/* Departamentos — múltipla seleção */}
               <div>
-                <label className="block text-xs font-medium text-[#5C7060] mb-1">Perfil de Acesso</label>
-                <select className="w-full border border-[#DDE3DE] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#F47920]"
-                  defaultValue={modalUser.role || "user"}
-                  onChange={e => setModalUser(u => ({ ...u, role: e.target.value }))}>
-                  {ROLES.map(r => <option key={r}>{r}</option>)}
-                </select>
+                <label className="block text-xs font-semibold text-[#1A2B1F] mb-2">Departamentos (múltipla seleção)</label>
+                <div className="flex flex-wrap gap-2">
+                  {departamentos.filter(d => d.ativo).map(d => (
+                    <button key={d.id} onClick={() => toggleDeptSelection(d.nome)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${modalDepts.includes(d.nome) ? "bg-[#1A4731] text-white border-[#1A4731]" : "border-[#DDE3DE] text-[#5C7060] hover:border-[#1A4731]/40"}`}>
+                      {d.nome}
+                    </button>
+                  ))}
+                  {departamentos.filter(d => d.ativo).length === 0 && (
+                    <p className="text-xs text-[#5C7060]">Nenhum departamento cadastrado</p>
+                  )}
+                </div>
               </div>
+
+              {/* Páginas e Permissões */}
               <div>
-                <label className="block text-xs font-medium text-[#5C7060] mb-1">Departamento</label>
-                <select className="w-full border border-[#DDE3DE] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#F47920]"
-                  value={modalUser.departamento || ""}
-                  onChange={e => setModalUser(u => ({ ...u, departamento: e.target.value }))}>
-                  <option value="">— Nenhum —</option>
-                  {departamentos.filter(d => d.ativo).map(d => <option key={d.id} value={d.nome}>{d.nome}</option>)}
-                </select>
-                <p className="text-[10px] text-[#5C7060] mt-1">Será exibido na sidebar do usuário após o login.</p>
+                <label className="block text-xs font-semibold text-[#1A2B1F] mb-2">Permissões por Página</label>
+                <div className="space-y-2">
+                  {pageGroups.map(group => (
+                    <div key={group.label} className="border border-[#DDE3DE] rounded-xl overflow-hidden">
+                      <button onClick={() => toggleExpandGroup(group.label)}
+                        className="w-full flex items-center justify-between px-4 py-2.5 bg-[#F4F6F4] hover:bg-[#E8EDE9] transition-colors">
+                        <span className="text-xs font-semibold text-[#1A2B1F]">{group.label}</span>
+                        {expandedGroups[group.label] ? <ChevronUp size={14} className="text-[#5C7060]" /> : <ChevronDown size={14} className="text-[#5C7060]" />}
+                      </button>
+                      {expandedGroups[group.label] && (
+                        <div className="divide-y divide-[#F4F6F4]">
+                          {/* Header */}
+                          <div className="grid grid-cols-[1fr_80px_80px_80px] px-4 py-1.5 bg-[#FAFAFA]">
+                            <span className="text-[10px] font-semibold text-[#5C7060] uppercase">Página</span>
+                            {["Visualizar","Editar","Escrever"].map(h => (
+                              <span key={h} className="text-[10px] font-semibold text-[#5C7060] uppercase text-center">{h}</span>
+                            ))}
+                          </div>
+                          {group.pages.map(page => (
+                            <div key={page.id} className="grid grid-cols-[1fr_80px_80px_80px] px-4 py-2 items-center hover:bg-[#F4F6F4]">
+                              <span className="text-xs text-[#1A2B1F]">{page.label}</span>
+                              {["view","edit","write"].map(type => (
+                                <div key={type} className="flex justify-center">
+                                  <button onClick={() => togglePagePerm(page.id, type)}
+                                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${modalPermissions[page.id]?.[type] ? "bg-[#1A4731] border-[#1A4731]" : "border-[#DDE3DE] hover:border-[#1A4731]/50"}`}>
+                                    {modalPermissions[page.id]?.[type] && <CheckCircle size={11} className="text-white" />}
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Exportação */}
+              <div>
+                <label className="block text-xs font-semibold text-[#1A2B1F] mb-2">Permissões de Exportação</label>
+                <div className="flex gap-3">
+                  <button onClick={() => setModalAllowPrint(!modalAllowPrint)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-medium transition-all ${modalAllowPrint ? "bg-[#1A4731] text-white border-[#1A4731]" : "border-[#DDE3DE] text-[#5C7060] hover:border-[#1A4731]/40"}`}>
+                    <Printer size={14} /> Liberar Impressão
+                  </button>
+                  <button onClick={() => setModalAllowExcel(!modalAllowExcel)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-medium transition-all ${modalAllowExcel ? "bg-[#F47920] text-white border-[#F47920]" : "border-[#DDE3DE] text-[#5C7060] hover:border-[#F47920]/40"}`}>
+                    <FileSpreadsheet size={14} /> Liberar Excel
+                  </button>
+                </div>
               </div>
             </div>
-            <div className="flex justify-end gap-3 px-6 pb-6">
+
+            <div className="flex justify-end gap-3 px-6 py-4 border-t border-[#DDE3DE]">
               <button onClick={() => setModalUser(null)} className="px-4 py-2 border border-[#DDE3DE] rounded-xl text-sm text-[#5C7060] hover:bg-[#F4F6F4]">Cancelar</button>
-              <button onClick={() => updateUserRole(modalUser, modalUser.role || "user")}
-                className="px-5 py-2 bg-[#1A4731] text-white rounded-xl text-sm font-medium hover:bg-[#245E40]">
-                Salvar
+              <button onClick={saveUser} className="px-5 py-2 bg-[#1A4731] text-white rounded-xl text-sm font-medium hover:bg-[#245E40]">
+                Salvar Permissões
               </button>
             </div>
           </div>

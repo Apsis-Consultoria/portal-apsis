@@ -219,7 +219,7 @@ export default function Pipeline() {
                         </td>
                       </tr>
                       {expanded && (
-                        <tr key={`${rowKey}-expand`} className="bg-[#F9FBF9] border-l-4 border-[#F47920]">
+                        <tr key={`${rowKey}-expand`} className="bg-[#FFF7F0] border-l-4 border-[#F47920]">
                           <td colSpan={9} className="px-6 py-4">
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 text-xs">
                               <div>

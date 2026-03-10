@@ -371,6 +371,19 @@ export default function Admin() {
               {inviteMsg && <p className="text-xs mt-2 text-[#5C7060]">{inviteMsg}</p>}
             </div>
 
+            {/* Sincronização */}
+            <div className="bg-white rounded-2xl border border-[#DDE3DE] p-4 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-[#1A2B1F] flex items-center gap-2"><UserCheck size={15} /> Sincronizar Colaboradores</p>
+                <p className="text-xs text-[#5C7060] mt-0.5">Garante que todos os usuários do portal tenham registro de colaborador vinculado</p>
+                {syncMsg && <p className="text-xs text-emerald-600 mt-1 font-medium">{syncMsg}</p>}
+              </div>
+              <button onClick={syncColaboradores} disabled={syncing}
+                className="flex items-center gap-2 bg-[#F47920] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#D4640D] disabled:opacity-50">
+                {syncing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />} Sincronizar
+              </button>
+            </div>
+
             {/* Filtros */}
             <div className="flex flex-wrap gap-3">
               <div className="relative flex-1 min-w-[200px]">

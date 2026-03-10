@@ -106,6 +106,10 @@ export default function Admin() {
   const [inviting, setInviting] = useState(false);
   const [inviteMsg, setInviteMsg] = useState("");
 
+  // Sync
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState("");
+
   useEffect(() => {
     base44.auth.me().then(u => {
       if (!u) { window.location.href = createPageUrl("Login"); return; }

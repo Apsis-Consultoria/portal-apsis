@@ -218,6 +218,11 @@ export default function Pipeline() {
                           </div>
                         </td>
                         <td className="px-4 py-3 font-semibold text-[#1A2B1F]">{p.cliente_nome}</td>
+                        <td className="px-4 py-3">
+                          {p.departamento ? (
+                            <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#E8EDE9] text-[#1A4731]">{p.departamento}</span>
+                          ) : <span className="text-[#5C7060] text-xs">—</span>}
+                        </td>
                         <td className="px-4 py-3 text-[#5C7060] max-w-[140px] truncate text-xs">{p.natureza}</td>
                         <td className="px-4 py-3 font-semibold text-[#1A2B1F]">{fmt(p.valor_total)}</td>
                         <td className="px-4 py-3"><TempIcon t={p.temperatura} /></td>

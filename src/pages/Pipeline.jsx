@@ -196,7 +196,7 @@ export default function Pipeline() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#DDE3DE] bg-[#F4F6F4]">
-                  {["AP","Cliente","Natureza","Valor","Temp.","Status","Responsável","Obs",""].map(h => (
+                  {["AP","Cliente","Departamento","Natureza","Valor","Temp.","Status","Responsável","Obs",""].map(h => (
                     <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#5C7060] uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
                 </tr>

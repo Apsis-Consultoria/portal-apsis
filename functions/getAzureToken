@@ -1,0 +1,39 @@
+import fetch from "node-fetch";
+
+export default async function getAzureToken() {
+
+  const tenant = process.env.AZ_TENANT_ID;
+  const clientId = process.env.AZ_CLIENT_ID;
+  const clientSecret = process.env.AZ_CLIENT_SECRET;
+
+  const url = `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/token`;
+
+  const body = new URLSearchParams({
+    client_id: clientId,
+    client_secret: clientSecret,
+    scope: "https://graph.microsoft.com/.default",
+    grant_type: "client_credentials"
+  });
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    return {
+      ok: false,
+      error: data
+    };
+  }
+
+  return {
+    ok: true,
+    access_token: data.access_token,
+    expires_in: data.expires_in,
+    token_type: data.token_type
+  };
+}

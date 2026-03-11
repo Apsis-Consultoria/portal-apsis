@@ -28,11 +28,6 @@ const BUDGET2026_MES = [
 ];
 
 export default function Dashboard() {
-  const [propostas, setPropostas] = useState([]);
-  const [parcelas, setParcelas] = useState([]);
-  const [budgets, setBudgets] = useState([]);
-  const [oss, setOss] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [anoSel, setAnoSel] = useState(2026);
 
   const { data, isLoading } = useQuery({

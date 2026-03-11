@@ -1,3 +1,14 @@
+/**
+ * Layout Component - Sistema de navegação e estrutura principal da aplicação
+ * 
+ * Responsabilidades:
+ * - Renderiza sidebar responsiva com navegação hierárquica
+ * - Gerencia permissões de acesso por perfil de usuário (admin, diretor, gerente, analista)
+ * - Controla visibilidade de páginas baseado em permissões customizadas do colaborador
+ * - Exibe informações do usuário e departamento
+ * - Fornece widget de assistente IA flutuante
+ */
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -10,10 +21,19 @@ import {
 import { Clock } from "lucide-react";
 import AssistantWidget from "@/components/AssistantWidget";
 
-// Páginas sempre visíveis independente do perfil
+/**
+ * Páginas sempre visíveis independente do perfil
+ * Estas páginas são acessíveis para todos os usuários autenticados
+ */
 const ALWAYS_VISIBLE = ["BoasVindas"];
 
-// Páginas visíveis por perfil (padrão, caso não haja permissões customizadas)
+/**
+ * Mapeamento de páginas visíveis por perfil (padrão)
+ * Usado quando não há permissões customizadas definidas no registro do colaborador
+ * 
+ * - null = acesso total a todas as páginas
+ * - array = lista específica de páginas permitidas
+ */
 const DEFAULT_ROLE_PAGES = {
   admin: null, // null = tudo liberado
   diretor: null,
@@ -39,6 +59,15 @@ const DEFAULT_ROLE_PAGES = {
   ],
 };
 
+/**
+ * Estrutura de navegação da aplicação
+ * Cada item pode ter:
+ * - label: texto exibido
+ * - page: nome da página (roteamento)
+ * - icon: componente de ícone Lucide
+ * - children: submenus (opcional)
+ * - externalUrl: link externo (opcional)
+ */
 const navItems = [
   { label: "Boas-Vindas", page: "BoasVindas", icon: Home },
   {
@@ -104,16 +133,27 @@ const navItems = [
 const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a1fc4b60b4c477ea324579/40af152e2_Design-sem-nome.png";
 
 export default function Layout({ children, currentPageName }) {
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [openSubmenus, setOpenSubmenus] = useState({});
+  // Estados de UI
+  const [collapsed, setCollapsed] = useState(false); // Controla sidebar colapsada no desktop
+  const [mobileOpen, setMobileOpen] = useState(false); // Controla sidebar aberta no mobile
+  const [openSubmenus, setOpenSubmenus] = useState({}); // Rastreia submenus expandidos
 
-  const [userRole, setUserRole] = useState(null);
-  const [userDepartamento, setUserDepartamento] = useState(null);
-  const [pagePermissions, setPagePermissions] = useState(null); // null = usa padrão do perfil
+  // Estados de autenticação e permissões
+  const [userRole, setUserRole] = useState(null); // Role do usuário (admin, diretor, gerente, analista)
+  const [userDepartamento, setUserDepartamento] = useState(null); // Departamento do colaborador
+  const [pagePermissions, setPagePermissions] = useState(null); // Permissões customizadas (null = usa padrão do perfil)
 
   const toggleSubmenu = (label) => setOpenSubmenus(prev => ({ ...prev, [label]: !prev[label] }));
 
+  /**
+   * Hook de inicialização - Carrega dados do usuário e permissões
+   * 
+   * Fluxo:
+   * 1. Busca dados do usuário autenticado
+   * 2. Carrega registro do colaborador baseado no email
+   * 3. Extrai departamento(s) do colaborador
+   * 4. Carrega permissões customizadas de páginas (se existirem)
+   */
   useEffect(() => {
     base44.auth.me().then(async (user) => {
       if (!user) return;
@@ -142,7 +182,18 @@ export default function Layout({ children, currentPageName }) {
     }).catch(() => {});
   }, []);
 
-  // Verifica se o usuário pode visualizar uma página
+  /**
+   * Verifica se o usuário pode visualizar uma página específica
+   * 
+   * Lógica de permissões (prioridade decrescente):
+   * 1. Páginas sempre visíveis (ALWAYS_VISIBLE)
+   * 2. Roles com acesso total (admin, diretor, manager)
+   * 3. Permissões customizadas do colaborador (pagePermissions)
+   * 4. Permissões padrão do perfil (DEFAULT_ROLE_PAGES)
+   * 
+   * @param {string} pageId - ID da página a verificar
+   * @returns {boolean} - true se usuário pode visualizar
+   */
   const canView = (pageId) => {
     if (ALWAYS_VISIBLE.includes(pageId)) return true;
     if (!userRole) return false; // ainda carregando
@@ -165,7 +216,13 @@ export default function Layout({ children, currentPageName }) {
     return false;
   };
 
-  // Filtra navItems por permissão
+  /**
+   * Filtra itens de navegação baseado em permissões do usuário
+   * 
+   * - Links externos sempre visíveis
+   * - Grupos (com children) exibidos se tiverem ao menos 1 filho visível
+   * - Páginas individuais verificadas via canView()
+   */
   const visibleNavItems = navItems
     .map(item => {
       if (item.externalUrl) return item; // links externos sempre visíveis
@@ -179,6 +236,12 @@ export default function Layout({ children, currentPageName }) {
     })
     .filter(Boolean);
 
+  /**
+   * Renderiza itens de navegação (recursivo para submenus)
+   * 
+   * @param {Array} items - Lista de itens de navegação
+   * @param {Function} onLinkClick - Callback ao clicar em link (usado no mobile para fechar sidebar)
+   */
   const renderNavItems = (items, onLinkClick = null) =>
     items.map(({ label, page, icon: Icon, children: subItems, externalUrl }) => {
       const isActive = currentPageName === page;

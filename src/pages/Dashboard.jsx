@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import {
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, PieChart, Pie, Cell, Legend
-} from "recharts";
-import StatCard from "@/components/ui/StatCard";
+import { useQuery } from "@tanstack/react-query";
+import ModernBarChart from "@/components/charts/ModernBarChart";
+import ModernPieChart from "@/components/charts/ModernPieChart";
+import ModernLineChart from "@/components/charts/ModernLineChart";
+import KPICard from "@/components/ui/KPICard";
+import LoadingState from "@/components/ui/LoadingState";
 import { TrendingUp, DollarSign, GitBranch, FolderKanban, AlertTriangle, Target } from "lucide-react";
 
 const MESES = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
@@ -34,17 +35,24 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [anoSel, setAnoSel] = useState(2026);
 
-  useEffect(() => {
-    Promise.all([
-      base44.entities.Proposta.list(),
-      base44.entities.Parcela.list(),
-      base44.entities.Budget.list(),
-      base44.entities.OrdemServico.list(),
-    ]).then(([p, pa, b, os]) => {
-      setPropostas(p); setParcelas(pa); setBudgets(b); setOss(os);
-      setLoading(false);
-    });
-  }, []);
+  const { data, isLoading } = useQuery({
+    queryKey: ['dashboard-data'],
+    queryFn: async () => {
+      const [p, pa, b, os] = await Promise.all([
+        base44.entities.Proposta.list(),
+        base44.entities.Parcela.list(),
+        base44.entities.Budget.list(),
+        base44.entities.OrdemServico.list(),
+      ]);
+      return { propostas: p, parcelas: pa, budgets: b, oss: os };
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutos
+  });
+
+  const propostas = data?.propostas || [];
+  const parcelas = data?.parcelas || [];
+  const budgets = data?.budgets || [];
+  const oss = data?.oss || [];
 
   const fmt = (v) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(v || 0);
 
@@ -108,38 +116,43 @@ export default function Dashboard() {
   propostas.forEach(p => { statusMap[p.status] = (statusMap[p.status] || 0) + 1; });
   const pipelineData = Object.entries(statusMap).map(([name, value]) => ({ name, value }));
 
-  if (loading) return (
-    <div className="flex flex-col items-center justify-center h-64 gap-4">
-      <img
-        src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a1fc4b60b4c477ea324579/40a49a962_Design-sem-nome.png"
-        alt="APSIS"
-        className="w-16 h-16 object-contain"
-        style={{ animation: "apsisFloat 1.4s ease-in-out infinite" }}
-      />
-      <p className="text-sm text-[#5C7060] font-medium tracking-wide" style={{ animation: "apsisFade 1.4s ease-in-out infinite" }}>
-        Pensando...
-      </p>
-      <style>{`
-        @keyframes apsisFloat {
-          0%, 100% { transform: translateY(0px); opacity: 1; }
-          50% { transform: translateY(-8px); opacity: 0.7; }
-        }
-        @keyframes apsisFade {
-          0%, 100% { opacity: 0.5; }
-          50% { opacity: 1; }
-        }
-      `}</style>
-    </div>
-  );
+  if (isLoading) return <LoadingState message="Carregando dashboard..." />;
 
   return (
     <div className="space-y-6">
       {/* KPIs Budget 2026 */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Orçado 2026" value={fmt(ORCADO_TOTAL_2026)} icon={Target} color="green" sub="Meta anual total" />
-        <StatCard label="Realizado 2026" value={fmt(REALIZADO_2026)} icon={DollarSign} color="gold" sub={`${PCT_ATINGIDO}% da meta`} />
-        <StatCard label="Propostas Ativas" value={propostasAtivas.length} icon={GitBranch} color="blue" sub={`${pipelineEmElaboracao} em elaboração, ${pipelineEnviada} enviadas`} />
-        <StatCard label="Propostas Ganhas" value={propostasGanhas} icon={TrendingUp} color="green" sub={`${((propostasGanhas / propostas.length) * 100 || 0).toFixed(1)}% de conversão`} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KPICard 
+          label="Orçado 2026" 
+          value={fmt(ORCADO_TOTAL_2026)} 
+          icon={Target} 
+          color="green" 
+          subtitle="Meta anual total"
+          variant="highlight"
+        />
+        <KPICard 
+          label="Realizado 2026" 
+          value={fmt(REALIZADO_2026)} 
+          icon={DollarSign} 
+          color="orange" 
+          subtitle={`${PCT_ATINGIDO}% da meta`}
+          progress={parseFloat(PCT_ATINGIDO)}
+          variant="highlight"
+        />
+        <KPICard 
+          label="Propostas Ativas" 
+          value={propostasAtivas.length} 
+          icon={GitBranch} 
+          color="blue" 
+          subtitle={`${pipelineEmElaboracao} em elaboração`}
+        />
+        <KPICard 
+          label="Taxa Conversão" 
+          value={`${((propostasGanhas / propostas.length) * 100 || 0).toFixed(1)}%`}
+          icon={TrendingUp} 
+          color="green" 
+          subtitle={`${propostasGanhas} propostas ganhas`}
+        />
       </div>
 
       {/* Indicadores de Receita por Natureza */}
@@ -172,17 +185,16 @@ export default function Dashboard() {
             {[2025,2026].map(a => <option key={a}>{a}</option>)}
           </select>
         </div>
-        <ResponsiveContainer width="100%" height={240}>
-          <BarChart data={budgetData} barSize={14} barGap={4}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F2F0" />
-            <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "#5C7060" }} axisLine={false} tickLine={false} />
-            <YAxis tickFormatter={v => `${(v/1000).toFixed(0)}k`} tick={{ fontSize: 11, fill: "#5C7060" }} axisLine={false} tickLine={false} />
-            <Tooltip formatter={v => fmt(v)} contentStyle={{ borderRadius: 10, border: "1px solid #DDE3DE", fontSize: 12 }} />
-            <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Bar dataKey="orcado" name="Orçado" fill="#E8EDE9" radius={[4,4,0,0]} />
-            <Bar dataKey="real" name="Realizado" fill="#F47920" radius={[4,4,0,0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        <ModernBarChart
+          data={budgetData}
+          dataKeys={[
+            { dataKey: "orcado", name: "Orçado" },
+            { dataKey: "real", name: "Realizado" }
+          ]}
+          colors={["#E8EDE9", "#F47920"]}
+          formatter={fmt}
+          height={260}
+        />
       </div>
 
       {/* Row 3 */}
@@ -191,15 +203,14 @@ export default function Dashboard() {
         <div className="bg-white rounded-2xl border border-[#DDE3DE] p-6">
           <h2 className="font-semibold text-[#1A2B1F] mb-1">Receita por Natureza</h2>
           <p className="text-xs text-[#5C7060] mb-4">Contábil vs Consultoria (2026)</p>
-          <ResponsiveContainer width="100%" height={180}>
-            <PieChart>
-              <Pie data={naturezaData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} dataKey="value">
-                {naturezaData.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
-              </Pie>
-              <Tooltip formatter={v => fmt(v)} contentStyle={{ borderRadius: 10, fontSize: 12 }} />
-              <Legend iconSize={8} iconType="circle" wrapperStyle={{ fontSize: 11 }} />
-            </PieChart>
-          </ResponsiveContainer>
+          <ModernPieChart
+            data={naturezaData}
+            colors={["#F47920", "#1A4731"]}
+            formatter={fmt}
+            height={200}
+            innerRadius={50}
+            outerRadius={80}
+          />
         </div>
 
         {/* Pipeline status */}
@@ -207,17 +218,14 @@ export default function Dashboard() {
           <h2 className="font-semibold text-[#1A2B1F] mb-1">Pipeline por Status</h2>
           <p className="text-xs text-[#5C7060] mb-4">Distribuição das propostas (AP)</p>
           {pipelineData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={180}>
-              <PieChart>
-                <Pie data={pipelineData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} dataKey="value">
-                  {pipelineData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                </Pie>
-                <Tooltip contentStyle={{ borderRadius: 10, fontSize: 12 }} />
-                <Legend iconSize={8} iconType="circle" wrapperStyle={{ fontSize: 11 }} />
-              </PieChart>
-            </ResponsiveContainer>
+            <ModernPieChart
+              data={pipelineData}
+              height={200}
+              innerRadius={50}
+              outerRadius={80}
+            />
           ) : (
-            <div className="h-[180px] flex items-center justify-center text-sm text-[#5C7060]">Sem dados no pipeline</div>
+            <div className="h-[200px] flex items-center justify-center text-sm text-[#5C7060]">Sem dados no pipeline</div>
           )}
         </div>
 

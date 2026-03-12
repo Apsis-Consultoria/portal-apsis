@@ -155,31 +155,9 @@ export default function Layout({ children, currentPageName }) {
    * 4. Carrega permissões customizadas de páginas (se existirem)
    */
   useEffect(() => {
-    base44.auth.me().then(async (user) => {
-      if (!user) return;
-      setUserRole(user.role || "user");
-
-      const cols = await base44.entities.Colaborador.filter({ email: user.email });
-      if (cols && cols.length > 0) {
-        const col = cols[0];
-
-        // Departamento (exibição na sidebar)
-        let dept = "";
-        if (col.departamentos) {
-          try { const depts = JSON.parse(col.departamentos); dept = depts[0] || ""; } catch {}
-        }
-        if (!dept && col.departamento) dept = col.departamento;
-        if (dept) setUserDepartamento(dept);
-
-        // Permissões customizadas de páginas
-        if (col.paginas_permissoes) {
-          try {
-            const perms = JSON.parse(col.paginas_permissoes);
-            setPagePermissions(perms);
-          } catch {}
-        }
-      }
-    }).catch(() => {});
+    // App público - sem autenticação necessária
+    setUserRole("admin"); // Define como admin para liberar todas as páginas
+    setUserDepartamento("Portal APSIS");
   }, []);
 
   /**

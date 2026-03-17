@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { MsalProvider } from '@azure/msal-react';
 import { msalInstance } from './lib/msalConfig';
 import { AuthProvider, useAuth } from './lib/AuthContext';
-import Login from './pages/Login';
+import LoginScreen from './components/LoginScreen';
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { pagesConfig } from './pages.config'

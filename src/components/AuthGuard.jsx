@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useMsal, useIsAuthenticated } from "@azure/msal-react";
-
+import { InteractionStatus } from "@azure/msal-browser";
+import { loginRequest } from "@/lib/msalConfig";
 
 // Bypass auth no preview do Base44
-const isPreview = window.location.hostname.includes('preview-sandbox') || 
+const isPreview = window.location.hostname.includes('preview-sandbox') ||
   new URLSearchParams(window.location.search).has('_preview_token');
 
 const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a1fc4b60b4c477ea324579/40af152e2_Design-sem-nome.png";
@@ -12,6 +13,9 @@ export default function AuthGuard({ children }) {
   const { instance, inProgress } = useMsal();
   const isAuthenticated = useIsAuthenticated();
   const [loading, setLoading] = useState(false);
+
+  // Se estiver no preview, ignora autenticação
+  if (isPreview) return children;
 
   // Limpa estado travado do MSAL no carregamento
   useEffect(() => {

@@ -10,7 +10,9 @@ export default function AuthGuard({ children }) {
   const isAuthenticated = useIsAuthenticated();
 
   const handleLogin = () => {
-    instance.loginPopup(loginRequest).catch(console.error);
+    instance.loginPopup(loginRequest)
+      .then(() => window.location.reload())
+      .catch(console.error);
   };
 
   if (inProgress !== InteractionStatus.None) {

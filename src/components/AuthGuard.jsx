@@ -24,8 +24,7 @@ export default function AuthGuard({ children }) {
     if (loading || inProgress !== InteractionStatus.None) return;
     setLoading(true);
     try {
-      await instance.loginPopup(loginRequest);
-      window.location.reload();
+      await instance.loginRedirect(loginRequest);
     } catch (e) {
       console.error(e);
       setLoading(false);

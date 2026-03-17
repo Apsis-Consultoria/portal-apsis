@@ -33,6 +33,8 @@ async function bootstrap() {
 
   const msalInstance = new PublicClientApplication(msalConfig);
   await msalInstance.initialize();
+  // Processa o retorno do redirect após login
+  await msalInstance.handleRedirectPromise();
 
   ReactDOM.createRoot(document.getElementById('root')).render(
     <MsalProvider instance={msalInstance}>

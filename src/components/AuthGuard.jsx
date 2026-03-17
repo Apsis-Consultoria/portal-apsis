@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMsal, useIsAuthenticated } from "@azure/msal-react";
 import { InteractionStatus } from "@azure/msal-browser";
 import { loginRequest } from "@/lib/msalConfig";
@@ -8,11 +8,28 @@ const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/pub
 export default function AuthGuard({ children }) {
   const { instance, inProgress } = useMsal();
   const isAuthenticated = useIsAuthenticated();
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    instance.loginPopup(loginRequest)
-      .then(() => window.location.reload())
-      .catch(console.error);
+  // Limpa estado travado do MSAL no carregamento
+  useEffect(() => {
+    const keys = Object.keys(localStorage);
+    keys.forEach(k => {
+      if (k.includes('interaction.status') || k.includes('msal.interaction')) {
+        localStorage.removeItem(k);
+      }
+    });
+  }, []);
+
+  const handleLogin = async () => {
+    if (loading || inProgress !== InteractionStatus.None) return;
+    setLoading(true);
+    try {
+      await instance.loginPopup(loginRequest);
+      window.location.reload();
+    } catch (e) {
+      console.error(e);
+      setLoading(false);
+    }
   };
 
   if (inProgress !== InteractionStatus.None) {
@@ -36,7 +53,8 @@ export default function AuthGuard({ children }) {
 
           <button
             onClick={handleLogin}
-            className="w-full flex items-center justify-center gap-3 bg-[#F47920] hover:bg-[#d96910] text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-3 bg-[#F47920] disabled:opacity-60 disabled:cursor-not-allowed hover:bg-[#d96910] text-white font-semibold py-3 px-6 rounded-lg transition-colors"
           >
             <svg width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="1" y="1" width="9" height="9" fill="#F25022"/>

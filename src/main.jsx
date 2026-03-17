@@ -24,6 +24,7 @@ async function bootstrap() {
       authority: `https://login.microsoftonline.com/${tenantId}`,
       redirectUri: window.location.origin,
       postLogoutRedirectUri: window.location.origin,
+      navigateToLoginRequestUrl: false,
     },
     cache: {
       cacheLocation: "localStorage",

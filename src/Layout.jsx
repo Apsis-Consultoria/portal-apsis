@@ -10,6 +10,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/lib/AuthContext";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
@@ -154,11 +155,14 @@ export default function Layout({ children, currentPageName }) {
    * 3. Extrai departamento(s) do colaborador
    * 4. Carrega permissões customizadas de páginas (se existirem)
    */
+  const { user, colaborador, logout } = useAuth();
+
   useEffect(() => {
-    // App público - sem autenticação necessária
-    setUserRole("admin"); // Define como admin para liberar todas as páginas
-    setUserDepartamento("Portal APSIS");
-  }, []);
+    if (user) {
+      setUserRole(user.role || 'admin');
+      setUserDepartamento(colaborador?.departamento || colaborador?.area || 'Portal APSIS');
+    }
+  }, [user, colaborador]);
 
   /**
    * Verifica se o usuário pode visualizar uma página específica
@@ -342,12 +346,21 @@ export default function Layout({ children, currentPageName }) {
         </button>
 
         {/* Bottom user */}
-        <div className={`p-3 border-t border-white/10 flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
+        <button
+          onClick={logout}
+          title="Sair da conta"
+          className={`w-full p-3 border-t border-white/10 flex items-center gap-3 hover:bg-white/5 transition-colors ${collapsed ? "justify-center" : ""}`}
+        >
           <div className="w-7 h-7 rounded-full bg-[var(--apsis-orange)]/20 border border-[var(--apsis-orange)]/30 flex items-center justify-center flex-shrink-0">
             <User size={13} className="text-[var(--apsis-orange)]" />
           </div>
-          {!collapsed && <span className="text-white/50 text-xs">Minha conta</span>}
-        </div>
+          {!collapsed && (
+            <div className="flex-1 min-w-0 text-left">
+              <p className="text-white/70 text-xs font-medium truncate">{user?.full_name || 'Usuário'}</p>
+              <p className="text-white/40 text-[10px] truncate">{user?.email || ''}</p>
+            </div>
+          )}
+        </button>
       </aside>
 
       {/* Mobile sidebar overlay */}

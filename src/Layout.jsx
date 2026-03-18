@@ -255,7 +255,7 @@ export default function Layout({ children, currentPageName }) {
             </button>
             {!collapsed && submenuOpen && subItems.length > 0 && (
               <div className="ml-4 mt-0.5 space-y-0.5 border-l border-white/10 pl-3">
-                {subItems.map(({ label: subLabel, page: subPage, icon: SubIcon, externalUrl: subExternalUrl }) => {
+                {subItems.map(({ label: subLabel, page: subPage, icon: SubIcon, externalUrl: subExternalUrl, tabParam }) => {
                   const subActive = currentPageName === subPage;
                   if (subExternalUrl) {
                     return (
@@ -266,12 +266,12 @@ export default function Layout({ children, currentPageName }) {
                       </a>
                     );
                   }
-                  const subTo = c.tabParam ? `/Projetos?tab=${c.tabParam}` : createPageUrl(subPage);
-                  const subActiveCheck = c.tabParam
-                    ? currentPageName === subPage && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('tab') === c.tabParam
+                  const subTo = tabParam ? `/Projetos?tab=${tabParam}` : createPageUrl(subPage);
+                  const subActiveCheck = tabParam
+                    ? currentPageName === subPage && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('tab') === tabParam
                     : currentPageName === subPage;
                   return (
-                    <Link key={subPage + (c.tabParam||'')} to={subTo}
+                    <Link key={subPage + (tabParam||'')} to={subTo}
                       onClick={onLinkClick}
                       className={`nav-item flex items-center gap-2 px-2 py-2 rounded-l-lg ${subActiveCheck ? "active" : ""}`}>
                       <SubIcon size={14} className={subActiveCheck ? "text-[var(--apsis-orange)]" : "text-white/40"} />

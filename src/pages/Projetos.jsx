@@ -1,253 +1,296 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import StatusBadge from "@/components/ui/StatusBadge";
-import { Plus, X, Edit2, Trash2, AlertTriangle } from "lucide-react";
-import { format } from "date-fns";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Search, Plus, LayoutGrid, List, Filter, TrendingUp, Clock,
+  AlertTriangle, CheckCircle2, Briefcase, Users, Calendar, DollarSign
+} from "lucide-react";
+import NovoProjetoModal from "@/components/projetos/NovoProjetoModal";
 
-const fmt = (v) => v ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(v) : "—";
-
-// Dados reais das abas: Laudos vendas 2026, Consultoria, AP (projetos em andamento)
-const PROJETOS_PLANILHA = [
-  // Laudos 2026 (aba Laudos vendas 2026)
-  { id:"p1", cliente_nome:"XXX", proposta_numero:"AP-00172/26-01", responsavel_tecnico:"Evelyne Ferrari", status:"Ativo", percentual_conclusao:0, valor_proporcional:21784.35, descricao:"Laudo LSA - Art. 226 e 227 - Incorporação", natureza:"Contábil", observacoes:"Aguardando Docs", prazo_previsto:"2026-02-28", _planilha:true },
-  { id:"p2", cliente_nome:"ZZZ", proposta_numero:"AP-00236/26-01", responsavel_tecnico:"Thiago Bastos", status:"Ativo", percentual_conclusao:90, valor_proporcional:9961.69, descricao:"Laudo LSA - Art. 226 e 229 - Cisão", natureza:"Contábil", observacoes:"Minuta Enviada", prazo_previsto:"2025-12-31", _planilha:true },
-  { id:"p3", cliente_nome:"YYY", proposta_numero:"AP-00200/26-01", responsavel_tecnico:"Evelyne Ferrari", status:"Ativo", percentual_conclusao:0, valor_proporcional:15544.61, descricao:"Laudo LSA - Art 8 - Aumento de capital", natureza:"Contábil", observacoes:"Aguardando Docs", _planilha:true },
-  // Consultoria (aba Consultoria)
-  { id:"p4", cliente_nome:"XPTO", proposta_numero:"AP-01545/25-01", responsavel_tecnico:"Renata/Patrick", status:"Ativo", percentual_conclusao:10, valor_proporcional:75862.07, descricao:"Auxílio DFS", natureza:"Consultoria", observacoes:"Proposta Ganha — Em Andamento", _planilha:true },
-  { id:"p5", cliente_nome:"III", proposta_numero:"AP-00178/26-01", responsavel_tecnico:"Amanda/Angela", status:"Ativo", percentual_conclusao:70, valor_proporcional:38029.56, descricao:"Aditivo Pro Forma", natureza:"Consultoria", observacoes:"Proposta Ganha — Em Andamento", _planilha:true },
-  // Laudos 2024 pausados
-  { id:"p6", cliente_nome:"CTO", proposta_numero:"AP-00123/24-01", responsavel_tecnico:"Eduardo Calazans", status:"Pausado", percentual_conclusao:95, valor_proporcional:15467.98, descricao:"Laudo LSA - Incorporação", natureza:"Contábil", observacoes:"Minuta Enviada", _planilha:true },
-  { id:"p7", cliente_nome:"JFL", proposta_numero:"AP-00162/24-01", responsavel_tecnico:"Eduardo Calazans", status:"Pausado", percentual_conclusao:95, valor_proporcional:37400, descricao:"Laudo LSA - Incorporação reversa", natureza:"Contábil", observacoes:"Minuta Enviada", _planilha:true },
-  { id:"p8", cliente_nome:"VTAL", proposta_numero:"AP-01479/24-01", responsavel_tecnico:"Eduardo Calazans", status:"Ativo", percentual_conclusao:85, valor_proporcional:13574.17, descricao:"Laudo LSA - Cisão", natureza:"Contábil", observacoes:"Aguardando docs", prazo_previsto:"2025-12-31", _planilha:true },
-];
-
-const emptyOS = { proposta_id:"", proposta_numero:"", cliente_nome:"", responsavel_tecnico:"", status:"Não iniciado", percentual_conclusao:0, prazo_previsto:"", valor_proporcional:0, descricao:"", observacoes:"" };
+const STATUS_COLOR = {
+  "Ativo": "bg-green-100 text-green-700",
+  "Em andamento": "bg-blue-100 text-blue-700",
+  "Pausado": "bg-yellow-100 text-yellow-700",
+  "Cancelado": "bg-red-100 text-red-700",
+  "Não iniciado": "bg-gray-100 text-gray-600",
+  "Concluído": "bg-purple-100 text-purple-700",
+};
 
 export default function Projetos() {
-  const [oss, setOss] = useState([]);
-  const [propostas, setPropostas] = useState([]);
-  const [filtroResp, setFiltroResp] = useState("Todos");
-  const [filtroStatus, setFiltroStatus] = useState("Todos");
-  const [modal, setModal] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [mostrarPlanilha, setMostrarPlanilha] = useState(true);
+  const [projetos, setProjetos] = useState([]);
+  const [parcelas, setParcelas] = useState([]);
+  const [busca, setBusca] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("todos");
+  const [filtroResponsavel, setFiltroResponsavel] = useState("todos");
+  const [viewMode, setViewMode] = useState("grid");
+  const [loading, setLoading] = useState(true);
+  const [showNovo, setShowNovo] = useState(false);
 
-  const load = () => Promise.all([
-    base44.entities.OrdemServico.list("-created_date", 200),
-    base44.entities.Proposta.list("-created_date", 200),
-  ]).then(([os, p]) => { setOss(os); setPropostas(p); });
+  useEffect(() => {
+    Promise.all([
+      base44.entities.OrdemServico.list("-created_date", 200),
+      base44.entities.Parcela.list("-created_date", 500),
+    ]).then(([os, parc]) => {
+      setProjetos(os);
+      setParcelas(parc);
+      setLoading(false);
+    });
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  const responsaveis = [...new Set(projetos.map(p => p.responsavel_tecnico).filter(Boolean))];
 
-  const todosProjetos = mostrarPlanilha ? [...PROJETOS_PLANILHA, ...oss] : oss;
-  const responsaveis = [...new Set(todosProjetos.map(o => o.responsavel_tecnico).filter(Boolean))];
-
-  const filtrados = todosProjetos.filter(o => {
-    const r = filtroResp === "Todos" || o.responsavel_tecnico === filtroResp;
-    const s = filtroStatus === "Todos" || o.status === filtroStatus;
-    return r && s;
+  const projetosFiltrados = projetos.filter(p => {
+    const matchBusca = !busca || [p.cliente_nome, p.proposta_numero, p.natureza, p.responsavel_tecnico]
+      .some(v => v?.toLowerCase().includes(busca.toLowerCase()));
+    const matchStatus = filtroStatus === "todos" || p.status === filtroStatus;
+    const matchResp = filtroResponsavel === "todos" || p.responsavel_tecnico === filtroResponsavel;
+    return matchBusca && matchStatus && matchResp;
   });
 
-  // Alocação por colaborador (apenas ativos da planilha)
-  const alocacao = {};
-  [...PROJETOS_PLANILHA.filter(o => o.status === "Ativo"), ...oss.filter(o => o.status === "Ativo")].forEach(o => {
-    const resp = o.responsavel_tecnico || "—";
-    const peso = (o.valor_proporcional || 0) * ((100 - (o.percentual_conclusao || 0)) / 100);
-    alocacao[resp] = (alocacao[resp] || 0) + peso;
-  });
-
-  const salvar = async () => {
-    setSaving(true);
-    const { data, editing } = modal;
-    if (editing?.id) await base44.entities.OrdemServico.update(editing.id, data);
-    else await base44.entities.OrdemServico.create(data);
-    await load();
-    setModal(null);
-    setSaving(false);
+  const getParcelasOS = (osId) => parcelas.filter(p => p.os_id === osId);
+  const getValorFaturado = (osId) => {
+    return getParcelasOS(osId).filter(p => ["Faturada", "Recebida"].includes(p.status))
+      .reduce((s, p) => s + (p.valor || 0), 0);
   };
+  const getValorTotal = (osId) => getParcelasOS(osId).reduce((s, p) => s + (p.valor || 0), 0);
 
-  const excluir = async (id) => {
-    if (!confirm("Confirmar exclusão?")) return;
-    await base44.entities.OrdemServico.delete(id);
-    await load();
-  };
+  // KPIs
+  const totalAtivos = projetos.filter(p => p.status === "Ativo").length;
+  const totalEmAndamento = projetos.filter(p => p.status !== "Cancelado" && p.status !== "Não iniciado").length;
+  const receitaTotal = projetos.reduce((s, p) => s + getValorTotal(p.id), 0);
+  const receitaRealizada = projetos.reduce((s, p) => s + getValorFaturado(p.id), 0);
+  const atrasados = projetos.filter(p => {
+    if (!p.prazo_previsto || p.status === "Cancelado") return false;
+    return new Date(p.prazo_previsto) < new Date() && p.percentual_conclusao < 100;
+  }).length;
 
-  const InputField = ({ label, field, type = "text", options }) => (
-    <div>
-      <label className="block text-xs font-medium text-[#5C7060] mb-1">{label}</label>
-      {options ? (
-        <select className="w-full border border-[#DDE3DE] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#F47920]"
-          value={modal?.data?.[field] || ""}
-          onChange={e => setModal(m => ({ ...m, data: { ...m.data, [field]: e.target.value } }))}>
-          {options.map(o => <option key={o}>{o}</option>)}
-        </select>
-      ) : (
-        <input type={type}
-          className="w-full border border-[#DDE3DE] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#F47920]"
-          value={modal?.data?.[field] || ""}
-          onChange={e => setModal(m => ({ ...m, data: { ...m.data, [field]: type === "number" ? Number(e.target.value) : e.target.value } }))} />
-      )}
+  const fmt = (v) => v?.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) ?? "R$ 0";
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" />
     </div>
   );
 
-  const maxAloc = Math.max(...Object.values(alocacao), 1);
+  return (
+    <div className="p-6 space-y-6 max-w-screen-2xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Projetos</h1>
+          <p className="text-slate-500 text-sm mt-1">Gestão completa de projetos em execução</p>
+        </div>
+        <Button onClick={() => setShowNovo(true)} className="gap-2">
+          <Plus className="w-4 h-4" /> Novo Projeto
+        </Button>
+      </div>
+
+      {/* KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="border-l-4 border-l-blue-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <Briefcase className="w-8 h-8 text-blue-500" />
+              <div>
+                <p className="text-2xl font-bold text-slate-800">{totalEmAndamento}</p>
+                <p className="text-xs text-slate-500">Em execução</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-green-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <DollarSign className="w-8 h-8 text-green-500" />
+              <div>
+                <p className="text-lg font-bold text-slate-800">{fmt(receitaRealizada)}</p>
+                <p className="text-xs text-slate-500">Faturado / {fmt(receitaTotal)} total</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-orange-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-8 h-8 text-orange-500" />
+              <div>
+                <p className="text-2xl font-bold text-slate-800">{atrasados}</p>
+                <p className="text-xs text-slate-500">Com atraso</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-purple-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <TrendingUp className="w-8 h-8 text-purple-500" />
+              <div>
+                <p className="text-2xl font-bold text-slate-800">{projetos.length}</p>
+                <p className="text-xs text-slate-500">Total de projetos</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filtros */}
+      <div className="flex flex-wrap gap-3 items-center">
+        <div className="relative flex-1 min-w-[220px]">
+          <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+          <Input placeholder="Buscar projeto, cliente, responsável..." className="pl-9" value={busca} onChange={e => setBusca(e.target.value)} />
+        </div>
+        <Select value={filtroStatus} onValueChange={setFiltroStatus}>
+          <SelectTrigger className="w-44"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os status</SelectItem>
+            <SelectItem value="Ativo">Ativo</SelectItem>
+            <SelectItem value="Não iniciado">Não iniciado</SelectItem>
+            <SelectItem value="Pausado">Pausado</SelectItem>
+            <SelectItem value="Cancelado">Cancelado</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={filtroResponsavel} onValueChange={setFiltroResponsavel}>
+          <SelectTrigger className="w-48"><SelectValue placeholder="Responsável" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos</SelectItem>
+            {responsaveis.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <div className="flex gap-1 border rounded-md p-1">
+          <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded ${viewMode === "grid" ? "bg-slate-100" : ""}`}><LayoutGrid className="w-4 h-4" /></button>
+          <button onClick={() => setViewMode("list")} className={`p-1.5 rounded ${viewMode === "list" ? "bg-slate-100" : ""}`}><List className="w-4 h-4" /></button>
+        </div>
+      </div>
+
+      {/* Lista de projetos */}
+      {viewMode === "grid" ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {projetosFiltrados.map(p => (
+            <ProjetoCard key={p.id} projeto={p} valorFaturado={getValorFaturado(p.id)} valorTotal={getValorTotal(p.id)} />
+          ))}
+          {projetosFiltrados.length === 0 && (
+            <div className="col-span-3 text-center py-16 text-slate-400">Nenhum projeto encontrado.</div>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {projetosFiltrados.map(p => (
+            <ProjetoRow key={p.id} projeto={p} valorFaturado={getValorFaturado(p.id)} valorTotal={getValorTotal(p.id)} />
+          ))}
+          {projetosFiltrados.length === 0 && (
+            <div className="text-center py-16 text-slate-400">Nenhum projeto encontrado.</div>
+          )}
+        </div>
+      )}
+
+      {showNovo && <NovoProjetoModal onClose={() => setShowNovo(false)} onSaved={() => { setShowNovo(false); window.location.reload(); }} />}
+    </div>
+  );
+}
+
+function ProjetoCard({ projeto, valorFaturado, valorTotal }) {
+  const fmt = (v) => v?.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) ?? "R$ 0";
+  const atrasado = projeto.prazo_previsto && new Date(projeto.prazo_previsto) < new Date() && projeto.percentual_conclusao < 100;
+  const progresso = projeto.percentual_conclusao || 0;
 
   return (
-    <div className="space-y-5">
-      {/* Alocação visual */}
-      {Object.keys(alocacao).length > 0 && (
-        <div className="bg-white rounded-2xl border border-[#DDE3DE] p-5">
-          <h2 className="font-semibold text-[#1A2B1F] mb-4 text-sm">Carga de Trabalho — Projetos Ativos</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {Object.entries(alocacao).map(([resp, val]) => {
-              const pct = (val / maxAloc) * 100;
-              const alto = pct > 80;
-              return (
-                <div key={resp} className={`p-4 rounded-xl border ${alto ? "border-red-200 bg-red-50" : "border-[#DDE3DE] bg-[#F4F6F4]"}`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-semibold text-[#1A2B1F] truncate">{resp}</span>
-                    {alto && <AlertTriangle size={13} className="text-red-500 flex-shrink-0" />}
-                  </div>
-                  <div className="w-full bg-white rounded-full h-2 mb-2">
-                    <div className={`h-2 rounded-full ${alto ? "bg-red-400" : "bg-[#F47920]"}`} style={{ width: `${pct}%` }} />
-                  </div>
-                  <p className="text-xs text-[#5C7060]">{fmt(val)} em carteira</p>
-                </div>
-              );
-            })}
+    <Link to={`/ProjetoDetalhe?id=${projeto.id}`}>
+      <Card className="hover:shadow-md transition-shadow cursor-pointer border hover:border-blue-200">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-slate-800 truncate">{projeto.cliente_nome || "—"}</p>
+              <p className="text-xs text-slate-500 truncate">{projeto.natureza} · {projeto.proposta_numero || "—"}</p>
+            </div>
+            <Badge className={`text-xs shrink-0 ${STATUS_COLOR[projeto.status] || "bg-gray-100 text-gray-600"}`}>
+              {projeto.status}
+            </Badge>
           </div>
-        </div>
-      )}
-
-      {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <select className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm bg-white focus:outline-none"
-          value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)}>
-          {["Todos","Ativo","Pausado","Cancelado","Não iniciado"].map(s => <option key={s}>{s}</option>)}
-        </select>
-        <select className="border border-[#DDE3DE] rounded-xl px-3 py-2 text-sm bg-white focus:outline-none"
-          value={filtroResp} onChange={e => setFiltroResp(e.target.value)}>
-          <option value="Todos">Todos responsáveis</option>
-          {responsaveis.map(r => <option key={r}>{r}</option>)}
-        </select>
-        <button onClick={() => setMostrarPlanilha(!mostrarPlanilha)}
-          className={`px-3 py-2 rounded-xl text-xs font-medium border transition-colors ${mostrarPlanilha ? "bg-[#1A4731]/10 border-[#1A4731]/20 text-[#1A4731]" : "border-[#DDE3DE] text-[#5C7060]"}`}>
-          {mostrarPlanilha ? "✓" : ""} Dados planilha 2026
-        </button>
-        <div className="flex-1" />
-        <button onClick={() => setModal({ data: { ...emptyOS }, editing: null })}
-          className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40] transition-colors">
-          <Plus size={15} /> Nova OS
-        </button>
-      </div>
-
-      {/* Cards grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {filtrados.length === 0 ? (
-          <div className="col-span-3 text-center py-16 text-[#5C7060]">Nenhum projeto encontrado</div>
-        ) : filtrados.map((os, idx) => (
-          <div key={os.id || idx} className={`rounded-2xl border p-5 hover:shadow-md transition-shadow ${os._planilha ? "bg-[#F9FBF9] border-[#DDE3DE]" : "bg-white border-[#DDE3DE]"}`}>
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <p className="font-semibold text-[#1A2B1F] text-sm">{os.cliente_nome || "Cliente"}</p>
-                <p className="text-xs text-[#5C7060] mt-0.5">{os.proposta_numero || ""}</p>
-                <p className="text-xs text-[#5C7060]">{os.descricao || "OS sem descrição"}</p>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <StatusBadge status={os.status} />
-                {os._planilha && <span className="text-[10px] text-[#5C7060] bg-[#E8EDE9] px-1.5 py-0.5 rounded">planilha</span>}
-              </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {/* Progresso */}
+          <div>
+            <div className="flex justify-between text-xs text-slate-500 mb-1">
+              <span>Progresso</span>
+              <span className={atrasado ? "text-red-500 font-medium" : ""}>{progresso}%</span>
             </div>
-
-            {(os.status === "Ativo" || os.percentual_conclusao > 0) && (
-              <div className="mb-3">
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-[#5C7060]">Conclusão</span>
-                  <span className="font-semibold text-[#1A2B1F]">{os.percentual_conclusao || 0}%</span>
-                </div>
-                <div className="w-full bg-[#F4F6F4] rounded-full h-2">
-                  <div className="h-2 bg-[#F47920] rounded-full transition-all" style={{ width: `${os.percentual_conclusao || 0}%` }} />
-                </div>
-              </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-              <div>
-                <p className="text-[#5C7060]">Responsável</p>
-                <p className="font-medium text-[#1A2B1F]">{os.responsavel_tecnico || "—"}</p>
-              </div>
-              <div>
-                <p className="text-[#5C7060]">Valor</p>
-                <p className="font-medium text-[#F47920]">{fmt(os.valor_proporcional)}</p>
-              </div>
-              {os.natureza && <div><p className="text-[#5C7060]">Natureza</p><p className="font-medium text-[#1A2B1F]">{os.natureza}</p></div>}
-              {os.prazo_previsto && (
-                <div>
-                  <p className="text-[#5C7060]">Prazo</p>
-                  <p className="font-medium text-[#1A2B1F]">{format(new Date(os.prazo_previsto), "dd/MM/yyyy")}</p>
-                </div>
-              )}
-            </div>
-
-            {os.observacoes && <p className="text-xs text-[#5C7060] italic border-t border-[#DDE3DE] pt-2">{os.observacoes}</p>}
-
-            {!os._planilha && (
-              <div className="flex justify-end gap-1 pt-2 border-t border-[#F4F6F4] mt-2">
-                <button onClick={() => setModal({ data: { ...os }, editing: os })} className="p-1.5 hover:bg-[#F4F6F4] rounded-lg"><Edit2 size={13} className="text-[#5C7060]" /></button>
-                <button onClick={() => excluir(os.id)} className="p-1.5 hover:bg-red-50 rounded-lg"><Trash2 size={13} className="text-red-400" /></button>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Modal */}
-      {modal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-[#DDE3DE]">
-              <h2 className="font-semibold text-[#1A2B1F]">{modal.editing ? "Editar OS" : "Nova Ordem de Serviço"}</h2>
-              <button onClick={() => setModal(null)}><X size={18} className="text-[#5C7060]" /></button>
-            </div>
-            <div className="p-6 grid grid-cols-2 gap-4">
-              <InputField label="Cliente" field="cliente_nome" />
-              <div>
-                <label className="block text-xs font-medium text-[#5C7060] mb-1">Proposta (AP)</label>
-                <select className="w-full border border-[#DDE3DE] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#F47920]"
-                  value={modal?.data?.proposta_id || ""}
-                  onChange={e => {
-                    const p = propostas.find(p => p.id === e.target.value);
-                    setModal(m => ({ ...m, data: { ...m.data, proposta_id: e.target.value, proposta_numero: p?.numero_ap || "", cliente_nome: p?.cliente_nome || m.data.cliente_nome } }));
-                  }}>
-                  <option value="">Selecionar proposta</option>
-                  {propostas.filter(p => p.status === "Ganha").map(p => (
-                    <option key={p.id} value={p.id}>{p.numero_ap || p.cliente_nome} — {p.cliente_nome}</option>
-                  ))}
-                </select>
-              </div>
-              <InputField label="Responsável Técnico" field="responsavel_tecnico" />
-              <InputField label="Status" field="status" options={["Não iniciado","Ativo","Pausado","Cancelado"]} />
-              <InputField label="% Conclusão" field="percentual_conclusao" type="number" />
-              <InputField label="Prazo Previsto" field="prazo_previsto" type="date" />
-              <InputField label="Valor Proporcional (R$)" field="valor_proporcional" type="number" />
-              <InputField label="Descrição" field="descricao" />
-              <div className="col-span-2">
-                <label className="block text-xs font-medium text-[#5C7060] mb-1">Observações</label>
-                <textarea rows={3} className="w-full border border-[#DDE3DE] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#F47920]"
-                  value={modal?.data?.observacoes || ""}
-                  onChange={e => setModal(m => ({ ...m, data: { ...m.data, observacoes: e.target.value } }))} />
-              </div>
-            </div>
-            <div className="flex justify-end gap-3 px-6 pb-6">
-              <button onClick={() => setModal(null)} className="px-4 py-2 border border-[#DDE3DE] rounded-xl text-sm text-[#5C7060] hover:bg-[#F4F6F4]">Cancelar</button>
-              <button onClick={salvar} disabled={saving}
-                className="px-5 py-2 bg-[#1A4731] text-white rounded-xl text-sm font-medium hover:bg-[#245E40] disabled:opacity-60">
-                {saving ? "Salvando..." : "Salvar"}
-              </button>
+            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div className={`h-full rounded-full transition-all ${atrasado ? "bg-red-400" : progresso === 100 ? "bg-green-500" : "bg-blue-500"}`} style={{ width: `${progresso}%` }} />
             </div>
           </div>
-        </div>
-      )}
-    </div>
+
+          {/* Infos */}
+          <div className="grid grid-cols-2 gap-2 text-xs text-slate-600">
+            <div className="flex items-center gap-1">
+              <Users className="w-3 h-3 text-slate-400" />
+              <span className="truncate">{projeto.responsavel_tecnico || "—"}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Calendar className="w-3 h-3 text-slate-400" />
+              <span className={atrasado ? "text-red-500 font-medium" : ""}>
+                {projeto.prazo_previsto ? new Date(projeto.prazo_previsto + "T00:00:00").toLocaleDateString("pt-BR") : "—"}
+              </span>
+            </div>
+          </div>
+
+          {/* Financeiro */}
+          {valorTotal > 0 && (
+            <div className="bg-slate-50 rounded-lg p-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Faturado</span>
+                <span className="font-medium text-green-600">{fmt(valorFaturado)}</span>
+              </div>
+              <div className="flex justify-between mt-1">
+                <span className="text-slate-500">Total</span>
+                <span className="font-medium">{fmt(valorTotal)}</span>
+              </div>
+            </div>
+          )}
+          {atrasado && (
+            <div className="flex items-center gap-1 text-xs text-red-500">
+              <AlertTriangle className="w-3 h-3" /> Prazo vencido
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
+
+function ProjetoRow({ projeto, valorFaturado, valorTotal }) {
+  const fmt = (v) => v?.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) ?? "R$ 0";
+  const atrasado = projeto.prazo_previsto && new Date(projeto.prazo_previsto) < new Date() && projeto.percentual_conclusao < 100;
+  const progresso = projeto.percentual_conclusao || 0;
+
+  return (
+    <Link to={`/ProjetoDetalhe?id=${projeto.id}`}>
+      <Card className="hover:shadow-sm transition-shadow cursor-pointer border hover:border-blue-200">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex-1 min-w-[200px]">
+              <p className="font-medium text-slate-800">{projeto.cliente_nome || "—"}</p>
+              <p className="text-xs text-slate-500">{projeto.natureza} · {projeto.proposta_numero || "—"}</p>
+            </div>
+            <Badge className={`text-xs ${STATUS_COLOR[projeto.status] || "bg-gray-100 text-gray-600"}`}>{projeto.status}</Badge>
+            <div className="flex items-center gap-2 w-32">
+              <div className="flex-1 h-1.5 bg-slate-100 rounded-full">
+                <div className={`h-full rounded-full ${atrasado ? "bg-red-400" : "bg-blue-500"}`} style={{ width: `${progresso}%` }} />
+              </div>
+              <span className="text-xs text-slate-500 w-8">{progresso}%</span>
+            </div>
+            <span className="text-xs text-slate-500 w-28 text-right">{projeto.responsavel_tecnico || "—"}</span>
+            <span className={`text-xs w-24 text-right ${atrasado ? "text-red-500 font-medium" : "text-slate-500"}`}>
+              {projeto.prazo_previsto ? new Date(projeto.prazo_previsto + "T00:00:00").toLocaleDateString("pt-BR") : "—"}
+            </span>
+            <span className="text-xs font-medium text-green-600 w-28 text-right">{fmt(valorFaturado)} / {fmt(valorTotal)}</span>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

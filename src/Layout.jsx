@@ -274,6 +274,10 @@ export default function Layout({ children, currentPageName }) {
                     <Link key={subPage + (c.tabParam||'')} to={subTo}
                       onClick={onLinkClick}
                       className={`nav-item flex items-center gap-2 px-2 py-2 rounded-l-lg ${subActiveCheck ? "active" : ""}`}>
+                      <SubIcon size={14} className={subActiveCheck ? "text-[var(--apsis-orange)]" : "text-white/40"} />
+                      <span className={`text-xs font-medium ${subActiveCheck ? "text-white" : "text-white/50"}`}>{subLabel}</span>
+                    </Link>
+                  );
                 })}
               </div>
             )}

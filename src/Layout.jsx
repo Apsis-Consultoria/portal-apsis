@@ -244,8 +244,17 @@ export default function Layout({ children, currentPageName }) {
             </button>
             {!collapsed && submenuOpen && subItems.length > 0 && (
               <div className="ml-4 mt-0.5 space-y-0.5 border-l border-white/10 pl-3">
-                {subItems.map(({ label: subLabel, page: subPage, icon: SubIcon }) => {
+                {subItems.map(({ label: subLabel, page: subPage, icon: SubIcon, externalUrl: subExternalUrl }) => {
                   const subActive = currentPageName === subPage;
+                  if (subExternalUrl) {
+                    return (
+                      <a key={subPage} href={subExternalUrl} target="_blank" rel="noopener noreferrer"
+                        className="nav-item flex items-center gap-2 px-2 py-2 rounded-l-lg">
+                        <SubIcon size={14} className="text-white/40" />
+                        <span className="text-xs font-medium text-white/50">{subLabel}</span>
+                      </a>
+                    );
+                  }
                   return (
                     <Link key={subPage} to={createPageUrl(subPage)}
                       onClick={onLinkClick}

@@ -3,11 +3,14 @@ import { Calendar, Filter } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import ResumoExecutivo from '@/components/indicadores/ResumoExecutivo';
-import FinanceiroExecutivo from '@/components/indicadores/FinanceiroExecutivo';
-import ProjetosExecutivo from '@/components/indicadores/ProjetosExecutivo';
-import ComercialExecutivo from '@/components/indicadores/ComercialExecutivo';
+import ResumoExecutivoAvancado from '@/components/indicadores/ResumoExecutivoAvancado';
+import FinanceiroAvancado from '@/components/indicadores/FinanceiroAvancado';
+import ProjetosAvancado from '@/components/indicadores/ProjetosAvancado';
+import ComercialAvancado from '@/components/indicadores/ComercialAvancado';
 import TendenciasExecutivo from '@/components/indicadores/TendenciasExecutivo';
 import AlertasExecutivos from '@/components/indicadores/AlertasExecutivos';
+import IndicadoresRisco from '@/components/indicadores/IndicadoresRisco';
+import IndicadoresCaixa from '@/components/indicadores/IndicadoresCaixa';
 
 export default function IndicadoresTáticos() {
   const [periodo, setPeriodo] = useState('mes');
@@ -94,31 +97,49 @@ export default function IndicadoresTáticos() {
         <ResumoExecutivo filtros={filtros} />
       </div>
 
+      {/* Indicadores Avançados */}
+      <div>
+        <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Indicadores Financeiros Avançados</h2>
+        <ResumoExecutivoAvancado filtros={filtros} />
+      </div>
+
       {/* Grid de Seções */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Financeiro */}
         <div>
           <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Saúde Financeira</h2>
-          <FinanceiroExecutivo filtros={filtros} />
+          <FinanceiroAvancado filtros={filtros} />
         </div>
 
         {/* Projetos */}
         <div>
           <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Projetos</h2>
-          <ProjetosExecutivo filtros={filtros} />
+          <ProjetosAvancado filtros={filtros} />
         </div>
       </div>
 
       {/* Comercial */}
       <div>
         <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Comercial / Vendas</h2>
-        <ComercialExecutivo filtros={filtros} />
+        <ComercialAvancado filtros={filtros} />
       </div>
 
       {/* Tendências */}
       <div>
         <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Tendências e Evolução</h2>
         <TendenciasExecutivo filtros={filtros} />
+      </div>
+
+      {/* Indicadores de Risco */}
+      <div>
+        <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Indicadores de Risco</h2>
+        <IndicadoresRisco />
+      </div>
+
+      {/* Indicadores de Caixa */}
+      <div>
+        <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Saúde do Caixa</h2>
+        <IndicadoresCaixa />
       </div>
     </div>
   );

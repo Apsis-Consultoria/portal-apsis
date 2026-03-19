@@ -121,12 +121,7 @@ export default function ProjetoRiscos({ osId }) {
         </div>
       )}
 
-      {/* ── Ação ─────────────────────────────────────────────────────── */}
-      <div className="flex gap-2">
-        <Button size="sm" onClick={() => setShowForm(!showForm)}
-          variant="outline" className="gap-1.5 text-xs border-slate-300">
-          <Plus size={12} /> Novo Risco
-        </Button>
+
       </div>
 
       {/* ── Form novo risco ──────────────────────────────────────────── */}

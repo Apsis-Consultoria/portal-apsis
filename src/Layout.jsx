@@ -37,7 +37,7 @@ const ALWAYS_VISIBLE = ["BoasVindas"];
  */
 const DEFAULT_ROLE_PAGES = {
   admin: null, // null = tudo liberado
-  diretor: null,
+  diretor: null, // diretor acesso total para Indicadores Táticos
   gerente: [
     "BoasVindas",
     "Dashboard","DashboardValuation","DashboardContabil","DashboardAtivos",
@@ -143,6 +143,7 @@ const navItems = [
       { label: "Dashboard", page: "DashboardTI", icon: BarChart3 },
     ]
   },
+  { label: "Indicadores Táticos", page: "IndicadoresTáticos", icon: BarChart3 },
   { label: "Dashboard Qualidade", page: "DashboardQualidade", icon: BarChart3 },
   {
     label: "Apps APSIS", page: "AppsAPSIS", icon: Grid3x3,

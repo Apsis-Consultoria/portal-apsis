@@ -6,6 +6,7 @@ import {
   Save, Settings, Calendar, FileText, AlertCircle,
   Users, Lock, Link2, Eye, Building2, Check, Loader2, ExternalLink
 } from "lucide-react";
+import ObservacoesLog from "./shared/ObservacoesLog";
 
 const STATUS_OPTIONS = ["Não iniciado", "Ativo", "Pausado", "Cancelado"];
 
@@ -119,10 +120,13 @@ export default function ProjetoConfig({ projeto, onUpdate, osId }) {
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#1A4731]/20" />
             </Section>
 
-            <Section label="Observações Internas" icon={FileText}>
-              <textarea value={form.observacoes} onChange={set("observacoes")} rows={2}
-                placeholder="Notas internas (não visíveis ao cliente)..."
-                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#1A4731]/20" />
+            <Section label="Observações / Histórico" icon={FileText}>
+              <ObservacoesLog
+                value={form.observacoes_log || ""}
+                onChange={(val) => setForm(f => ({ ...f, observacoes_log: val }))}
+                currentUser="Usuário"
+                label="Log de Observações do Projeto"
+              />
             </Section>
           </>
         )}

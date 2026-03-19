@@ -13,6 +13,7 @@ import NexusDocumentos from './pages/NexusDocumentos';
 import NexusProjetos from './pages/NexusProjetos';
 import NexusPortalCliente from './pages/NexusPortalCliente';
 import NexusConfiguracoes from './pages/NexusConfiguracoes';
+import CapitalHumano from './pages/CapitalHumano';
 import PortalClienteLayout from './components/portal/PortalClienteLayout';
 import PortalClienteInicio from './pages/portal/PortalClienteInicio';
 import PortalClienteComunicacao from './pages/portal/PortalClienteComunicacao';
@@ -68,6 +69,7 @@ function App() {
             <Route path="/NexusProjetos" element={<LayoutWrapper currentPageName="NexusProjetos"><NexusProjetos /></LayoutWrapper>} />
             <Route path="/NexusPortalCliente" element={<LayoutWrapper currentPageName="NexusPortalCliente"><NexusPortalCliente /></LayoutWrapper>} />
             <Route path="/NexusConfiguracoes" element={<LayoutWrapper currentPageName="NexusConfiguracoes"><NexusConfiguracoes /></LayoutWrapper>} />
+            <Route path="/CapitalHumano" element={<LayoutWrapper currentPageName="CapitalHumano"><CapitalHumano /></LayoutWrapper>} />
 
             {/* Portal do Cliente Routes */}
             <Route path="/PortalClienteInicio" element={<PortalClienteLayout><ClientProtectedRoute><PortalClienteInicio /></ClientProtectedRoute></PortalClienteLayout>} />

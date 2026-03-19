@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { Search, Send, Paperclip, CheckCheck, Check, Shield, Lock, Eye, AlertCircle } from 'lucide-react';
+import { Search, Send, Paperclip, CheckCheck, Check, Shield, Lock, Eye, AlertCircle, Mail } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 
 const conversations = [
   {
@@ -61,17 +62,17 @@ const conversations = [
 
 const initialMessages = {
   1: [
-    { id: 1, sender: 'cliente', name: 'João Silva', text: 'Olá! Como estamos com a análise?', time: '09:30', read: true, visibility: 'compartilhado', clientRead: true },
-    { id: 2, sender: 'apsis', name: 'Marina APSIS', text: 'Oi João! Tudo bem. Estamos na fase final. Esperamos completar até amanhã.', time: '09:45', read: true, visibility: 'compartilhado', clientRead: true },
-    { id: 3, sender: 'apsis', name: 'Marina APSIS', text: 'Podemos compartilhar um relatório preliminar se desejar?', time: '09:46', read: true, visibility: 'interno', clientRead: false },
-    { id: 4, sender: 'cliente', name: 'João Silva', text: 'Sim, por favor! Isso seria ótimo.', time: '10:10', read: true, visibility: 'compartilhado', clientRead: true },
-    { id: 5, sender: 'apsis', name: 'Marina APSIS', text: '✓ Arquivo enviado: Análise_Preliminar_Q1.pdf', time: '10:20', read: false, visibility: 'compartilhado', clientRead: false, attachment: true, attachmentVisibility: 'compartilhado' },
-    { id: 6, sender: 'cliente', name: 'João Silva', text: 'Podemos agendar uma reunião para discutir o próximo trimestre?', time: '10:30', read: false, visibility: 'compartilhado', clientRead: false },
+    { id: 1, sender: 'cliente', name: 'João Silva', text: 'Olá! Como estamos com a análise?', time: '09:30', read: true, visibility: 'compartilhado', clientRead: true, emailStatus: 'enviada' },
+    { id: 2, sender: 'apsis', name: 'Marina APSIS', text: 'Oi João! Tudo bem. Estamos na fase final. Esperamos completar até amanhã.', time: '09:45', read: true, visibility: 'compartilhado', clientRead: true, emailStatus: 'enviada' },
+    { id: 3, sender: 'apsis', name: 'Marina APSIS', text: 'Podemos compartilhar um relatório preliminar se desejar?', time: '09:46', read: true, visibility: 'interno', clientRead: false, emailStatus: 'desabilitada' },
+    { id: 4, sender: 'cliente', name: 'João Silva', text: 'Sim, por favor! Isso seria ótimo.', time: '10:10', read: true, visibility: 'compartilhado', clientRead: true, emailStatus: 'enviada' },
+    { id: 5, sender: 'apsis', name: 'Marina APSIS', text: '✓ Arquivo enviado: Análise_Preliminar_Q1.pdf', time: '10:20', read: false, visibility: 'compartilhado', clientRead: false, attachment: true, attachmentVisibility: 'compartilhado', emailStatus: 'enviada' },
+    { id: 6, sender: 'cliente', name: 'João Silva', text: 'Podemos agendar uma reunião para discutir o próximo trimestre?', time: '10:30', read: false, visibility: 'compartilhado', clientRead: false, emailStatus: 'enviada' },
   ],
   2: [
-    { id: 1, sender: 'apsis', name: 'Você', text: 'Documentação atualizada no sistema', time: '08:00', read: true, visibility: 'interno', clientRead: false },
-    { id: 2, sender: 'apsis', name: 'Você', text: '✓ Arquivo enviado: Cronograma_Auditoria.xlsx', time: '08:15', read: true, visibility: 'interno', clientRead: false, attachment: true, attachmentVisibility: 'interno' },
-    { id: 3, sender: 'apsis', name: 'Você', text: 'Documentação foi enviada com sucesso', time: '09:15', read: true, visibility: 'interno', clientRead: false },
+    { id: 1, sender: 'apsis', name: 'Você', text: 'Documentação atualizada no sistema', time: '08:00', read: true, visibility: 'interno', clientRead: false, emailStatus: 'desabilitada' },
+    { id: 2, sender: 'apsis', name: 'Você', text: '✓ Arquivo enviado: Cronograma_Auditoria.xlsx', time: '08:15', read: true, visibility: 'interno', clientRead: false, attachment: true, attachmentVisibility: 'interno', emailStatus: 'desabilitada' },
+    { id: 3, sender: 'apsis', name: 'Você', text: 'Documentação foi enviada com sucesso', time: '09:15', read: true, visibility: 'interno', clientRead: false, emailStatus: 'desabilitada' },
   ],
 };
 
@@ -82,6 +83,19 @@ const eventLog = {
     { id: 'evt-3', type: 'compartilhado', message: 'Documento compartilhado com o cliente', time: '10:20' },
     { id: 'evt-4', type: 'lido_cliente', message: 'João Silva leu o documento', time: '10:35' },
   ],
+};
+
+const MessageNotificationStatus = ({ emailStatus }) => {
+  if (emailStatus === 'enviada') {
+    return <span className="text-xs text-green-600 flex items-center gap-1 mt-1"><Mail size={12} /> ✓ Notificação enviada</span>;
+  }
+  if (emailStatus === 'desabilitada') {
+    return <span className="text-xs text-gray-500 flex items-center gap-1 mt-1"><Mail size={12} /> Notificação desabilitada</span>;
+  }
+  if (emailStatus === 'pendente') {
+    return <span className="text-xs text-amber-600 flex items-center gap-1 mt-1"><Mail size={12} /> ⏳ Notificação pendente</span>;
+  }
+  return null;
 };
 
 const MessageBubble = ({ message, onToggleVisibility }) => {
@@ -127,6 +141,7 @@ const MessageBubble = ({ message, onToggleVisibility }) => {
               )}
             </div>
           )}
+          <MessageNotificationStatus emailStatus={message.emailStatus} />
         </div>
       </div>
     </div>
@@ -243,9 +258,53 @@ export default function NexusComunicacao() {
     }));
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (messageText.trim()) {
-      console.log('Mensagem enviada:', messageText);
+      const newMessage = {
+        id: Date.now(),
+        sender: 'apsis',
+        name: 'Você',
+        text: messageText,
+        time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        visibility: selectedConversation.visibleToClient ? 'compartilhado' : 'interno',
+        read: true,
+        emailStatus: 'pendente'
+      };
+
+      setMessages(prev => ({
+        ...prev,
+        [selectedConv]: [...(prev[selectedConv] || []), newMessage]
+      }));
+
+      if (newMessage.visibility === 'compartilhado') {
+        try {
+          await base44.functions.invoke('emailNotificationHandler', {
+            tipo_evento: 'mensagem',
+            contexto_id: selectedConv,
+            contexto_tipo: 'comunicacao',
+            cliente_email: selectedConversation.participant + '@client.com',
+            cliente_nome: selectedConversation.participant,
+            projeto_nome: selectedConversation.participant
+          });
+
+          setMessages(prev => ({
+            ...prev,
+            [selectedConv]: prev[selectedConv].map(msg => 
+              msg.id === newMessage.id ? { ...msg, emailStatus: 'enviada' } : msg
+            )
+          }));
+        } catch (error) {
+          console.error('Erro ao enviar notificação:', error);
+        }
+      } else {
+        setMessages(prev => ({
+          ...prev,
+          [selectedConv]: prev[selectedConv].map(msg => 
+            msg.id === newMessage.id ? { ...msg, emailStatus: 'desabilitada' } : msg
+          )
+        }));
+      }
+
       setMessageText('');
     }
   };
@@ -255,34 +314,42 @@ export default function NexusComunicacao() {
       <CommunicationHeader />
 
       <div className="h-full flex flex-col bg-[var(--surface-2)] rounded-xl overflow-hidden shadow-sm border border-[var(--border)]">
-        {/* Visibility Control Banner */}
+        {/* Visibility Control Banner with Email Status */}
         {selectedConversation && (
-          <div className="bg-white border-b border-[var(--border)] px-6 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {selectedConversation.visibleToClient ? (
-                <>
-                  <Eye size={16} className="text-green-600" />
-                  <div className="text-sm">
-                    <p className="font-medium text-[var(--text-primary)]">Conversa compartilhada com cliente</p>
-                    <p className="text-xs text-[var(--text-secondary)]">Cliente pode visualizar e responder</p>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <Lock size={16} className="text-amber-600" />
-                  <div className="text-sm">
-                    <p className="font-medium text-[var(--text-primary)]">Apenas equipe interna</p>
-                    <p className="text-xs text-[var(--text-secondary)]">Notas e discussões privadas</p>
-                  </div>
-                </>
-              )}
+          <div className="bg-white border-b border-[var(--border)] px-6 py-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {selectedConversation.visibleToClient ? (
+                  <>
+                    <Eye size={16} className="text-green-600" />
+                    <div className="text-sm">
+                      <p className="font-medium text-[var(--text-primary)]">Conversa compartilhada com cliente</p>
+                      <p className="text-xs text-[var(--text-secondary)]">Cliente pode visualizar e responder</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Lock size={16} className="text-amber-600" />
+                    <div className="text-sm">
+                      <p className="font-medium text-[var(--text-primary)]">Apenas equipe interna</p>
+                      <p className="text-xs text-[var(--text-secondary)]">Notas e discussões privadas</p>
+                    </div>
+                  </>
+                )}
+              </div>
+              <button
+                onClick={() => setShowEventLog(!showEventLog)}
+                className="text-xs font-medium text-[var(--apsis-orange)] hover:underline flex items-center gap-1"
+              >
+                📋 {showEventLog ? 'Ocultar' : 'Ver'} histórico
+              </button>
             </div>
-            <button
-              onClick={() => setShowEventLog(!showEventLog)}
-              className="text-xs font-medium text-[var(--apsis-orange)] hover:underline flex items-center gap-1"
-            >
-              📋 {showEventLog ? 'Ocultar' : 'Ver'} histórico
-            </button>
+            {selectedConversation.visibleToClient && (
+              <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 px-3 py-2 rounded border border-green-100">
+                <Mail size={14} className="text-green-600" />
+                <span><strong>✓ Notificações por e-mail ativas</strong> — Cliente receberá notificações sobre interações nesta conversa</span>
+              </div>
+            )}
           </div>
         )}
 

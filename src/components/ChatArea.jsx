@@ -45,10 +45,21 @@ export default function ChatArea({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="border-b border-[var(--border)] px-6 py-4">
-        <h2 className="text-lg font-semibold text-[var(--text-primary)]">{selectedConversation.titulo}</h2>
-        <p className="text-xs text-[var(--text-secondary)] mt-1">{selectedConversation.descricao}</p>
-      </div>
+       <div className="border-b border-[var(--border)] px-6 py-4">
+         <div className="flex items-start justify-between">
+           <div>
+             <h2 className="text-lg font-semibold text-[var(--text-primary)]">{selectedConversation.titulo}</h2>
+             <p className="text-xs text-[var(--text-secondary)] mt-1">{selectedConversation.descricao}</p>
+           </div>
+           {selectedConversation.cliente_nome && (
+             <div className="text-right">
+               <p className="text-xs font-medium text-[var(--apsis-orange)] bg-[var(--apsis-orange)]/10 px-3 py-1 rounded-full">
+                 {selectedConversation.cliente_nome}
+               </p>
+             </div>
+           )}
+         </div>
+       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
@@ -68,11 +79,18 @@ export default function ChatArea({
             return (
               <div key={msg.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'} group`}>
                 <div className={`max-w-xs lg:max-w-md`}>
-                  {/* Nome do remetente */}
+                  {/* Nome do remetente + empresa */}
                   {!isOwn && (
-                    <p className="text-xs font-semibold text-[var(--apsis-orange)] mb-1 px-3">
-                      {msg.remetente_nome}
-                    </p>
+                    <div className="mb-1 px-3">
+                      <p className="text-xs font-semibold text-[var(--apsis-orange)]">
+                        {msg.remetente_nome}
+                      </p>
+                      {msg.cliente_nome && (
+                        <p className="text-xs text-[var(--text-secondary)]">
+                          {msg.cliente_nome}
+                        </p>
+                      )}
+                    </div>
                   )}
 
                   {/* Bolha de mensagem */}

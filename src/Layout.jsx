@@ -271,7 +271,7 @@ export default function Layout({ children, currentPageName }) {
                       </a>
                     );
                   }
-                  const subTo = tabParam ? `/Projetos?tab=${tabParam}` : createPageUrl(subPage);
+                  const subTo = tabParam ? `/${subPage}?tab=${tabParam}` : createPageUrl(subPage);
                   const subActiveCheck = tabParam
                     ? currentPageName === subPage && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('tab') === tabParam
                     : currentPageName === subPage;

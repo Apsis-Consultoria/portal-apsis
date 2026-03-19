@@ -5,83 +5,83 @@ const INDICADORES_POR_AREA = {
   business_valuation: {
     titulo: 'Business Valuation',
     kpis: [
-      { label: 'Avaliações Realizadas', valor: '0', meta: 'Processos em andamento', status: 'neutral' },
-      { label: 'Valor em Análise', valor: 'R$ 0', meta: 'Portfolio avaliado', status: 'neutral' },
-      { label: 'Prazo Médio', valor: '0 dias', meta: 'Conclusão do processo', status: 'neutral' },
-      { label: 'Clientes', valor: '0', meta: 'Empresa atendidas', status: 'neutral' },
-    ]
+      { label: 'Avaliações Realizadas', valor: '0', meta: 'Processos concluídos', status: 'neutral' },
+      { label: 'Valor Total Avaliado', valor: 'R$ 0', meta: 'Portfolio em análise', status: 'neutral' },
+      { label: 'Ticket Médio', valor: 'R$ 0', meta: 'Valor médio por avaliação', status: 'neutral' },
+      { label: 'Taxa Finalização', valor: '0%', meta: 'Processos completados', status: 'neutral' },
+    ],
   },
   contabil_fiscal: {
     titulo: 'Consultoria Contábil & Fiscal',
     kpis: [
-      { label: 'Laudos Contábeis', valor: '0', meta: 'Serviços realizados', status: 'neutral' },
-      { label: 'Consultoria Fiscal', valor: 'R$ 0', meta: 'Faturamento do período', status: 'neutral' },
-      { label: 'Conformidade', valor: '100%', meta: 'Documentos em dia', status: 'success' },
-      { label: 'Clientes Ativos', valor: '0', meta: 'Portfolio', status: 'neutral' },
-    ]
+      { label: 'Laudos Contábeis', valor: '0', meta: 'Emissões realizadas', status: 'neutral' },
+      { label: 'Receita Fiscal', valor: 'R$ 0', meta: 'Faturamento consultoria', status: 'neutral' },
+      { label: 'Clientes Ativos', valor: '0', meta: 'Portfolio em atendimento', status: 'neutral' },
+      { label: 'Conformidade Fiscal', valor: '100%', meta: 'Documentos compliance', status: 'success' },
+    ],
   },
   ativos_fixos: {
     titulo: 'Ativos Fixos',
     kpis: [
       { label: 'Avaliações Ativas', valor: '0', meta: 'Em processamento', status: 'neutral' },
-      { label: 'Valor Total', valor: 'R$ 0', meta: 'Patrimônio avaliado', status: 'neutral' },
-      { label: 'Taxa Ocupação', valor: '0%', meta: 'Capacidade utilizada', status: 'neutral' },
-      { label: 'Documentação', valor: '0%', meta: 'Processos documentados', status: 'neutral' },
-    ]
+      { label: 'Valor Total do Inventário', valor: 'R$ 0', meta: 'Patrimônio avaliado', status: 'neutral' },
+      { label: 'Ticket Médio', valor: 'R$ 0', meta: 'Valor médio por ativo', status: 'neutral' },
+      { label: 'Taxa Documentação', valor: '0%', meta: 'Ativos registrados', status: 'neutral' },
+    ],
   },
   consultoria_estrategica: {
     titulo: 'Consultoria Estratégica',
     kpis: [
-      { label: 'Projetos em Andamento', valor: '0', meta: 'Consultoria ativa', status: 'neutral' },
-      { label: 'Valor Contratado', valor: 'R$ 0', meta: 'Receita esperada', status: 'neutral' },
+      { label: 'Projetos em Execução', valor: '0', meta: 'Consultoria ativa', status: 'neutral' },
+      { label: 'Receita Contratada', valor: 'R$ 0', meta: 'Valor total de projetos', status: 'neutral' },
+      { label: 'Clientes Atendidos', valor: '0', meta: 'Empresas consultadas', status: 'neutral' },
       { label: 'Taxa Conclusão', valor: '0%', meta: 'Projetos finalizados', status: 'neutral' },
-      { label: 'Clientes', valor: '0', meta: 'Atendidos', status: 'neutral' },
-    ]
+    ],
   },
   ma: {
     titulo: 'M&A',
     kpis: [
-      { label: 'Deals em Pipeline', valor: '0', meta: 'Due Diligence ativo', status: 'neutral' },
-      { label: 'Valor em Análise', valor: 'R$ 0', meta: 'Pipeline M&A', status: 'neutral' },
-      { label: 'Taxa Conclusão', valor: '0%', meta: 'Transações fechadas', status: 'neutral' },
-      { label: 'Valor Realizado', valor: 'R$ 0', meta: 'Transações completas', status: 'neutral' },
-    ]
+      { label: 'Deals em Pipeline', valor: '0', meta: 'Transações em análise', status: 'neutral' },
+      { label: 'Valor em Due Diligence', valor: 'R$ 0', meta: 'Volume total M&A', status: 'neutral' },
+      { label: 'Deals Fechados', valor: '0', meta: 'Transações concluídas', status: 'success' },
+      { label: 'Ticket Médio', valor: 'R$ 0', meta: 'Valor médio por deal', status: 'neutral' },
+    ],
   },
   projetos_especiais: {
     titulo: 'Projetos Especiais',
     kpis: [
       { label: 'Projetos Ativos', valor: '0', meta: 'Em execução', status: 'neutral' },
-      { label: 'Valor Empenhado', valor: 'R$ 0', meta: 'Total do portfólio', status: 'neutral' },
-      { label: 'Taxa Pontualidade', valor: '0%', meta: 'Dentro do prazo', status: 'neutral' },
-      { label: 'Recursos Alocados', valor: '0', meta: 'Horas de trabalho', status: 'neutral' },
-    ]
+      { label: 'Valor Total Investido', valor: 'R$ 0', meta: 'Orçamento empenhado', status: 'neutral' },
+      { label: 'Ticket Médio', valor: 'R$ 0', meta: 'Valor médio por projeto', status: 'neutral' },
+      { label: 'Taxa Pontualidade', valor: '0%', meta: 'Projetos no prazo', status: 'neutral' },
+    ],
   },
   financeiro: {
     titulo: 'Financeiro',
     kpis: [
-      { label: 'Receita Mensal', valor: 'R$ 0', meta: 'Faturamento total', status: 'neutral' },
-      { label: 'Contas a Receber', valor: 'R$ 0', meta: 'Pendências', status: 'warning' },
-      { label: 'Contas a Pagar', valor: 'R$ 0', meta: 'Obrigações', status: 'warning' },
-      { label: 'Fluxo de Caixa', valor: 'R$ 0', meta: 'Saldo líquido', status: 'neutral' },
-    ]
+      { label: 'Receita Mês Atual', valor: 'R$ 0', meta: 'Faturamento total', status: 'neutral' },
+      { label: 'Ticket Médio', valor: 'R$ 0', meta: 'Valor médio por transação', status: 'neutral' },
+      { label: 'Contas a Receber', valor: 'R$ 0', meta: 'Valores em cobrança', status: 'warning' },
+      { label: 'Fluxo de Caixa Líquido', valor: 'R$ 0', meta: 'Saldo disponível', status: 'neutral' },
+    ],
   },
   capital_humano: {
     titulo: 'Capital Humano',
     kpis: [
-      { label: 'Colaboradores', valor: '0', meta: 'Efetivo total', status: 'neutral' },
-      { label: 'Utilização CH', valor: '0%', meta: 'Horas alocadas', status: 'neutral' },
-      { label: 'Custo CH', valor: 'R$ 0', meta: 'Despesa mensal', status: 'neutral' },
-      { label: 'Produtividade', valor: '0 h/pessoa', meta: 'Média por colaborador', status: 'neutral' },
-    ]
+      { label: 'Colaboradores Ativos', valor: '0', meta: 'Efetivo total', status: 'neutral' },
+      { label: 'Utilização de Horas', valor: '0%', meta: 'Horas produtivas alocadas', status: 'neutral' },
+      { label: 'Custo Médio CH', valor: 'R$ 0', meta: 'Despesa mensal por pessoa', status: 'neutral' },
+      { label: 'Produtividade', valor: '0 h', meta: 'Horas por colaborador', status: 'neutral' },
+    ],
   },
   mercado_clientes: {
     titulo: 'Mercado / Clientes',
     kpis: [
-      { label: 'Clientes Ativos', valor: '0', meta: 'Portfolio', status: 'neutral' },
-      { label: 'Receita por Cliente', valor: 'R$ 0', meta: 'Ticket médio', status: 'neutral' },
-      { label: 'Taxa Retenção', valor: '0%', meta: 'Clientes mantidos', status: 'neutral' },
-      { label: 'Novos Clientes', valor: '0', meta: 'Período', status: 'neutral' },
-    ]
+      { label: 'Clientes Ativos', valor: '0', meta: 'Portfolio total', status: 'neutral' },
+      { label: 'Ticket Médio', valor: 'R$ 0', meta: 'Receita média por cliente', status: 'neutral' },
+      { label: 'Volume de Propostas', valor: '0', meta: 'Propostas geradas', status: 'neutral' },
+      { label: 'Taxa de Conversão', valor: '0%', meta: 'Propostas ganhas', status: 'neutral' },
+    ],
   },
 };
 
@@ -114,7 +114,7 @@ export default function MarketingIndicadores() {
           <h1 className="text-2xl font-bold text-slate-900">Indicadores Estratégicos</h1>
           <p className="text-sm text-slate-500 mt-1">Métricas por área de negócio</p>
         </div>
-        
+
         <div className="relative">
           <select
             value={selectedArea}
@@ -122,7 +122,9 @@ export default function MarketingIndicadores() {
             className="appearance-none bg-white border-2 border-slate-200 rounded-lg px-4 py-2 pr-10 font-medium text-slate-900 cursor-pointer hover:border-slate-300 focus:outline-none focus:border-orange-500"
           >
             {Object.entries(INDICADORES_POR_AREA).map(([key, data]) => (
-              <option key={key} value={key}>{data.titulo}</option>
+              <option key={key} value={key}>
+                {data.titulo}
+              </option>
             ))}
           </select>
           <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
@@ -138,9 +140,9 @@ export default function MarketingIndicadores() {
 
       {/* Placeholder para Charts */}
       <div className="bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg p-8 text-center">
-        <p className="text-slate-600 font-medium">Gráficos analíticos</p>
+        <p className="text-slate-600 font-medium">Gráficos analíticos em desenvolvimento</p>
         <p className="text-sm text-slate-500 mt-1">
-          {indicador.charts.join(' • ')}
+          Visualizações de tendências e análises por período
         </p>
       </div>
     </div>

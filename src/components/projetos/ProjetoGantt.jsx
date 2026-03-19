@@ -196,33 +196,6 @@ export default function ProjetoGantt({ osId, projeto }) {
         </div>
       </div>
 
-      {/* ── Controles ────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
-          {VIEWS.map(v => (
-            <button key={v.id} onClick={() => setViewMode(v.id)}
-              className={`text-xs px-3 py-1.5 rounded-md font-medium transition-all ${
-                viewMode === v.id ? "bg-white shadow-sm text-[#1A4731]" : "text-slate-500 hover:text-slate-700"
-              }`}>{v.label}</button>
-          ))}
-        </div>
-        <div className="flex items-center gap-1 ml-2">
-          <button onClick={() => nav(-DIAS / 2)} className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
-            <ChevronLeft size={14} className="text-slate-500" />
-          </button>
-          <button onClick={goToday} className="text-xs px-3 py-1.5 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors">
-            Hoje
-          </button>
-          <button onClick={() => nav(DIAS / 2)} className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
-            <ChevronRight size={14} className="text-slate-500" />
-          </button>
-        </div>
-        <span className="text-xs text-slate-400 ml-1 capitalize">
-          {viewStart.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
-          {viewMode !== "week" && ` – ${viewEnd.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}`}
-        </span>
-      </div>
-
       {/* ── Gantt ─────────────────────────────────────────────────────── */}
       {tarefas.length === 0 ? (
         <div className="bg-white rounded-2xl border border-slate-200 flex flex-col items-center justify-center py-16 gap-3">

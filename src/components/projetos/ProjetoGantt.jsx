@@ -133,7 +133,36 @@ export default function ProjetoGantt({ osId, projeto }) {
   const LEFT_W = 220;
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-6 space-y-5">
+
+      <PageHeader
+        title="Timeline"
+        subtitle="Cronograma visual de tarefas por fase e período"
+        icon={LayoutList}
+        actions={(
+          <>
+            <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
+              {VIEWS.map(v => (
+                <button key={v.id} onClick={() => setViewMode(v.id)}
+                  className={`text-xs px-3 py-1.5 rounded-md font-medium transition-all ${
+                    viewMode === v.id ? "bg-white shadow-sm text-[#1A4731]" : "text-slate-500 hover:text-slate-700"
+                  }`}>{v.label}</button>
+              ))}
+            </div>
+            <div className="flex items-center gap-1">
+              <button onClick={() => nav(-DIAS / 2)} className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-white hover:border-slate-300 transition-all">
+                <ChevronLeft size={14} className="text-slate-500" />
+              </button>
+              <button onClick={goToday} className="text-xs px-3 py-1.5 border border-slate-200 rounded-lg text-slate-600 hover:bg-white hover:border-slate-300 transition-all">
+                Hoje
+              </button>
+              <button onClick={() => nav(DIAS / 2)} className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-white hover:border-slate-300 transition-all">
+                <ChevronRight size={14} className="text-slate-500" />
+              </button>
+            </div>
+          </>
+        )}
+      />
 
       {/* ── Indicador consolidado ─────────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-slate-200 p-4">

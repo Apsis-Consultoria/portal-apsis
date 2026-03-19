@@ -9,6 +9,7 @@ import ProjetosKanban from "@/components/projetos/hub/ProjetosKanban";
 import ProjetosDocumentos from "@/components/projetos/hub/ProjetosDocumentos";
 import ProjetosRiscos from "@/components/projetos/hub/ProjetosRiscos";
 import ProjetosConfiguracoes from "@/components/projetos/hub/ProjetosConfiguracoes";
+import ProjetosParcelas from "@/components/projetos/hub/ProjetosParcelas";
 
 const TABS = [
   { id: "dashboard", label: "Dashboard" },
@@ -16,6 +17,7 @@ const TABS = [
   { id: "kanban", label: "Kanban" },
   { id: "documentos", label: "Documentos" },
   { id: "riscos", label: "Riscos" },
+  { id: "parcelas", label: "Parcelas" },
   { id: "configuracoes", label: "Configurações" },
 ];
 
@@ -67,6 +69,7 @@ export default function Projetos() {
       case "kanban": return <ProjetosKanban {...props} />;
       case "documentos": return <ProjetosDocumentos {...props} />;
       case "riscos": return <ProjetosRiscos {...props} />;
+      case "parcelas": return <ProjetosParcelas {...props} />;
       case "configuracoes": return <ProjetosConfiguracoes />;
       default: return <ProjetosDashboard {...props} />;
     }

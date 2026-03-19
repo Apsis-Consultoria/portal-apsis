@@ -110,6 +110,15 @@ const navItems = [
       { label: "Orçado vs Real", page: "MarketingOrcado", icon: PieChart },
     ]
   },
+  {
+    label: "Apps APSIS", page: "AppsAPSIS", icon: Grid3x3,
+    children: [
+      { label: "Ativo Fixo", page: "AppAtivoFixo", icon: Settings },
+      { label: "Conciliação", page: "AppConciliacao", icon: Settings },
+      { label: "Imóveis", page: "AppImoveis", icon: Settings },
+      { label: "CUBUS", page: "AppCubus", icon: Settings },
+    ]
+  },
   { label: "Relatórios", page: "Relatorios", icon: FileText },
   {
     label: "APSIS Nexus", page: "NexusInicio", icon: Globe,

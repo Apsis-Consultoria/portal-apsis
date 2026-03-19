@@ -111,15 +111,6 @@ const navItems = [
     ]
   },
   {
-    label: "Apps APSIS", page: "AppsAPSIS", icon: Grid3x3,
-    children: [
-      { label: "Ativo Fixo", page: "AppAtivoFixo", icon: Settings },
-      { label: "Conciliação", page: "AppConciliacao", icon: Settings },
-      { label: "Imóveis", page: "AppImoveis", icon: Settings },
-      { label: "CUBUS", page: "AppCubus", icon: Settings },
-    ]
-  },
-  {
     label: "APSIS Nexus", page: "NexusInicio", icon: Globe,
     children: [
       { label: "Início", page: "NexusInicio", icon: Home },
@@ -129,6 +120,15 @@ const navItems = [
       { label: "Projetos", page: "NexusProjetos", icon: LayoutDashboard },
       { label: "Portal do Cliente", page: "NexusPortalCliente", icon: Globe },
       { label: "Configurações", page: "NexusConfiguracoes", icon: Settings },
+    ]
+  },
+  {
+    label: "Apps APSIS", page: "AppsAPSIS", icon: Grid3x3,
+    children: [
+      { label: "Ativo Fixo", page: "AppAtivoFixo", icon: Settings },
+      { label: "Conciliação", page: "AppConciliacao", icon: Settings },
+      { label: "Imóveis", page: "AppImoveis", icon: Settings },
+      { label: "CUBUS", page: "AppCubus", icon: Settings },
     ]
   },
   {

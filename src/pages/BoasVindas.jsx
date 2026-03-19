@@ -64,7 +64,7 @@ export default function BoasVindas() {
         <div className="animate-fade-in-up space-y-6">
           <div>
             <h1 className="text-5xl lg:text-6xl font-bold text-[#1A4731] leading-tight mb-3">
-              Bem-vindo ao Portal APSIS
+              Bem-vindo(a) ao Portal APSIS
             </h1>
             <p className="text-xl text-[#5C7060] font-medium mb-3">
               Seu workspace corporativo para gestão, colaboração, projetos, documentos e inteligência operacional.

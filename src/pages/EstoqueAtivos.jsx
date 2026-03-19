@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Plus, Search } from "lucide-react";
 import EstoqueAtivosTable from "@/components/tecnologia/EstoqueAtivosTable";
 import NovoAtivoModal from "@/components/tecnologia/NovoAtivoModal";
-import UploadAtivoPlanilha from "@/components/tecnologia/UploadAtivoPlanilha";
+import UploadAtivoPlanilha from "@/components/tecnologia/UploadAtivoPlanilha.jsx";
 
 export default function EstoqueAtivos() {
   const [aba, setAba] = useState("ativos");

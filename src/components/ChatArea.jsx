@@ -186,7 +186,7 @@ export default function ChatArea({
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-[var(--border)] bg-white p-4 space-y-3">
+       <div className="border-t-2 border-[var(--border)] bg-white p-4 space-y-3 shadow-sm">
         <div className="flex gap-2">
           <AnexoUpload
             onAnexoAdicionado={(anexo) => {

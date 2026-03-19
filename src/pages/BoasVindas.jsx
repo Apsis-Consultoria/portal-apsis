@@ -5,6 +5,7 @@ import {
   FileText, Settings, TrendingUp, Users, BarChart3, GitBranch, Sparkles,
   ArrowRight, Lock, Zap, Eye, Share2, Lightbulb
 } from "lucide-react";
+import SeuDiaBloco from "@/components/SeuDiaBloco";
 
 const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a1fc4b60b4c477ea324579/40af152e2_Design-sem-nome.png";
 
@@ -90,6 +91,9 @@ export default function BoasVindas() {
             })}
           </div>
         </div>
+
+        {/* SEU DIA - PENDÊNCIAS */}
+        <SeuDiaBloco />
 
         {/* ATALHOS RÁPIDOS */}
         <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>

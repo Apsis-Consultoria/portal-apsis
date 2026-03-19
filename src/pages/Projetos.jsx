@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import NovoProjetoModal from "@/components/projetos/NovoProjetoModal";
 import ProjetosDashboard from "@/components/projetos/hub/ProjetosDashboard";
@@ -21,6 +21,7 @@ const TABS = [
 
 export default function Projetos() {
   const location = useLocation();
+  const navigate = useNavigate();
   const urlParams = new URLSearchParams(location.search);
   const activeTab = urlParams.get("tab") || "dashboard";
 
@@ -83,9 +84,9 @@ export default function Projetos() {
               {TABS.map(({ id, label }) => {
                 const isActive = activeTab === id;
                 return (
-                  <a
+                  <button
                     key={id}
-                    href={`/Projetos?tab=${id}`}
+                    onClick={() => navigate(`/Projetos?tab=${id}`)}
                     className={`flex items-center h-full px-4 text-xs font-semibold whitespace-nowrap border-b-2 transition-all ${
                       isActive
                         ? "border-[#F47920] text-[#F47920]"
@@ -93,7 +94,7 @@ export default function Projetos() {
                     }`}
                   >
                     {label}
-                  </a>
+                  </button>
                 );
               })}
             </div>

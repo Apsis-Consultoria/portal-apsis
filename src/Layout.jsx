@@ -130,7 +130,7 @@ const navItems = [
   { label: "Configurações", page: "Configuracoes", icon: Settings },
 ];
 
-const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a1fc4b60b4c477ea324579/40af152e2_Design-sem-nome.png";
+const LOGO_URL = "https://media.base44.com/images/public/69a1fc4b60b4c477ea324579/32a8b27c7_Logohorizontal-Fundobranco1.png";
 
 export default function Layout({ children, currentPageName }) {
   // Estados de UI
@@ -329,15 +329,13 @@ export default function Layout({ children, currentPageName }) {
         style={{ minHeight: "100vh" }}
       >
         {/* Logo */}
-        <div className={`flex items-center gap-3 px-4 py-5 border-b border-white/10 ${collapsed ? "justify-center px-2" : ""}`}>
-          <img src={LOGO_URL} alt="APSIS" className="w-9 h-9 object-contain flex-shrink-0 rounded" />
+        <div className={`flex flex-col items-center px-4 py-5 border-b border-white/10 ${collapsed ? "justify-center" : ""}`}>
           {!collapsed && (
-            <div>
-              <div className="text-white font-bold text-base leading-tight tracking-wide">Portal APSIS</div>
-              {userDepartamento && (
-                <div className="text-[#F47920] text-[11px] font-bold tracking-widest uppercase truncate max-w-[160px]">{userDepartamento}</div>
-              )}
-            </div>
+            <div className="text-white text-[11px] font-bold tracking-widest uppercase mb-2">Portal</div>
+          )}
+          <img src={LOGO_URL} alt="APSIS" className={`object-contain flex-shrink-0 ${collapsed ? "w-8 h-8" : "w-32 h-auto"}`} />
+          {!collapsed && userDepartamento && (
+            <div className="text-[#F47920] text-[11px] font-bold tracking-widest uppercase truncate max-w-[160px] mt-3">{userDepartamento}</div>
           )}
         </div>
 
@@ -368,17 +366,15 @@ export default function Layout({ children, currentPageName }) {
         <div className="fixed inset-0 z-40 md:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
           <aside className="relative z-50 w-64 h-full bg-[var(--apsis-green)] flex flex-col">
-            <div className="flex items-center justify-between px-4 py-5 border-b border-white/10">
-              <div className="flex items-center gap-3">
-                <img src={LOGO_URL} alt="APSIS" className="w-8 h-8 object-contain rounded" />
-                <div>
-                  <div className="text-white font-bold text-sm">Portal APSIS</div>
-                  {userDepartamento && (
-                    <div className="text-[#F47920] text-[10px] font-bold tracking-widest uppercase truncate max-w-[150px]">{userDepartamento}</div>
-                  )}
-                </div>
+            <div className="flex items-center justify-between px-4 py-4 border-b border-white/10 w-full">
+              <div className="flex flex-col items-center w-full">
+                <div className="text-white text-[10px] font-bold tracking-widest uppercase mb-2">Portal</div>
+                <img src={LOGO_URL} alt="APSIS" className="w-24 h-auto object-contain" />
+                {userDepartamento && (
+                  <div className="text-[#F47920] text-[10px] font-bold tracking-widest uppercase truncate max-w-[150px] mt-2">{userDepartamento}</div>
+                )}
               </div>
-              <button onClick={() => setMobileOpen(false)}><X size={18} className="text-white/50" /></button>
+              <button onClick={() => setMobileOpen(false)} className="ml-4"><X size={18} className="text-white/50" /></button>
             </div>
             <nav className="flex-1 py-4 px-2 space-y-0.5 overflow-y-auto">
               {renderNavItems(visibleNavItems, () => setMobileOpen(false))}

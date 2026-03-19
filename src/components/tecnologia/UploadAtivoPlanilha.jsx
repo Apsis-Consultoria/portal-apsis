@@ -20,7 +20,6 @@ export default function UploadAtivoPlanilha({ onSuccess }) {
       const fileUrl = uploadRes.file_url;
 
       // Extração de dados
-      const schema = await base44.entities.AtivoTI.schema();
       const extractRes = await base44.integrations.Core.ExtractDataFromUploadedFile({
         file_url: fileUrl,
         json_schema: {

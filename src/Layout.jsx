@@ -135,21 +135,21 @@ const navItems = [
     ]
   },
   {
-    label: "Apps APSIS", page: "AppsAPSIS", icon: Grid3x3,
-    children: [
-      { label: "APP Ativo Fixo", page: "AppAtivoFixo", icon: Briefcase },
-      { label: "App Conciliação", page: "AppConciliacao", icon: BarChart3 },
-      { label: "App Imóveis", page: "AppImoveis", icon: Home },
-      { label: "APSIS CUBUS", page: "AppCubus", icon: Sparkles },
-    ]
-  },
-  {
     label: "Tecnologia e Inovação", page: "TecnologiaInicio", icon: Cpu,
     children: [
       { label: "Estoque de Ativos", page: "EstoqueAtivos", icon: Package },
       { label: "Alocação de Equipamentos", page: "AlocacaoEquipamentos", icon: Users },
       { label: "Movimentações", page: "MovimentacoesEquipamentos", icon: TrendingUp },
       { label: "Dashboard", page: "DashboardTI", icon: BarChart3 },
+    ]
+  },
+  {
+    label: "Apps APSIS", page: "AppsAPSIS", icon: Grid3x3,
+    children: [
+      { label: "APP Ativo Fixo", page: "AppAtivoFixo", icon: Briefcase },
+      { label: "App Conciliação", page: "AppConciliacao", icon: BarChart3 },
+      { label: "App Imóveis", page: "AppImoveis", icon: Home },
+      { label: "APSIS CUBUS", page: "AppCubus", icon: Sparkles },
     ]
   },
   {

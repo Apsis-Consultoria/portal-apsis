@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Save, Settings, Globe, MessageSquare, Mail, Share2, Lock, Check, AlertCircle, Upload } from 'lucide-react';
+import SharePointConfigPanel from '@/components/SharePointConfigPanel';
 
 const ConfigSection = ({ title, description, children }) => (
   <div className="space-y-4">
@@ -399,47 +400,7 @@ export default function NexusConfiguracoes() {
 
         {/* ABA 5: SharePoint */}
         {activeTab === 'sharepoint' && (
-          <>
-            <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
-              <AlertCircle size={18} className="text-blue-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-700">
-                <p className="font-medium mb-1">Integração com SharePoint</p>
-                <p>Configure os dados de conexão para sincronizar documentos automaticamente com SharePoint.</p>
-              </div>
-            </div>
-
-            <ConfigSection title="Credenciais de Conexão" description="Informações da conta SharePoint">
-              <FormField label="Tenant URL" required description="Ex: https://seu-tenant.sharepoint.com">
-                <TextInput placeholder="https://apsis.sharepoint.com" defaultValue="https://apsis.sharepoint.com" />
-              </FormField>
-
-              <FormField label="Site URL" required description="URL completa do site">
-                <TextInput placeholder="https://apsis.sharepoint.com/sites/Nexus" defaultValue="https://apsis.sharepoint.com/sites/Nexus" />
-              </FormField>
-
-              <FormField label="Biblioteca Padrão" required description="Nome da biblioteca de documentos">
-                <TextInput placeholder="Documentos" defaultValue="Documentos" />
-              </FormField>
-
-              <FormField label="Pasta Base">
-                <TextInput placeholder="/Projetos" defaultValue="/Nexus/Projetos" />
-              </FormField>
-
-              <FormField label="Nome da Conexão">
-                <TextInput placeholder="APSIS Nexus SharePoint" defaultValue="APSIS Nexus SharePoint" />
-              </FormField>
-            </ConfigSection>
-
-            <ConfigSection title="Ações" description="Teste a conexão antes de salvar">
-              <div className="flex gap-3">
-                <button className="flex items-center gap-2 px-4 py-2.5 border border-[var(--border)] rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-2)]">
-                  🔗 Testar Conexão
-                </button>
-              </div>
-            </ConfigSection>
-
-            <SaveButton />
-          </>
+          <SharePointConfigPanel />
         )}
 
         {/* ABA 6: Segurança */}

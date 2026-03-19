@@ -93,7 +93,7 @@ export default function ChatArea({
                {/* Mensagens do dia */}
                <div className="space-y-3">
                  {dateMessages.map((msg) => {
-            const isOwn = msg.remetente_email === currentUserEmail;
+                   const isOwn = msg.remetente_email === currentUserEmail;
             const isShared = msg.visibilidade === 'compartilhado';
             const isInternal = msg.visibilidade === 'interno';
 
@@ -116,12 +116,12 @@ export default function ChatArea({
 
                   {/* Bolha de mensagem */}
                   <div
-                    className={`px-4 py-3 rounded-2xl relative ${
+                    className={`px-4 py-3 rounded-2xl relative shadow-sm ${
                       isOwn
-                        ? 'bg-[var(--apsis-orange)] text-white'
+                        ? 'bg-[var(--apsis-orange)] text-white shadow-md'
                         : isInternal
-                        ? 'bg-amber-100 text-amber-900 border border-amber-200'
-                        : 'bg-[var(--surface-2)] text-[var(--text-primary)]'
+                        ? 'bg-amber-100 text-amber-900 border-2 border-amber-300'
+                        : 'bg-white text-[var(--text-primary)] border border-[var(--border)]'
                     }`}
                   >
                     <p className="text-sm leading-relaxed">{msg.conteudo}</p>
@@ -136,52 +136,52 @@ export default function ChatArea({
                         {isShared ? '🔓' : '🔒'}
                       </button>
                     )}
-                    </div>
+                  </div>
 
                     {/* Metadados */}
                     <div className="flex items-center gap-1.5 mt-2 px-3 text-xs text-[var(--text-secondary)]">
-                    <span>{new Date(msg.created_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
-                    {isOwn && msg.lida_por?.length > 0 && (
-                      <CheckCheck size={13} className="text-[var(--apsis-orange)]" />
+                      <span>{new Date(msg.created_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                      {isOwn && msg.lida_por?.length > 0 && (
+                        <CheckCheck size={13} className="text-[var(--apsis-orange)]" />
+                      )}
+                      {isOwn && !msg.lida_por?.length && <Check size={13} />}
+                    </div>
+
+                    {/* Indicador de visibilidade */}
+                    {currentUserType === 'apsis' && isInternal && (
+                      <div className="flex items-center gap-1 mt-2 px-3 text-xs text-amber-700 bg-amber-50 rounded-md py-1 border border-amber-200">
+                        <Lock size={12} />
+                        Apenas equipe interna
+                      </div>
                     )}
-                    {isOwn && !msg.lida_por?.length && <Check size={13} />}
-                  </div>
 
-                  {/* Indicador de visibilidade */}
-                  {currentUserType === 'apsis' && isInternal && (
-                    <div className="flex items-center gap-1 mt-2 px-3 text-xs text-amber-700 bg-amber-50 rounded py-1">
-                      <Lock size={12} />
-                      Apenas equipe interna
-                    </div>
-                  )}
+                    {currentUserType === 'apsis' && isShared && (
+                      <div className="flex items-center gap-1 mt-2 px-3 text-xs text-green-700 bg-green-50 rounded-md py-1 border border-green-200">
+                        <Eye size={12} />
+                        Visível ao cliente
+                      </div>
+                    )}
 
-                  {currentUserType === 'apsis' && isShared && (
-                    <div className="flex items-center gap-1 mt-2 px-3 text-xs text-green-700 bg-green-50 rounded py-1">
-                      <Eye size={12} />
-                      Visível ao cliente
+                    {/* Anexos */}
+                    {msg.anexos?.length > 0 && (
+                      <div className="mt-3">
+                        <AnexosList
+                          anexos={msg.anexos}
+                          currentUserType={currentUserType}
+                          onDownload={(anexo) => {
+                            const link = document.createElement('a');
+                            link.href = anexo.url;
+                            link.download = anexo.nome;
+                            link.click();
+                          }}
+                        />
+                      </div>
+                    )}
                     </div>
-                  )}
-
-                  {/* Anexos */}
-                  {msg.anexos?.length > 0 && (
-                    <div className="mt-3">
-                      <AnexosList
-                        anexos={msg.anexos}
-                        currentUserType={currentUserType}
-                        onDownload={(anexo) => {
-                          const link = document.createElement('a');
-                          link.href = anexo.url;
-                          link.download = anexo.nome;
-                          link.click();
-                        }}
-                      />
                     </div>
-                  )}
-                </div>
-              </div>
-            );
-          })
-        )}
+                    );
+                    })}
+        ))}
         <div ref={messagesEndRef} />
       </div>
 

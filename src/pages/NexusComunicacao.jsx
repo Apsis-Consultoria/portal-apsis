@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Search, Send, Paperclip, CheckCheck, Check } from 'lucide-react';
+import { Search, Send, Paperclip, CheckCheck, Check, Shield, Lock, Eye, AlertCircle } from 'lucide-react';
 
 const conversations = [
   {
@@ -10,7 +10,8 @@ const conversations = [
     lastMessage: 'Podemos agendar uma reunião para discutir o próximo trimestre?',
     timestamp: '10:30',
     unread: 2,
-    avatar: '🏢'
+    avatar: '🏢',
+    visibleToClient: true
   },
   {
     id: 2,
@@ -20,7 +21,8 @@ const conversations = [
     lastMessage: 'Documentação foi enviada com sucesso',
     timestamp: '09:15',
     unread: 0,
-    avatar: '📋'
+    avatar: '📋',
+    visibleToClient: false
   },
   {
     id: 3,
@@ -30,7 +32,8 @@ const conversations = [
     lastMessage: 'Você respondeu: Em análise, prazo de 48h',
     timestamp: 'Ontem',
     unread: 0,
-    avatar: '📝'
+    avatar: '📝',
+    visibleToClient: true
   },
   {
     id: 4,
@@ -40,7 +43,8 @@ const conversations = [
     lastMessage: 'Obrigado pelas informações!',
     timestamp: '3d',
     unread: 0,
-    avatar: '🌐'
+    avatar: '🌐',
+    visibleToClient: true
   },
   {
     id: 5,
@@ -50,7 +54,8 @@ const conversations = [
     lastMessage: 'Relatório preliminar enviado',
     timestamp: '5d',
     unread: 0,
-    avatar: '📊'
+    avatar: '📊',
+    visibleToClient: false
   },
 ];
 
@@ -148,7 +153,10 @@ const ConversationItem = ({ conv, active, onClick }) => {
         <div className="flex items-center gap-2">
           <span className="text-xl">{conv.avatar}</span>
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-semibold text-[var(--text-primary)] truncate">{conv.participant}</h4>
+            <div className="flex items-center gap-2">
+              <h4 className="text-sm font-semibold text-[var(--text-primary)] truncate">{conv.participant}</h4>
+              {conv.visibleToClient && <Eye size={12} className="text-green-600 flex-shrink-0" />}
+            </div>
             <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium mt-1 ${contextColors[conv.contextLabel]}`}>
               {conv.contextLabel}
             </span>
@@ -178,7 +186,7 @@ const EventLogPanel = ({ convId }) => {
   return (
     <div className="space-y-2 h-full">
       {events.map(evt => (
-        <div key={evt.id} className="flex gap-2 text-xs">
+        <div key={evt.id} className="flex gap-2 text-xs pb-2 border-b border-[var(--border)] last:border-0">
           <span className="text-base flex-shrink-0">{eventIcons[evt.type] || '•'}</span>
           <div>
             <p className="text-[var(--text-secondary)]">{evt.message}</p>
@@ -189,6 +197,13 @@ const EventLogPanel = ({ convId }) => {
     </div>
   );
 };
+
+const CommunicationHeader = () => (
+  <div className="bg-gradient-to-r from-[var(--apsis-green)] to-[var(--apsis-green-light)] text-white rounded-lg p-6 mb-6">
+    <h1 className="text-2xl font-bold mb-2">Communication Center</h1>
+    <p className="text-white/80 text-sm">Gerencie comunicações com total visibilidade, auditoria e conformidade corporativa.</p>
+  </div>
+);
 
 export default function NexusComunicacao() {
   const [selectedConv, setSelectedConv] = useState(1);
@@ -236,85 +251,106 @@ export default function NexusComunicacao() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-[var(--surface-2)] rounded-xl overflow-hidden shadow-sm border border-[var(--border)]">
-      {/* Header */}
-      <div className="bg-white border-b border-[var(--border)] px-6 py-4">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-1">Comunicação</h1>
-        <p className="text-sm text-[var(--text-secondary)]">Centro de conversa corporativa com clientes e equipes</p>
-      </div>
+    <div className="space-y-6">
+      <CommunicationHeader />
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar - Lista de Conversas */}
-        <div className="w-full md:w-80 bg-white border-r border-[var(--border)] flex flex-col">
-          {/* Search and Filters */}
-          <div className="p-4 space-y-3 border-b border-[var(--border)]">
-            <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
-              <input
-                type="text"
-                placeholder="Buscar conversa..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 border border-[var(--border)] rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[var(--apsis-orange)]/50"
-              />
-            </div>
-            <div className="flex gap-2">
-              {['Todos', 'Cliente', 'Projeto', 'Solicitação'].map(filter => (
-                <button
-                  key={filter}
-                  onClick={() => setFilterType(filter)}
-                  className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${
-                    filterType === filter
-                      ? 'bg-[var(--apsis-orange)] text-white'
-                      : 'bg-[var(--surface-2)] text-[var(--text-secondary)] hover:bg-[var(--border)]'
-                  }`}
-                >
-                  {filter}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Conversations List */}
-          <div className="flex-1 overflow-y-auto space-y-1 p-3">
-            {filteredConversations.length > 0 ? (
-              filteredConversations.map(conv => (
-                <ConversationItem
-                  key={conv.id}
-                  conv={conv}
-                  active={selectedConv === conv.id}
-                  onClick={() => setSelectedConv(conv.id)}
-                />
-              ))
-            ) : (
-              <div className="flex flex-col items-center justify-center h-32 text-center">
-                <Search size={32} className="text-[var(--text-secondary)] opacity-20 mb-2" />
-                <p className="text-sm text-[var(--text-secondary)]">Nenhuma conversa encontrada</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Main Chat Area */}
-        <div className="hidden md:flex flex-1 flex-col bg-white">
-          {selectedConversation ? (
-            <>
-              {/* Chat Header */}
-              <div className="bg-white border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{selectedConversation.avatar}</span>
-                  <div>
-                    <h2 className="font-semibold text-[var(--text-primary)]">{selectedConversation.participant}</h2>
-                    <p className="text-xs text-[var(--text-secondary)]">Última mensagem {selectedConversation.timestamp}</p>
+      <div className="h-full flex flex-col bg-[var(--surface-2)] rounded-xl overflow-hidden shadow-sm border border-[var(--border)]">
+        {/* Visibility Control Banner */}
+        {selectedConversation && (
+          <div className="bg-white border-b border-[var(--border)] px-6 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {selectedConversation.visibleToClient ? (
+                <>
+                  <Eye size={16} className="text-green-600" />
+                  <div className="text-sm">
+                    <p className="font-medium text-[var(--text-primary)]">Conversa compartilhada com cliente</p>
+                    <p className="text-xs text-[var(--text-secondary)]">Cliente pode visualizar e responder</p>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
+                </>
+              ) : (
+                <>
+                  <Lock size={16} className="text-amber-600" />
+                  <div className="text-sm">
+                    <p className="font-medium text-[var(--text-primary)]">Apenas equipe interna</p>
+                    <p className="text-xs text-[var(--text-secondary)]">Notas e discussões privadas</p>
+                  </div>
+                </>
+              )}
+            </div>
+            <button
+              onClick={() => setShowEventLog(!showEventLog)}
+              className="text-xs font-medium text-[var(--apsis-orange)] hover:underline flex items-center gap-1"
+            >
+              📋 {showEventLog ? 'Ocultar' : 'Ver'} histórico
+            </button>
+          </div>
+        )}
+
+        <div className="flex flex-1 overflow-hidden">
+          {/* Sidebar - Lista de Conversas */}
+          <div className="w-full md:w-80 bg-white border-r border-[var(--border)] flex flex-col">
+            {/* Search and Filters */}
+            <div className="p-4 space-y-3 border-b border-[var(--border)]">
+              <div className="relative">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
+                <input
+                  type="text"
+                  placeholder="Buscar conversa..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 border border-[var(--border)] rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[var(--apsis-orange)]/50"
+                />
+              </div>
+              <div className="flex gap-2">
+                {['Todos', 'Cliente', 'Projeto', 'Solicitação'].map(filter => (
                   <button
-                    onClick={() => setShowEventLog(!showEventLog)}
-                    className="text-xs font-medium text-[var(--apsis-orange)] hover:text-[var(--apsis-orange)]/80 transition-colors"
+                    key={filter}
+                    onClick={() => setFilterType(filter)}
+                    className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${
+                      filterType === filter
+                        ? 'bg-[var(--apsis-orange)] text-white'
+                        : 'bg-[var(--surface-2)] text-[var(--text-secondary)] hover:bg-[var(--border)]'
+                    }`}
                   >
-                    📋 {showEventLog ? 'Ocultar' : 'Ver'} histórico
+                    {filter}
                   </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Conversations List */}
+            <div className="flex-1 overflow-y-auto space-y-1 p-3">
+              {filteredConversations.length > 0 ? (
+                filteredConversations.map(conv => (
+                  <ConversationItem
+                    key={conv.id}
+                    conv={conv}
+                    active={selectedConv === conv.id}
+                    onClick={() => setSelectedConv(conv.id)}
+                  />
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center h-32 text-center">
+                  <Search size={32} className="text-[var(--text-secondary)] opacity-20 mb-2" />
+                  <p className="text-sm text-[var(--text-secondary)]">Nenhuma conversa encontrada</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Main Chat Area */}
+          <div className="hidden md:flex flex-1 flex-col bg-white">
+            {selectedConversation ? (
+              <>
+                {/* Chat Header */}
+                <div className="bg-white border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{selectedConversation.avatar}</span>
+                    <div>
+                      <h2 className="font-semibold text-[var(--text-primary)]">{selectedConversation.participant}</h2>
+                      <p className="text-xs text-[var(--text-secondary)]">Última mensagem {selectedConversation.timestamp}</p>
+                    </div>
+                  </div>
                   <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                     selectedConversation.contextType === 'Cliente'
                       ? 'bg-green-100 text-green-700'
@@ -325,75 +361,76 @@ export default function NexusComunicacao() {
                     {selectedConversation.contextLabel}
                   </span>
                 </div>
-              </div>
 
-              {/* Messages Area with Event Log */}
-              <div className="flex flex-1 overflow-hidden gap-0">
-                {/* Messages */}
-                <div className="flex-1 flex flex-col overflow-hidden">
-                  <div className="flex-1 overflow-y-auto p-6 space-y-2">
-                    {currentMessages.length > 0 ? (
-                      currentMessages.map(msg => <MessageBubble key={msg.id} message={msg} onToggleVisibility={handleToggleVisibility} />)
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-center">
-                        <div className="text-5xl mb-4 opacity-20">💬</div>
-                        <p className="text-[var(--text-secondary)]">Sem mensagens ainda</p>
-                        <p className="text-sm text-[var(--text-secondary)] mt-1">Comece a conversa</p>
-                      </div>
-                    )}
-                    <div ref={messagesEndRef} />
-                  </div>
-                </div>
-
-                {/* Event Log Sidebar */}
-                {showEventLog && (
-                  <div className="w-72 border-l border-[var(--border)] bg-[var(--surface-2)] overflow-y-auto p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-bold text-[var(--text-primary)]">Histórico de Eventos</h3>
+                {/* Messages Area with Event Log */}
+                <div className="flex flex-1 overflow-hidden gap-0">
+                  {/* Messages */}
+                  <div className="flex-1 flex flex-col overflow-hidden">
+                    <div className="flex-1 overflow-y-auto p-6 space-y-2">
+                      {currentMessages.length > 0 ? (
+                        currentMessages.map(msg => <MessageBubble key={msg.id} message={msg} onToggleVisibility={handleToggleVisibility} />)
+                      ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-center">
+                          <div className="text-5xl mb-4 opacity-20">💬</div>
+                          <p className="text-[var(--text-secondary)]">Sem mensagens ainda</p>
+                          <p className="text-sm text-[var(--text-secondary)] mt-1">Comece a conversa</p>
+                        </div>
+                      )}
+                      <div ref={messagesEndRef} />
                     </div>
-                    <EventLogPanel convId={selectedConv} />
                   </div>
-                )}
-              </div>
 
-              {/* Input Area */}
-              <div className="bg-white border-t border-[var(--border)] p-4">
-                <div className="flex gap-2">
-                  <button className="p-2.5 hover:bg-[var(--surface-2)] rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--apsis-orange)]">
-                    <Paperclip size={18} />
-                  </button>
-                  <textarea
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage();
-                      }
-                    }}
-                    placeholder="Digite sua mensagem (Shift+Enter para quebra de linha)..."
-                    className="flex-1 px-4 py-3 border border-[var(--border)] rounded-lg resize-none focus:outline-none focus:ring-1 focus:ring-[var(--apsis-orange)]/50 text-sm placeholder:text-[var(--text-secondary)]"
-                    rows="3"
-                  />
-                  <button
-                    onClick={handleSendMessage}
-                    disabled={!messageText.trim()}
-                    className="p-2.5 bg-[var(--apsis-orange)] text-white rounded-lg hover:bg-[var(--apsis-orange)]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <Send size={18} />
-                  </button>
+                  {/* Event Log Sidebar */}
+                  {showEventLog && (
+                    <div className="w-72 border-l border-[var(--border)] bg-[var(--surface-2)] overflow-y-auto p-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-sm font-bold text-[var(--text-primary)]">Histórico de Auditoria</h3>
+                      </div>
+                      <EventLogPanel convId={selectedConv} />
+                    </div>
+                  )}
+                </div>
+
+                {/* Input Area */}
+                <div className="bg-white border-t border-[var(--border)] p-4">
+                  <div className="flex gap-2">
+                    <button className="p-2.5 hover:bg-[var(--surface-2)] rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--apsis-orange)]">
+                      <Paperclip size={18} />
+                    </button>
+                    <textarea
+                      value={messageText}
+                      onChange={(e) => setMessageText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendMessage();
+                        }
+                      }}
+                      placeholder="Digite sua mensagem (Shift+Enter para quebra de linha)..."
+                      className="flex-1 px-4 py-3 border border-[var(--border)] rounded-lg resize-none focus:outline-none focus:ring-1 focus:ring-[var(--apsis-orange)]/50 text-sm placeholder:text-[var(--text-secondary)]"
+                      rows="3"
+                    />
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={!messageText.trim()}
+                      className="p-2.5 bg-[var(--apsis-orange)] text-white rounded-lg hover:bg-[var(--apsis-orange)]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Send size={18} />
+                    </button>
+                  </div>
+                  <p className="text-xs text-[var(--text-secondary)] mt-2">{selectedConversation.visibleToClient ? '✓ Será compartilhado com cliente' : '🔒 Apenas para equipe interna'}</p>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center justify-center h-full text-center">
+                <div>
+                  <div className="text-6xl mb-4 opacity-20">👋</div>
+                  <p className="text-lg font-semibold text-[var(--text-primary)]">Selecione uma conversa</p>
+                  <p className="text-[var(--text-secondary)] mt-1">Escolha na lista ao lado para começar</p>
                 </div>
               </div>
-            </>
-          ) : (
-            <div className="flex items-center justify-center h-full text-center">
-              <div>
-                <div className="text-6xl mb-4 opacity-20">👋</div>
-                <p className="text-lg font-semibold text-[var(--text-primary)]">Selecione uma conversa</p>
-                <p className="text-[var(--text-secondary)] mt-1">Escolha na lista ao lado para começar</p>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -123,6 +123,15 @@ const navItems = [
     ]
   },
   {
+    label: "Capital Humano", page: "CapitalHumano", icon: Users,
+    children: [
+      { label: "Dashboard", page: "CapitalHumano", icon: LayoutDashboard, tabParam: "dashboard" },
+      { label: "Colaboradores", page: "CapitalHumano", icon: Users, tabParam: "colaboradores" },
+      { label: "Alocações", page: "CapitalHumano", icon: Calendar, tabParam: "alocacoes" },
+      { label: "Configurações", page: "CapitalHumano", icon: Settings, tabParam: "configuracoes" },
+    ]
+  },
+  {
     label: "Apps APSIS", page: "AppsAPSIS", icon: Grid3x3,
     children: [
       { label: "APP Ativo Fixo", page: "AppAtivoFixo", icon: Briefcase },

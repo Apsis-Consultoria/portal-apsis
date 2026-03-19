@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Search, Columns, Clock, GitBranch,
   BarChart3, Calendar, Timer, CreditCard, FileText,
-  MessageSquare, AlertTriangle, ChevronRight, Menu, X, Plus
+  MessageSquare, AlertTriangle, ChevronRight, Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NovoProjetoModal from "@/components/projetos/NovoProjetoModal";
@@ -99,77 +99,42 @@ export default function Projetos() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-73px)] overflow-hidden bg-[#F4F6F4]">
-      {/* Sidebar mobile overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 md:hidden bg-black/40" onClick={() => setSidebarOpen(false)} />
-      )}
-
-      {/* Sidebar */}
-      <aside className={`
-        fixed md:relative z-50 md:z-auto flex-shrink-0 w-56 h-full bg-white border-r border-slate-200
-        flex flex-col transition-transform duration-200
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-      `}>
-        <div className="p-4 border-b border-slate-100">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h2 className="text-sm font-bold text-[#1A4731]">PROJETOS</h2>
-              <p className="text-xs text-slate-400">Módulo integrado</p>
-            </div>
-            <button onClick={() => setSidebarOpen(false)} className="md:hidden text-slate-400"><X size={16} /></button>
+    <div className="flex flex-col h-[calc(100vh-73px)] overflow-hidden bg-[#F4F6F4]">
+      {/* Top nav bar */}
+      <div className="bg-white border-b border-slate-200 flex-shrink-0">
+        <div className="flex items-center px-4 gap-1 overflow-x-auto">
+          <div className="flex items-center gap-2 pr-3 mr-2 border-r border-slate-200 flex-shrink-0">
+            <Button
+              size="sm"
+              className="gap-1.5 bg-[#F47920] hover:bg-[#d96a18] text-white text-xs h-8 my-2"
+              onClick={() => setShowNovo(true)}
+            >
+              <Plus size={13} /> Novo Projeto
+            </Button>
           </div>
-          <Button
-            size="sm"
-            className="w-full gap-2 bg-[#F47920] hover:bg-[#d96a18] text-white text-xs"
-            onClick={() => setShowNovo(true)}
-          >
-            <Plus size={13} /> Novo Projeto
-          </Button>
-        </div>
-        <nav className="flex-1 overflow-y-auto py-2 px-2">
           {TABS.map(({ id, label, icon: Icon }) => {
             const isActive = id === activeTab;
             return (
               <Link
                 key={id}
                 to={`/Projetos?tab=${id}`}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg mb-0.5 text-sm transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-3 text-xs whitespace-nowrap border-b-2 transition-all flex-shrink-0 ${
                   isActive
-                    ? "bg-[#1A4731]/10 text-[#1A4731] font-semibold border-r-2 border-[#F47920]"
-                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+                    ? "border-[#F47920] text-[#1A4731] font-semibold"
+                    : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
                 }`}
               >
-                <Icon size={15} className={isActive ? "text-[#F47920]" : "text-slate-400"} />
+                <Icon size={13} className={isActive ? "text-[#F47920]" : "text-slate-400"} />
                 {label}
               </Link>
             );
           })}
-        </nav>
-        <div className="p-3 border-t border-slate-100 text-xs text-slate-400 text-center">
-          {loading ? "Carregando dados..." : `${data.projetos.length} projetos ativos`}
         </div>
-      </aside>
+      </div>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Sub-header */}
-        <div className="bg-white border-b border-slate-200 px-4 py-3 flex items-center gap-3 flex-shrink-0">
-          <button onClick={() => setSidebarOpen(true)} className="md:hidden text-slate-500">
-            <Menu size={18} />
-          </button>
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            <span>Projetos</span>
-            <ChevronRight size={12} />
-            <span className="font-semibold text-[#1A4731]">{currentTab.label}</span>
-          </div>
-        </div>
-
-        {/* Content area */}
-        <div className="flex-1 overflow-y-auto">
-          {renderContent()}
-        </div>
+      {/* Content area */}
+      <div className="flex-1 overflow-y-auto">
+        {renderContent()}
       </div>
 
       {showNovo && (

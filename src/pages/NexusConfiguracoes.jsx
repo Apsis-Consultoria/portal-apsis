@@ -76,7 +76,7 @@ const tabs = [
   { id: 'gerais', label: 'Gerais', icon: Settings },
   { id: 'portal', label: 'Portal do Cliente', icon: Globe },
   { id: 'comunicacao', label: 'Comunicação', icon: MessageSquare },
-  { id: 'email', label: 'E-mail', icon: Mail },
+  { id: 'email', label: 'E-mail e Notificações', icon: Mail },
   { id: 'sharepoint', label: 'SharePoint', icon: Share2 },
   { id: 'seguranca', label: 'Segurança', icon: Lock },
 ];
@@ -237,9 +237,13 @@ export default function NexusConfiguracoes() {
           </>
         )}
 
-        {/* ABA 4: E-mail */}
+        {/* ABA 4: E-mail e Notificações */}
         {activeTab === 'email' && (
           <>
+            <ConfigSection title="Ativação" description="Controle central de notificações por e-mail">
+              <ToggleSwitch defaultChecked={true} label="Habilitar envio de e-mails automáticos" />
+            </ConfigSection>
+
             <ConfigSection title="Configuração de Remetente" description="Como os e-mails aparecerão para clientes">
               <FormField label="E-mail Remetente" required>
                 <TextInput placeholder="contato@apsis.com.br" defaultValue="contato@apsis.com.br" />
@@ -254,25 +258,37 @@ export default function NexusConfiguracoes() {
               </FormField>
             </ConfigSection>
 
-            <ConfigSection title="Notificações" description="Configure cópias e notificações">
-              <ToggleSwitch defaultChecked={true} label="Notificar por cada mensagem" />
-              <ToggleSwitch defaultChecked={true} label="Cópia para Consultor Responsável" />
-              <ToggleSwitch defaultChecked={false} label="Cópia para Gestor" />
+            <ConfigSection title="Cópias" description="Envie cópias para membros da equipe">
+              <ToggleSwitch defaultChecked={true} label="Enviar cópia para Consultor Responsável" />
+              <ToggleSwitch defaultChecked={false} label="Enviar cópia para Gestor" />
             </ConfigSection>
 
-            <ConfigSection title="Templates" description="Personalize e-mails enviados">
-              <FormField label="Template de Assunto">
-                <TextInput placeholder="[APSIS Nexus] {projeto} - {tipo}" defaultValue="[APSIS Nexus] {projeto} - Nova mensagem" />
+            <ConfigSection title="Notificações do Cliente" description="Escolha quais eventos geram e-mails para cliente">
+              <ToggleSwitch defaultChecked={true} label="Notificar cliente em novas mensagens" />
+              <ToggleSwitch defaultChecked={true} label="Notificar cliente quando documento é compartilhado" />
+              <ToggleSwitch defaultChecked={true} label="Notificar cliente em novas solicitações" />
+            </ConfigSection>
+
+            <ConfigSection title="Templates Padrão" description="Personalize o conteúdo dos e-mails">
+              <FormField label="Assunto Padrão" description="Use variáveis: {tipo}, {cliente_nome}, {projeto_nome}">
+                <TextInput placeholder="[APSIS Nexus] {projeto_nome} - {tipo}" defaultValue="[APSIS Nexus] {projeto_nome} - Nova notificação" />
               </FormField>
 
-              <FormField label="Template de Corpo">
+              <FormField label="Corpo Padrão" description="Variáveis: {cliente_nome}, {projeto_nome}, {link}, {data}">
                 <textarea
                   placeholder="Digite o corpo do e-mail..."
-                  defaultValue="Olá {cliente},\n\nVocê recebeu uma nova mensagem no Portal APSIS.\n\nAcesse: {link}"
-                  className="w-full px-3 py-2 border border-[var(--border)] rounded-lg text-sm resize-none focus:outline-none focus:ring-1 focus:ring-[var(--apsis-orange)]/50"
-                  rows="4"
+                  defaultValue="Olá {cliente_nome},\n\nVocê recebeu uma nova notificação no Portal APSIS.\n\nAcesse: {link}\n\nData: {data}"
+                  className="w-full px-3 py-2 border border-[var(--border)] rounded-lg text-sm resize-none focus:outline-none focus:ring-1 focus:ring-[var(--apsis-orange)]/50 font-mono"
+                  rows="5"
                 />
               </FormField>
+            </ConfigSection>
+
+            <ConfigSection title="Teste" description="Verifique se a configuração está funcionando">
+              <button className="flex items-center gap-2 px-6 py-2.5 border border-[var(--apsis-orange)] text-[var(--apsis-orange)] rounded-lg text-sm font-medium hover:bg-[var(--apsis-orange)]/5 transition-colors">
+                📧 Enviar e-mail de teste
+              </button>
+              <p className="text-xs text-[var(--text-secondary)] mt-2">Será enviado para o endereço do remetente</p>
             </ConfigSection>
 
             <SaveButton />

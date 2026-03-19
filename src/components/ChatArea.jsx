@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, CheckCheck, Check, Eye, Lock } from 'lucide-react';
+import { Send, CheckCheck, Check, Eye, Lock } from 'lucide-react';
+import AnexosList from './AnexosList';
+import AnexoUpload from './AnexoUpload';
 
 export default function ChatArea({
   selectedConversation,
@@ -45,15 +47,6 @@ export default function ChatArea({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-        {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-center">
-            <div>
-              <div className="text-4xl mb-3 opacity-30">📭</div>
-              <p className="text-sm text-[var(--text-secondary)]">Nenhuma mensagem ainda</p>
-            </div>
-          </div>
-        ) : (
-          messages.map((msg) => {
             const isOwn = msg.remetente_email === currentUserEmail;
             const isShared = msg.visibilidade === 'compartilhado';
             const isInternal = msg.visibilidade === 'interno';
@@ -123,16 +116,17 @@ export default function ChatArea({
 
                   {/* Anexos */}
                   {msg.anexos?.length > 0 && (
-                    <div className="mt-2 space-y-1">
-                      {msg.anexos.map((anexo, idx) => (
-                        <a
-                          key={idx}
-                          href={anexo.url}
-                          className="flex items-center gap-2 text-xs px-3 py-2 bg-white border border-[var(--border)] rounded hover:bg-[var(--surface-2)] transition-colors"
-                        >
-                          📎 {anexo.nome}
-                        </a>
-                      ))}
+                    <div className="mt-3">
+                      <AnexosList
+                        anexos={msg.anexos}
+                        currentUserType={currentUserType}
+                        onDownload={(anexo) => {
+                          const link = document.createElement('a');
+                          link.href = anexo.url;
+                          link.download = anexo.nome;
+                          link.click();
+                        }}
+                      />
                     </div>
                   )}
                 </div>
@@ -146,9 +140,13 @@ export default function ChatArea({
       {/* Input Area */}
       <div className="border-t border-[var(--border)] bg-white p-4 space-y-3">
         <div className="flex gap-2">
-          <button className="p-2.5 hover:bg-[var(--surface-2)] rounded-lg transition-colors text-[var(--text-secondary)]">
-            <Paperclip size={18} />
-          </button>
+          <AnexoUpload
+            onAnexoAdicionado={(anexo) => {
+              console.log('Anexo adicionado:', anexo);
+              // Em produção, chamar API para fazer upload
+            }}
+            currentUserType={currentUserType}
+          />
           <textarea
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}

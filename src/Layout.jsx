@@ -330,9 +330,6 @@ export default function Layout({ children, currentPageName }) {
       >
         {/* Logo */}
         <div className={`flex flex-col items-center px-4 py-5 border-b border-white/10 ${collapsed ? "items-center" : ""}`}>
-          {!collapsed && (
-            <div className="text-white text-sm font-bold tracking-wider uppercase mb-1 ml-6">Portal</div>
-          )}
           <img src={LOGO_URL} alt="APSIS" className={`object-contain flex-shrink-0 ${collapsed ? "w-8 h-8" : "w-44 h-auto"}`} />
         </div>
 

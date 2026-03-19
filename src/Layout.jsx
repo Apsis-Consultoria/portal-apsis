@@ -17,7 +17,7 @@ import {
   LayoutDashboard, GitBranch, FolderKanban,
   DollarSign, BarChart3, FileText, ChevronLeft,
   ChevronRight, Bell, User, Menu, X, Megaphone, TrendingUp, PieChart, Settings, ClipboardCheck, Sparkles, Users, Grid3x3, Home,
-  Search, Columns2, Calendar, CreditCard, MessageSquare, AlertOctagon, ShoppingBag, Briefcase, Split
+  Search, Columns2, Calendar, CreditCard, MessageSquare, AlertOctagon, ShoppingBag, Briefcase, Split, Globe
 } from "lucide-react";
 import { Clock } from "lucide-react";
 import AssistantWidget from "@/components/AssistantWidget";

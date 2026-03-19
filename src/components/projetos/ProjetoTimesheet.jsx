@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import PageHeader from "./shared/PageHeader";
 import {
   Clock, Plus, Check, X, Trash2, Users, BarChart3, Download,
   CheckCircle2, AlertTriangle, DollarSign, Timer, Loader2, FileText
@@ -131,9 +132,29 @@ export default function ProjetoTimesheet({ osId, projeto }) {
   );
 
   return (
-    <div className="p-6 space-y-5 max-w-6xl mx-auto">
+    <div className="p-6 space-y-6 max-w-6xl mx-auto">
 
-      {/* ── KPIs ─────────────────────────────────────────────────────── */}
+      <PageHeader
+        title="Equipe e Horas"
+        subtitle="Alocações, entradas de tempo e controle de aprovação"
+        icon={Users}
+        actions={(
+          <>
+            <Button size="sm" onClick={() => { setShowAlloc(!showAlloc); setShowEntry(false); }}
+              variant="outline" className="gap-1.5 text-xs border-slate-300 hover:bg-white hover:border-slate-400 transition-all">
+              <Plus size={12} /> Nova Alocação
+            </Button>
+            <Button size="sm" onClick={() => { setShowEntry(!showEntry); setShowAlloc(false); }}
+              className="bg-[#1A4731] hover:bg-[#245E40] active:bg-[#15372a] text-white gap-1.5 text-xs shadow-sm hover:shadow-md transition-all">
+              <Plus size={12} /> Nova Entrada
+            </Button>
+            <Button size="sm" variant="outline" onClick={exportCSV} className="gap-1.5 text-xs border-slate-200 text-slate-500 hover:bg-white transition-all">
+              <Download size={12} /> CSV
+            </Button>
+          </>
+        )}
+      />
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KPICard icon={Timer}        color="blue"   label="Horas previstas"   value={`${fmt1(horasPrevistas)}h`}   sub="alocadas ao projeto" />
         <KPICard icon={Clock}        color="indigo" label="Horas executadas"  value={`${fmt1(horasExecutadas)}h`} sub={`${Math.round(horasPrevistas > 0 ? (horasExecutadas/horasPrevistas)*100 : 0)}% do previsto`} />
@@ -141,46 +162,7 @@ export default function ProjetoTimesheet({ osId, projeto }) {
         <KPICard icon={Users}        color="green"  label="Colaboradores"     value={colaboradores.length}         sub="envolvidos no projeto" />
       </div>
 
-      {/* ── Sub-KPIs ─────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
-            <DollarSign size={16} className="text-emerald-600" />
-          </div>
-          <div>
-            <div className="text-xl font-bold text-slate-900">{fmt1(horasFaturaveis)}h</div>
-            <div className="text-xs text-slate-500">Horas faturáveis</div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
-            <CheckCircle2 size={16} className="text-blue-600" />
-          </div>
-          <div>
-            <div className="text-xl font-bold text-slate-900">{fmt1(horasAprovadas)}h</div>
-            <div className="text-xs text-slate-500">Horas aprovadas</div>
-          </div>
-        </div>
-      </div>
 
-      {/* ── Actions ──────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap gap-2">
-        <Button size="sm" onClick={() => { setShowAlloc(!showAlloc); setShowEntry(false); }}
-          variant="outline" className="gap-1.5 text-xs border-slate-300">
-          <Plus size={12} /> Nova Alocação
-        </Button>
-        <Button size="sm" onClick={() => { setShowEntry(!showEntry); setShowAlloc(false); }}
-          variant="outline" className="gap-1.5 text-xs border-slate-300">
-          <Plus size={12} /> Nova Entrada
-        </Button>
-        <Button size="sm" onClick={aprovarTodas} variant="outline"
-          className="gap-1.5 text-xs border-slate-300">
-          <CheckCircle2 size={12} /> Aprovar Todas
-        </Button>
-        <Button size="sm" variant="outline" onClick={exportCSV} className="gap-1.5 text-xs border-slate-300 ml-auto">
-          <Download size={12} /> Exportar CSV
-        </Button>
-      </div>
 
       {/* ── Form: Nova Alocação ──────────────────────────────────────── */}
       {showAlloc && (

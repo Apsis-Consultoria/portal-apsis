@@ -141,20 +141,6 @@ export default function ProjetoResumo({ projeto, onUpdate, osId }) {
               <h2 className="text-2xl font-bold text-slate-900">{projeto.cliente_nome || "—"}</h2>
               <p className="text-sm text-slate-500 mt-0.5">{projeto.natureza || "—"}</p>
             </div>
-            <div className="flex gap-2">
-              {editando ? (
-                <>
-                  <Button size="sm" variant="outline" onClick={() => { setEditando(false); setForm({ ...projeto }); }} className="text-xs"><X size={12} /> Cancelar</Button>
-                  <Button size="sm" onClick={salvar} disabled={saving} className="bg-[#1A4731] hover:bg-[#245E40] text-white text-xs gap-1.5">
-                    <Save size={12} /> {saving ? "Salvando..." : "Salvar"}
-                  </Button>
-                </>
-              ) : (
-                <Button size="sm" variant="outline" onClick={() => setEditando(true)} className="gap-1.5 text-xs">
-                  <Edit2 size={12} /> Editar
-                </Button>
-              )}
-            </div>
           </div>
         </div>
 

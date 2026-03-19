@@ -30,9 +30,9 @@ export default function ConversasList({
   );
 
   return (
-    <div className="w-full md:w-80 bg-white border-r border-[var(--border)] flex flex-col h-full">
+    <div className="w-full md:w-80 bg-white border-r-2 border-[var(--border)] flex flex-col h-full shadow-sm">
       {/* Search */}
-      <div className="p-4 border-b border-[var(--border)]">
+      <div className="p-4 border-b-2 border-[var(--border)] bg-[var(--surface-2)]">
         <div className="relative">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
           <input

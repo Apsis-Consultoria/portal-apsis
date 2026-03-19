@@ -17,7 +17,7 @@ import {
   LayoutDashboard, GitBranch, FolderKanban,
   DollarSign, BarChart3, FileText, ChevronLeft,
   ChevronRight, Bell, User, Menu, X, Megaphone, TrendingUp, PieChart, Settings, ClipboardCheck, Sparkles, Users, Grid3x3, Home,
-  Search, Columns2, Calendar, CreditCard, MessageSquare, AlertOctagon, ShoppingBag, Briefcase, Split, Globe, ArrowRightLeft, Package
+  Search, Columns2, Calendar, CreditCard, MessageSquare, AlertOctagon, ShoppingBag, Briefcase, Split, Globe, ArrowRightLeft, Package, Cpu
 } from "lucide-react";
 import { Clock } from "lucide-react";
 import AssistantWidget from "@/components/AssistantWidget";
@@ -141,6 +141,15 @@ const navItems = [
       { label: "App Conciliação", page: "AppConciliacao", icon: BarChart3 },
       { label: "App Imóveis", page: "AppImoveis", icon: Home },
       { label: "APSIS CUBUS", page: "AppCubus", icon: Sparkles },
+    ]
+  },
+  {
+    label: "Tecnologia e Inovação", page: "TecnologiaInicio", icon: Cpu,
+    children: [
+      { label: "Estoque de Ativos", page: "EstoqueAtivos", icon: Package },
+      { label: "Alocação de Equipamentos", page: "AlocacaoEquipamentos", icon: Users },
+      { label: "Movimentações", page: "MovimentacoesEquipamentos", icon: TrendingUp },
+      { label: "Dashboard", page: "DashboardTI", icon: BarChart3 },
     ]
   },
   {

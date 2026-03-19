@@ -23,6 +23,10 @@ import EstoqueAtivos from './pages/EstoqueAtivos';
 import AlocacaoEquipamentos from './pages/AlocacaoEquipamentos';
 import MovimentacoesEquipamentos from './pages/MovimentacoesEquipamentos';
 import DashboardTI from './pages/DashboardTI';
+import AppAtivoFixo from './pages/AppAtivoFixo';
+import AppConciliacao from './pages/AppConciliacao';
+import AppImoveis from './pages/AppImoveis';
+import AppCubus from './pages/AppCubus';
 import PortalClienteLayout from './components/portal/PortalClienteLayout';
 import PortalClienteInicio from './pages/portal/PortalClienteInicio';
 import PortalClienteComunicacao from './pages/portal/PortalClienteComunicacao';
@@ -84,6 +88,10 @@ function App() {
             <Route path="/MovimentacoesEquipamentos" element={<LayoutWrapper currentPageName="MovimentacoesEquipamentos"><MovimentacoesEquipamentos /></LayoutWrapper>} />
             <Route path="/DashboardTI" element={<LayoutWrapper currentPageName="DashboardTI"><DashboardTI /></LayoutWrapper>} />
             <Route path="/MarketingIndicadores" element={<LayoutWrapper currentPageName="MarketingIndicadores"><MarketingIndicadores /></LayoutWrapper>} />
+            <Route path="/AppAtivoFixo" element={<LayoutWrapper currentPageName="AppAtivoFixo"><AppAtivoFixo /></LayoutWrapper>} />
+            <Route path="/AppConciliacao" element={<LayoutWrapper currentPageName="AppConciliacao"><AppConciliacao /></LayoutWrapper>} />
+            <Route path="/AppImoveis" element={<LayoutWrapper currentPageName="AppImoveis"><AppImoveis /></LayoutWrapper>} />
+            <Route path="/AppCubus" element={<LayoutWrapper currentPageName="AppCubus"><AppCubus /></LayoutWrapper>} />
 
             {/* Portal do Cliente Routes */}
             <Route path="/PortalClienteInicio" element={<PortalClienteLayout><ClientProtectedRoute><PortalClienteInicio /></ClientProtectedRoute></PortalClienteLayout>} />

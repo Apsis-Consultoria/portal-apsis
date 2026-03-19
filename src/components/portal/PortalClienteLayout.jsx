@@ -1,12 +1,20 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, MessageSquare, FileText, ClipboardList, FolderKanban, User, LogOut, Menu, X, Bell } from 'lucide-react';
+import { useClientAuth } from '@/lib/ClientAuthContext';
 
 const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a1fc4b60b4c477ea324579/40af152e2_Design-sem-nome.png";
 
 export default function PortalClienteLayout({ children }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useClientAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/ClientLogin');
+  };
 
   const navItems = [
     { label: 'Início', path: '/PortalClienteInicio', icon: Home },
@@ -65,6 +73,16 @@ export default function PortalClienteLayout({ children }) {
               <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--apsis-orange)] rounded-full" />
             </button>
 
+            <div className="hidden md:flex items-center gap-3 pl-4 border-l border-[var(--border)]">
+              <div className="text-right">
+                <p className="text-sm font-medium text-[var(--text-primary)]">{user?.nome_cliente || 'Cliente'}</p>
+                <p className="text-xs text-[var(--text-secondary)]">{user?.email}</p>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-[var(--apsis-orange)] flex items-center justify-center flex-shrink-0">
+                <User size={14} className="text-white" />
+              </div>
+            </div>
+
             <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -96,7 +114,7 @@ export default function PortalClienteLayout({ children }) {
 
           {/* Logout */}
           <div className="p-6 border-t border-[var(--border)]">
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
+            <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
               <LogOut size={18} />
               <span>Sair</span>
             </button>
@@ -128,7 +146,7 @@ export default function PortalClienteLayout({ children }) {
                 })}
               </nav>
               <div className="p-6 border-t border-[var(--border)]">
-                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50">
+                <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50">
                   <LogOut size={18} />
                   <span>Sair</span>
                 </button>

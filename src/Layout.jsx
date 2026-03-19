@@ -72,20 +72,6 @@ const DEFAULT_ROLE_PAGES = {
 const navItems = [
   { label: "Boas-Vindas", page: "BoasVindas", icon: Home },
   {
-    label: "Dashboard", page: "Dashboard", icon: LayoutDashboard,
-    children: [
-      { label: "Business Valuation", page: "DashboardValuation", icon: DollarSign },
-      { label: "Consultoria Contábil & Fiscal", page: "DashboardContabil", icon: FileText },
-      { label: "Ativos Fixos", page: "DashboardAtivos", icon: FolderKanban },
-      { label: "Consultoria Estratégica", page: "DashboardEstrategica", icon: BarChart3 },
-      { label: "M&A", page: "DashboardMA", icon: GitBranch },
-      { label: "Projetos Especiais", page: "DashboardProjetos", icon: Sparkles },
-      { label: "Financeiro", page: "DashboardFinanceiro", icon: DollarSign },
-      { label: "Capital Humano", page: "DashboardCapitalHumano", icon: Users },
-      { label: "Mercado / Clientes", page: "DashboardMercadoClientes", icon: TrendingUp },
-    ]
-  },
-  {
     label: "Projetos", page: "Projetos", icon: FolderKanban,
     children: [
       { label: "Dashboard", page: "Projetos", icon: LayoutDashboard, tabParam: "dashboard" },
@@ -116,8 +102,9 @@ const navItems = [
     ]
   },
   {
-    label: "Marketing", page: "Marketing", icon: Megaphone,
+    label: "Marketing Estratégico", page: "Marketing", icon: Megaphone,
     children: [
+      { label: "Indicadores Estratégicos", page: "Dashboard", icon: LayoutDashboard },
       { label: "Comercial", page: "MarketingComercial", icon: TrendingUp },
       { label: "Orçado vs Real", page: "MarketingOrcado", icon: PieChart },
     ]

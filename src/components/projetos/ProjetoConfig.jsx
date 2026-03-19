@@ -43,6 +43,7 @@ export default function ProjetoConfig({ projeto, onUpdate, osId }) {
     cliente_portal_access: projeto.cliente_portal_access ?? false,
     confidencial:          projeto.confidencial ?? false,
     apenas_responsaveis:   projeto.apenas_responsaveis ?? false,
+    observacoes_log:       projeto.observacoes_log || "",
   });
 
   const handleSave = async () => {

@@ -3,10 +3,11 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import PageHeader from "./shared/PageHeader";
 import {
   Users, Calendar, DollarSign, Clock, CheckCircle2, AlertTriangle,
   FileText, TrendingUp, Edit2, Save, X, AlertOctagon, Activity,
-  BarChart3, FolderOpen, MessageSquare, ArrowUpRight
+  BarChart3, FolderOpen, MessageSquare, ArrowUpRight, LayoutDashboard
 } from "lucide-react";
 
 const fmt = (v) => (v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -102,7 +103,27 @@ export default function ProjetoResumo({ projeto, onUpdate, osId }) {
   return (
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
 
-      {/* ── IDENTITY CARD ──────────────────────────────────────────────────── */}
+      <PageHeader
+        title="Visão Geral"
+        subtitle={`${projeto.natureza || "Projeto"} · ${projeto.proposta_numero || ""}`}
+        icon={LayoutDashboard}
+        actions={editando ? (
+          <>
+            <Button size="sm" variant="outline" onClick={() => { setEditando(false); setForm({ ...projeto }); }} className="text-xs gap-1.5">
+              <X size={12} /> Cancelar
+            </Button>
+            <Button size="sm" onClick={salvar} disabled={saving}
+              className="bg-[#1A4731] hover:bg-[#245E40] text-white text-xs gap-1.5 shadow-sm hover:shadow-md transition-all">
+              <Save size={12} /> {saving ? "Salvando..." : "Salvar"}
+            </Button>
+          </>
+        ) : (
+          <Button size="sm" variant="outline" onClick={() => setEditando(true)} className="gap-1.5 text-xs hover:bg-white hover:border-slate-400 transition-all">
+            <Edit2 size={12} /> Editar Projeto
+          </Button>
+        )}
+      />
+
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-6 py-5 bg-gradient-to-r from-[#1A4731]/5 to-transparent border-b border-slate-100">
           <div className="flex items-start justify-between gap-4 flex-wrap">

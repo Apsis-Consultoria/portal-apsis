@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import PageHeader from "./shared/PageHeader";
 import {
   DollarSign, Plus, Check, Trash2, TrendingUp, AlertTriangle,
   Download, X, Loader2, BarChart3, Calendar, TrendingDown, Clock
@@ -127,9 +128,25 @@ export default function ProjetoFinanceiro({ osId, projeto }) {
   );
 
   return (
-    <div className="p-6 space-y-5 max-w-6xl mx-auto">
+    <div className="p-6 space-y-6 max-w-6xl mx-auto">
 
-      {/* ── KPIs ─────────────────────────────────────────────────────── */}
+      <PageHeader
+        title="Financeiro"
+        subtitle="Parcelas, recebimentos e análise de rentabilidade"
+        icon={DollarSign}
+        actions={(
+          <>
+            <Button size="sm" onClick={() => setShowForm(!showForm)}
+              className="bg-[#1A4731] hover:bg-[#245E40] active:bg-[#15372a] text-white gap-1.5 text-xs shadow-sm hover:shadow-md transition-all">
+              <Plus size={12} /> Nova Parcela
+            </Button>
+            <Button size="sm" variant="outline" onClick={exportCSV} className="gap-1.5 text-xs border-slate-200 text-slate-500 hover:bg-white transition-all">
+              <Download size={12} /> CSV
+            </Button>
+          </>
+        )}
+      />
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KPICard icon={DollarSign}   color="slate"  label="Orçamento Total"   value={fmt(orcamentoTotal)}
           sub={`contrato: ${fmt(valorContrato)}`} />
@@ -148,17 +165,6 @@ export default function ProjetoFinanceiro({ osId, projeto }) {
           <span><strong>{emAtraso.length}</strong> parcela{emAtraso.length !== 1 ? "s" : ""} em atraso totalizando <strong>{fmt(valorEmAtraso)}</strong>.</span>
         </div>
       )}
-
-      {/* ── Ações ────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap gap-2">
-        <Button size="sm" onClick={() => setShowForm(!showForm)}
-          variant="outline" className="gap-1.5 text-xs border-slate-300">
-          <Plus size={12} /> Nova Parcela
-        </Button>
-        <Button size="sm" variant="outline" onClick={exportCSV} className="gap-1.5 text-xs border-slate-300 ml-auto">
-          <Download size={12} /> Exportar CSV
-        </Button>
-      </div>
 
       {/* ── Form Nova Parcela ─────────────────────────────────────────── */}
       {showForm && (

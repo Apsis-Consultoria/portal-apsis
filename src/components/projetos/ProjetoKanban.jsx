@@ -3,21 +3,22 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, X, Clock, User, Flag, GripVertical, AlertTriangle } from "lucide-react";
+import { Plus, X, Clock, User, GripVertical, AlertTriangle, Maximize2, Minimize2, Columns2 } from "lucide-react";
+import PageHeader from "./shared/PageHeader";
 
 const COLUNAS = [
-  { id: "A fazer",      label: "A fazer",       color: "border-t-slate-300",  bg: "bg-slate-50",   count: "bg-slate-200 text-slate-600"  },
-  { id: "Em andamento", label: "Em andamento",   color: "border-t-blue-500",  bg: "bg-blue-50/40", count: "bg-blue-100 text-blue-700"    },
-  { id: "Em revisão",   label: "Em revisão",     color: "border-t-amber-400", bg: "bg-amber-50/40",count: "bg-amber-100 text-amber-700"  },
-  { id: "Concluída",    label: "Concluída",      color: "border-t-emerald-500",bg: "bg-emerald-50/30",count: "bg-emerald-100 text-emerald-700"},
-  { id: "Bloqueada",    label: "Bloqueada",      color: "border-t-red-500",   bg: "bg-red-50/30",  count: "bg-red-100 text-red-600"      },
+  { id: "A fazer",      label: "A fazer",      color: "border-t-slate-300",   bg: "bg-slate-50",    count: "bg-slate-200 text-slate-600"   },
+  { id: "Em andamento", label: "Em andamento",  color: "border-t-blue-500",   bg: "bg-blue-50/40",  count: "bg-blue-100 text-blue-700"     },
+  { id: "Em revisão",   label: "Em revisão",    color: "border-t-amber-400",  bg: "bg-amber-50/40", count: "bg-amber-100 text-amber-700"   },
+  { id: "Concluída",    label: "Concluída",     color: "border-t-emerald-500",bg: "bg-emerald-50/30",count: "bg-emerald-100 text-emerald-700"},
+  { id: "Bloqueada",    label: "Bloqueada",     color: "border-t-red-500",    bg: "bg-red-50/30",   count: "bg-red-100 text-red-600"       },
 ];
 
 const PRIO = {
-  "Baixa":   { badge: "bg-slate-100 text-slate-500",    dot: "bg-slate-400"  },
-  "Média":   { badge: "bg-blue-100 text-blue-700",      dot: "bg-blue-500"   },
-  "Alta":    { badge: "bg-orange-100 text-orange-700",  dot: "bg-orange-500" },
-  "Crítica": { badge: "bg-red-100 text-red-700",        dot: "bg-red-500"    },
+  "Baixa":   { badge: "bg-slate-100 text-slate-500",   dot: "bg-slate-400"  },
+  "Média":   { badge: "bg-blue-100 text-blue-700",     dot: "bg-blue-500"   },
+  "Alta":    { badge: "bg-orange-100 text-orange-700", dot: "bg-orange-500" },
+  "Crítica": { badge: "bg-red-100 text-red-700",       dot: "bg-red-500"    },
 };
 
 const EMPTY_FORM = { titulo: "", responsavel: "", prioridade: "Média", horas_estimadas: "", data_fim: "" };
@@ -67,28 +68,38 @@ export default function ProjetoKanban({ osId, projeto }) {
     </div>
   );
 
+  const [fullscreen, setFullscreen] = useState(false);
+
   const total = tarefas.length;
   const concluidas = tarefas.filter(t => t.status === "Concluída").length;
   const pct = total > 0 ? Math.round((concluidas / total) * 100) : 0;
 
   return (
-    <div className="p-6 space-y-4">
-      {/* Header bar */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-4">
-          <div>
-            <h3 className="text-base font-bold text-slate-800">Kanban do Projeto</h3>
-            <p className="text-xs text-slate-400 mt-0.5">{concluidas}/{total} tarefas concluídas · {pct}%</p>
-          </div>
-          <div className="h-2 w-32 bg-slate-100 rounded-full overflow-hidden hidden sm:block">
-            <div className="h-full bg-[#1A4731] rounded-full" style={{ width: `${pct}%` }} />
-          </div>
-        </div>
-        <Button size="sm" onClick={() => setAddingIn("A fazer")}
-          className="bg-[#F47920] hover:bg-[#d96a18] text-white gap-1.5 text-xs">
-          <Plus size={13} /> Nova Tarefa
-        </Button>
-      </div>
+    <div className={`space-y-5 transition-all ${fullscreen ? "fixed inset-0 z-50 bg-[#F4F6F4] p-6 overflow-auto" : "p-6"}`}>
+
+      <PageHeader
+        title="Kanban"
+        subtitle={`${concluidas}/${total} tarefas concluídas · ${pct}% completo`}
+        icon={Columns2}
+        actions={(
+          <>
+            <div className="h-2 w-32 bg-slate-200 rounded-full overflow-hidden hidden sm:block">
+              <div className="h-full bg-[#1A4731] rounded-full transition-all" style={{ width: `${pct}%` }} />
+            </div>
+            <Button size="sm"
+              variant="outline"
+              onClick={() => setFullscreen(f => !f)}
+              className="gap-1.5 text-xs border-slate-300 hover:border-slate-400 hover:bg-white transition-all">
+              {fullscreen ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
+              {fullscreen ? "Sair" : "Tela cheia"}
+            </Button>
+            <Button size="sm" onClick={() => setAddingIn("A fazer")}
+              className="bg-[#F47920] hover:bg-[#d96a18] active:bg-[#bf5e14] text-white gap-1.5 text-xs shadow-sm hover:shadow-md transition-all">
+              <Plus size={13} /> Nova Tarefa
+            </Button>
+          </>
+        )}
+      />
 
       {/* Board */}
       <div className="flex gap-4 overflow-x-auto pb-4">

@@ -27,6 +27,7 @@ import AppAtivoFixo from './pages/AppAtivoFixo';
 import AppConciliacao from './pages/AppConciliacao';
 import AppImoveis from './pages/AppImoveis';
 import AppCubus from './pages/AppCubus';
+import AxonIA from './pages/AxonIA';
 import PortalClienteLayout from './components/portal/PortalClienteLayout';
 import PortalClienteInicio from './pages/portal/PortalClienteInicio';
 import PortalClienteComunicacao from './pages/portal/PortalClienteComunicacao';
@@ -92,6 +93,7 @@ function App() {
             <Route path="/AppConciliacao" element={<LayoutWrapper currentPageName="AppConciliacao"><AppConciliacao /></LayoutWrapper>} />
             <Route path="/AppImoveis" element={<LayoutWrapper currentPageName="AppImoveis"><AppImoveis /></LayoutWrapper>} />
             <Route path="/AppCubus" element={<LayoutWrapper currentPageName="AppCubus"><AppCubus /></LayoutWrapper>} />
+            <Route path="/AxonIA" element={<LayoutWrapper currentPageName="AxonIA"><AxonIA /></LayoutWrapper>} />
 
             {/* Portal do Cliente Routes */}
             <Route path="/PortalClienteInicio" element={<PortalClienteLayout><ClientProtectedRoute><PortalClienteInicio /></ClientProtectedRoute></PortalClienteLayout>} />

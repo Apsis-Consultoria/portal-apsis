@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
+import OportunidadeDetalhe from "./OportunidadeDetalhe";
 import {
   Search, Plus, Download, FileText, Edit2, Trash2,
   ChevronUp, ChevronDown, ChevronsUpDown, X, Briefcase
@@ -50,6 +51,7 @@ function SortIcon({ field, sortConfig }) {
 const emptyOAP = { cliente_nome: "", natureza: "Contábil", responsavel: "", status: "Aberta", observacoes: "" };
 
 export default function OportunidadesLista({ oaps, onReload }) {
+  const [selected, setSelected] = useState(null);
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("Todos");
   const [filtroResp, setFiltroResp] = useState("Todos");
@@ -244,7 +246,8 @@ export default function OportunidadesLista({ oaps, onReload }) {
               <tbody>
                 {filtered.map((o, idx) => (
                   <tr key={o.id || idx}
-                    className="border-b border-slate-50 hover:bg-slate-50/80 transition-colors">
+                    onClick={() => setSelected(o)}
+                    className="border-b border-slate-50 hover:bg-slate-50/80 transition-colors cursor-pointer">
                     <td className="px-4 py-3.5">
                       <span className="font-semibold text-slate-800">{o.cliente_nome || "—"}</span>
                     </td>

@@ -99,38 +99,6 @@ export default function Projetos() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-73px)] overflow-hidden bg-[#F4F6F4]">
-      {/* Top nav bar */}
-      <div className="bg-white border-b border-slate-200 flex-shrink-0">
-        <div className="flex items-center px-4 gap-1 overflow-x-auto">
-          <div className="flex items-center gap-2 pr-3 mr-2 border-r border-slate-200 flex-shrink-0">
-            <Button
-              size="sm"
-              className="gap-1.5 bg-[#F47920] hover:bg-[#d96a18] text-white text-xs h-8 my-2"
-              onClick={() => setShowNovo(true)}
-            >
-              <Plus size={13} /> Novo Projeto
-            </Button>
-          </div>
-          {TABS.map(({ id, label, icon: Icon }) => {
-            const isActive = id === activeTab;
-            return (
-              <Link
-                key={id}
-                to={`/Projetos?tab=${id}`}
-                className={`flex items-center gap-1.5 px-3 py-3 text-xs whitespace-nowrap border-b-2 transition-all flex-shrink-0 ${
-                  isActive
-                    ? "border-[#F47920] text-[#1A4731] font-semibold"
-                    : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
-                }`}
-              >
-                <Icon size={13} className={isActive ? "text-[#F47920]" : "text-slate-400"} />
-                {label}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Content area */}
       <div className="flex-1 overflow-y-auto">
         {renderContent()}

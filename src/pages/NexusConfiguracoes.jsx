@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Save, Settings, Globe, MessageSquare, Mail, Share2, Lock, Check, AlertCircle, Upload } from 'lucide-react';
+import { Save, Settings, Globe, MessageSquare, Mail, Share2, Lock, Check, AlertCircle, Upload, ExternalLink } from 'lucide-react';
 import SharePointConfigPanel from '@/components/SharePointConfigPanel';
 import PortalClienteGuide from '@/components/PortalClienteGuide';
 
@@ -165,31 +165,18 @@ export default function NexusConfiguracoes() {
         {/* ABA 1: Gerais */}
         {activeTab === 'gerais' && (
           <>
-            <ConfigSection title="Identidade Visual" description="Configure a aparência do portal">
-              <FormField label="Nome do Portal" required>
-                <TextInput placeholder="APSIS Nexus" defaultValue="APSIS Nexus" />
-              </FormField>
-
-              <FormField label="Logo" description="Selecione uma imagem para o logo (máx. 2MB)">
-                <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 bg-[var(--border)] rounded-lg flex items-center justify-center">
-                    <Upload size={24} className="text-[var(--text-secondary)]" />
-                  </div>
-                  <button className="px-4 py-2 border border-[var(--border)] rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-2)]">
-                    Escolher arquivo
-                  </button>
-                </div>
-              </FormField>
-
-              <FormField label="Cor Principal">
-                <div className="flex items-center gap-3">
-                  <input type="color" defaultValue="#F47920" className="w-12 h-10 rounded cursor-pointer" />
-                  <TextInput placeholder="#F47920" defaultValue="#F47920" />
-                </div>
-              </FormField>
+            <ConfigSection title="Acesso Rápido" description="Acesse diretamente o Portal do Cliente">
+              <a
+                href="/PortalClienteInicio"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--apsis-orange)] text-white rounded-lg text-sm font-medium hover:bg-[var(--apsis-orange)]/90 transition-colors"
+              >
+                <ExternalLink size={16} />
+                Acessar Portal do Cliente
+              </a>
             </ConfigSection>
 
-            <ConfigSection title="Localização" description="Configurações de idioma e fuso horário">
+
+                         <ConfigSection title="Localização" description="Configurações de idioma e fuso horário">
               <FormField label="Idioma">
                 <SelectInput options={['Português (Brasil)', 'English', 'Español']} defaultValue="Português (Brasil)" />
               </FormField>

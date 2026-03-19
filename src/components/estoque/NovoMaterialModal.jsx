@@ -14,6 +14,14 @@ export default function NovoMaterialModal({ onClose, onSuccess }) {
     valor_unitario: 0,
     fornecedor: "",
     localizacao: "",
+    marca: "",
+    modelo: "",
+    processador: "",
+    ram_gb: "",
+    armazenamento_gb: "",
+    sistema_operacional: "windows",
+    tempo_uso_meses: "",
+    numero_serie: "",
   });
 
   const [salvando, setSalvando] = useState(false);
@@ -87,6 +95,7 @@ export default function NovoMaterialModal({ onClose, onSuccess }) {
                 <option value="consumiveis">Consumíveis</option>
                 <option value="ferramentas">Ferramentas</option>
                 <option value="equipamentos">Equipamentos</option>
+                <option value="notebooks">Notebooks</option>
                 <option value="outros">Outros</option>
               </select>
             </div>
@@ -158,6 +167,106 @@ export default function NovoMaterialModal({ onClose, onSuccess }) {
                 className="w-full mt-1 px-3 py-2 border border-[#DDE3DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F47920]/50"
               />
             </div>
+
+            {/* Campos específicos para Notebooks */}
+            {form.categoria === 'notebooks' && (
+              <>
+                <div className="sm:col-span-2 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                  <h3 className="font-semibold text-[#1A2B1F] mb-4">Especificações do Notebook</h3>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-[#1A2B1F]">Marca</label>
+                  <input
+                    type="text"
+                    value={form.marca}
+                    onChange={(e) => setForm({ ...form, marca: e.target.value })}
+                    className="w-full mt-1 px-3 py-2 border border-[#DDE3DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F47920]/50"
+                    placeholder="Ex: Dell, HP, Lenovo"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-[#1A2B1F]">Modelo</label>
+                  <input
+                    type="text"
+                    value={form.modelo}
+                    onChange={(e) => setForm({ ...form, modelo: e.target.value })}
+                    className="w-full mt-1 px-3 py-2 border border-[#DDE3DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F47920]/50"
+                    placeholder="Ex: Inspiron 15"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-[#1A2B1F]">Processador</label>
+                  <input
+                    type="text"
+                    value={form.processador}
+                    onChange={(e) => setForm({ ...form, processador: e.target.value })}
+                    className="w-full mt-1 px-3 py-2 border border-[#DDE3DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F47920]/50"
+                    placeholder="Ex: Intel i5 11ª gen"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-[#1A2B1F]">RAM (GB)</label>
+                  <input
+                    type="number"
+                    value={form.ram_gb}
+                    onChange={(e) => setForm({ ...form, ram_gb: e.target.value })}
+                    className="w-full mt-1 px-3 py-2 border border-[#DDE3DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F47920]/50"
+                    placeholder="8"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-[#1A2B1F]">Armazenamento (GB)</label>
+                  <input
+                    type="number"
+                    value={form.armazenamento_gb}
+                    onChange={(e) => setForm({ ...form, armazenamento_gb: e.target.value })}
+                    className="w-full mt-1 px-3 py-2 border border-[#DDE3DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F47920]/50"
+                    placeholder="256"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-[#1A2B1F]">Sistema Operacional</label>
+                  <select
+                    value={form.sistema_operacional}
+                    onChange={(e) => setForm({ ...form, sistema_operacional: e.target.value })}
+                    className="w-full mt-1 px-3 py-2 border border-[#DDE3DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F47920]/50"
+                  >
+                    <option value="windows">Windows</option>
+                    <option value="macos">macOS</option>
+                    <option value="linux">Linux</option>
+                    <option value="outro">Outro</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-[#1A2B1F]">Tempo de Uso (meses)</label>
+                  <input
+                    type="number"
+                    value={form.tempo_uso_meses}
+                    onChange={(e) => setForm({ ...form, tempo_uso_meses: e.target.value })}
+                    className="w-full mt-1 px-3 py-2 border border-[#DDE3DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F47920]/50"
+                    placeholder="0"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-[#1A2B1F]">Número de Série</label>
+                  <input
+                    type="text"
+                    value={form.numero_serie}
+                    onChange={(e) => setForm({ ...form, numero_serie: e.target.value })}
+                    className="w-full mt-1 px-3 py-2 border border-[#DDE3DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F47920]/50"
+                    placeholder="ABC123XYZ"
+                  />
+                </div>
+              </>
+            )}
 
             <div className="sm:col-span-2">
               <label className="text-sm font-medium text-[#1A2B1F]">Descrição</label>

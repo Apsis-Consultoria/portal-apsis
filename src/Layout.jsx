@@ -89,18 +89,11 @@ const navItems = [
     label: "Projetos", page: "Projetos", icon: FolderKanban,
     children: [
       { label: "Dashboard", page: "Projetos", icon: LayoutDashboard, tabParam: "dashboard" },
-      { label: "Busca", page: "Projetos", icon: Search, tabParam: "busca" },
+      { label: "Lista de Projetos", page: "Projetos", icon: FileText, tabParam: "lista" },
       { label: "Kanban", page: "Projetos", icon: Columns2, tabParam: "kanban" },
-      { label: "Horas e Alocações", page: "AlocacoesHoras", icon: Clock },
-      { label: "Pipeline", page: "Pipeline", icon: GitBranch },
-      { label: "Budget", page: "Budget", icon: BarChart3 },
-      { label: "Gantt", page: "Projetos", icon: Calendar, tabParam: "gantt" },
-      { label: "Entradas de Tempo", page: "Projetos", icon: Timer, tabParam: "timesheet" },
-      { label: "Parcelas", page: "Projetos", icon: CreditCard, tabParam: "parcelas" },
       { label: "Documentos", page: "Projetos", icon: FileText, tabParam: "documentos" },
-      { label: "Comunicação", page: "Projetos", icon: MessageSquare, tabParam: "comunicacao" },
       { label: "Riscos", page: "Projetos", icon: AlertOctagon, tabParam: "riscos" },
-      { label: "Modelos de Avaliação", page: "ModelosAvaliacao", icon: FileText },
+      { label: "Configurações", page: "Projetos", icon: Settings, tabParam: "configuracoes" },
     ]
   },
   {

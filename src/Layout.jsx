@@ -112,6 +112,18 @@ const navItems = [
   },
   { label: "Relatórios", page: "Relatorios", icon: FileText },
   {
+    label: "APSIS Nexus", page: "NexusInicio", icon: Globe,
+    children: [
+      { label: "Início", page: "NexusInicio", icon: Home },
+      { label: "Comunicação", page: "NexusComunicacao", icon: MessageSquare },
+      { label: "Solicitações", page: "NexusSolicitacoes", icon: FileText },
+      { label: "Documentos", page: "NexusDocumentos", icon: FileText },
+      { label: "Projetos", page: "NexusProjetos", icon: LayoutDashboard },
+      { label: "Portal do Cliente", page: "NexusPortalCliente", icon: Globe },
+      { label: "Configurações", page: "NexusConfiguracoes", icon: Settings },
+    ]
+  },
+  {
     label: "AXON IA", page: "AxonIA", icon: Sparkles,
     externalUrl: "https://apsis.qi140.ai/auth?redirect=%2Fauth%3Fredirect%3D%252F"
   },

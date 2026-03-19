@@ -107,7 +107,7 @@ const navItems = [
   {
     label: "Marketing Estratégico", page: "Marketing", icon: Megaphone,
     children: [
-      { label: "Indicadores Estratégicos", page: "Dashboard", icon: LayoutDashboard },
+      { label: "Indicadores Estratégicos", page: "MarketingIndicadores", icon: LayoutDashboard },
       { label: "Comercial", page: "MarketingComercial", icon: TrendingUp },
       { label: "Orçado vs Real", page: "MarketingOrcado", icon: PieChart },
     ]

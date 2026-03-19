@@ -329,11 +329,11 @@ export default function Layout({ children, currentPageName }) {
         style={{ minHeight: "100vh" }}
       >
         {/* Logo */}
-        <div className={`flex flex-col items-center px-4 py-5 border-b border-white/10 ${collapsed ? "justify-center" : ""}`}>
+        <div className={`flex flex-col items-start px-4 py-5 border-b border-white/10 ${collapsed ? "items-center" : ""}`}>
           {!collapsed && (
-            <div className="text-white text-[11px] font-bold tracking-widest uppercase mb-2">Portal</div>
+            <div className="text-white text-[11px] font-bold tracking-widest uppercase mb-1">Portal</div>
           )}
-          <img src={LOGO_URL} alt="APSIS" className={`object-contain flex-shrink-0 ${collapsed ? "w-8 h-8" : "w-32 h-auto"}`} />
+          <img src={LOGO_URL} alt="APSIS" className={`object-contain flex-shrink-0 ${collapsed ? "w-8 h-8" : "w-48 h-auto"}`} />
         </div>
 
         {/* Nav filtrado por permissão */}
@@ -364,9 +364,9 @@ export default function Layout({ children, currentPageName }) {
           <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
           <aside className="relative z-50 w-64 h-full bg-[var(--apsis-green)] flex flex-col">
             <div className="flex items-center justify-between px-4 py-4 border-b border-white/10 w-full">
-              <div className="flex flex-col items-center w-full">
-                <div className="text-white text-[10px] font-bold tracking-widest uppercase mb-2">Portal</div>
-                <img src={LOGO_URL} alt="APSIS" className="w-24 h-auto object-contain" />
+              <div className="flex flex-col items-start w-full">
+                <div className="text-white text-[10px] font-bold tracking-widest uppercase mb-1">Portal</div>
+                <img src={LOGO_URL} alt="APSIS" className="w-40 h-auto object-contain" />
               </div>
               <button onClick={() => setMobileOpen(false)} className="ml-4"><X size={18} className="text-white/50" /></button>
             </div>

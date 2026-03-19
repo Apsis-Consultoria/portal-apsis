@@ -4,10 +4,10 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import ResumoExecutivo from '@/components/indicadores/ResumoExecutivo';
-import ResumoExecutivoAvancado from '@/components/indicadores/ResumoExecutivoAvancado';
-import FinanceiroAvancado from '@/components/indicadores/FinanceiroAvancado';
-import ProjetosAvancado from '@/components/indicadores/ProjetosAvancado';
-import ComercialAvancado from '@/components/indicadores/ComercialAvancado';
+import ResumoExecutivoAvancadoDinamico from '@/components/indicadores/ResumoExecutivoAvancadoDinamico';
+import FinanceiroAvancadoDinamico from '@/components/indicadores/FinanceiroAvancadoDinamico';
+import ProjetosAvancadoDinamico from '@/components/indicadores/ProjetosAvancadoDinamico';
+import ComercialAvancadoDinamico from '@/components/indicadores/ComercialAvancadoDinamico';
 import TendenciasExecutivo from '@/components/indicadores/TendenciasExecutivo';
 import AlertasExecutivos from '@/components/indicadores/AlertasExecutivos';
 import IndicadoresRisco from '@/components/indicadores/IndicadoresRisco';
@@ -139,31 +139,31 @@ export default function IndicadoresTáticos() {
         <ResumoExecutivo filtros={filtros} />
       </div>
 
-      {/* Indicadores Avançados */}
+      {/* Indicadores Avançados com Dados Reais */}
       <div>
-        <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Indicadores Financeiros Avançados</h2>
-        <ResumoExecutivoAvancado filtros={filtros} />
+        <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Indicadores Financeiros Avançados (Dados Reais)</h2>
+        <ResumoExecutivoAvancadoDinamico filtros={filtros} />
       </div>
 
       {/* Grid de Seções */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Financeiro */}
         <div>
-          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Saúde Financeira</h2>
-          <FinanceiroAvancado filtros={filtros} />
+          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Saúde Financeira (Dados Reais)</h2>
+          <FinanceiroAvancadoDinamico filtros={filtros} />
         </div>
 
         {/* Projetos */}
         <div>
-          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Projetos</h2>
-          <ProjetosAvancado filtros={filtros} />
+          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Projetos (Dados Reais)</h2>
+          <ProjetosAvancadoDinamico filtros={filtros} />
         </div>
       </div>
 
       {/* Comercial */}
       <div>
-        <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Comercial / Vendas</h2>
-        <ComercialAvancado filtros={filtros} />
+        <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Comercial / Vendas (Dados Reais)</h2>
+        <ComercialAvancadoDinamico filtros={filtros} />
       </div>
 
       {/* Tendências */}

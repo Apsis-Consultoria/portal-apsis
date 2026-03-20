@@ -1,4 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { LayoutDashboard, GitBranch, Briefcase, Users, FileText, Settings } from "lucide-react";
+import VendasDashboard from "@/components/vendas/VendasDashboard";
+import VendasClientes from "@/components/vendas/VendasClientes";
+import VendasPropostas from "@/components/vendas/VendasPropostas";
+import VendasConfiguracoes from "@/components/vendas/VendasConfiguracoes";
+import PipelineTab from "@/components/vendas/PipelineTab";
+import OportunidadesTab from "@/components/vendas/OportunidadesTab";
 
 const TABS = [
   { id: "dashboard",    label: "Dashboard",     icon: LayoutDashboard },

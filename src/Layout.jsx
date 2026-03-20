@@ -9,7 +9,7 @@
  * - Fornece widget de assistente IA flutuante
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
@@ -167,8 +167,10 @@ export default function Layout({ children, currentPageName }) {
   const [openSubmenus, setOpenSubmenus] = useState({}); // Rastreia submenus expandidos
 
   // Estados de autenticação e permissões
-  const [userRole, setUserRole] = useState("admin"); // Role padrão: admin (carrega com app público)
-  const [userDepartamento, setUserDepartamento] = useState("Portal APSIS"); // Departamento do colaborador
+  const [userRole, setUserRole] = useState("admin");
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef(null);
   const [pagePermissions, setPagePermissions] = useState(null); // Permissões customizadas (null = usa padrão do perfil)
 
   const toggleSubmenu = (label) => setOpenSubmenus(prev => ({ ...prev, [label]: !prev[label] }));
@@ -184,9 +186,24 @@ export default function Layout({ children, currentPageName }) {
    */
   useEffect(() => {
     // App público - sem autenticação necessária
-    setUserRole("admin"); // Define como admin para liberar todas as páginas
+    setUserRole("admin");
     setUserDepartamento("Portal APSIS");
+    base44.auth.me().then(u => { if (u) setCurrentUser(u); }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const handleLogout = () => {
+    base44.auth.logout("/");
+  };
 
   /**
    * Verifica se o usuário pode visualizar uma página específica
@@ -419,8 +436,27 @@ export default function Layout({ children, currentPageName }) {
               <Bell size={18} className="text-[var(--text-secondary)]" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[var(--apsis-orange)] rounded-full" />
             </button>
-            <div className="w-8 h-8 rounded-full bg-[var(--apsis-green)] flex items-center justify-center">
-              <User size={14} className="text-white" />
+            <div className="relative" ref={userMenuRef}>
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="w-8 h-8 rounded-full bg-[var(--apsis-green)] flex items-center justify-center hover:opacity-80 transition-opacity"
+              >
+                <User size={14} className="text-white" />
+              </button>
+              {showUserMenu && (
+                <div className="absolute right-0 top-10 w-52 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-50">
+                  <div className="px-4 py-2 border-b border-slate-100">
+                    <p className="text-xs font-semibold text-slate-800 truncate">{currentUser?.full_name || "Usuário"}</p>
+                    <p className="text-xs text-slate-400 truncate">{currentUser?.email || ""}</p>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2.5 text-xs text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2"
+                  >
+                    <span>Sair</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>

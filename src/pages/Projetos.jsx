@@ -73,9 +73,10 @@ export default function Projetos() {
                                  ? "border-[#F47920] text-[#F47920]"
                                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-200"
                              }`}
-                           >
+                             >
                              {label}
-                );
+                             </button>
+                             );}
               })}
             </div>
 

@@ -169,10 +169,6 @@ export default function OportunidadesLista({ oaps, onReload }) {
             className="flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 bg-white transition-colors">
             <Download size={13} /> PDF
           </button>
-          <button onClick={() => setModal({ data: { ...emptyOAP }, editing: null })}
-            className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40] transition-colors">
-            <Plus size={15} /> Nova Oportunidade
-          </button>
         </div>
       </div>
 
@@ -213,10 +209,6 @@ export default function OportunidadesLista({ oaps, onReload }) {
               <p className="text-sm font-semibold text-slate-600">Nenhuma oportunidade encontrada</p>
               <p className="text-xs text-slate-400 mt-1">Ajuste os filtros ou crie uma nova oportunidade</p>
             </div>
-            <button onClick={() => setModal({ data: { ...emptyOAP }, editing: null })}
-              className="mt-1 flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40] transition-colors">
-              <Plus size={14} /> Nova Oportunidade
-            </button>
           </div>
         ) : (
           <div className="overflow-x-auto">

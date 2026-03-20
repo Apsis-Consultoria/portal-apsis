@@ -150,10 +150,6 @@ export default function ProjetosKanban({ data, onRefresh }) {
             {fullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
           </button>
 
-          <button onClick={() => setShowNovo(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#F47920] hover:bg-[#d96a18] text-white text-xs font-medium transition-colors">
-            <Plus size={13} /> Novo
-          </button>
         </div>
       </div>
 

@@ -75,19 +75,6 @@ export default function VendasClientes() {
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Clientes</h1>
           <p className="text-sm text-slate-500 mt-1">Cadastro e relacionamento comercial</p>
         </div>
-        <button onClick={() => setModal({ data: { ...empty }, editing: null })}
-          className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#245E40] transition-colors flex-shrink-0">
-          <Plus size={15} /> Novo Cliente
-        </button>
-      </div>
-
-      {/* Filtros */}
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[220px]">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input value={busca} onChange={e => setBusca(e.target.value)}
-            placeholder="Buscar por nome, CNPJ ou responsável..."
-            className="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:border-[#F47920]" />
         </div>
         <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)}
           className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none min-w-[160px]">
@@ -109,10 +96,6 @@ export default function VendasClientes() {
             </div>
             <p className="text-sm font-semibold text-slate-500">Nenhum cliente encontrado</p>
             <p className="text-xs text-slate-400">Adicione um cliente para começar</p>
-            <button onClick={() => setModal({ data: { ...empty }, editing: null })}
-              className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40] transition-colors mt-1">
-              <Plus size={14} /> Novo Cliente
-            </button>
           </div>
         ) : (
           <div className="overflow-x-auto">

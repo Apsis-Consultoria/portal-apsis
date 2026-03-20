@@ -111,10 +111,6 @@ export default function ProjetosRiscos({ data, onRefresh }) {
           <Button size="sm" variant="outline" onClick={exportCSV} className="gap-1.5 text-xs">
             <Download size={12} /> Exportar
           </Button>
-          <Button size="sm" onClick={() => setShowForm(!showForm)}
-            className="bg-[#F47920] hover:bg-[#d96a18] text-white gap-1.5 text-xs">
-            <Plus size={13} /> Novo Risco
-          </Button>
         </div>
       </div>
 

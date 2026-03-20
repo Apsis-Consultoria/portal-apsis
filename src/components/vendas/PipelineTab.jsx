@@ -154,10 +154,6 @@ export default function PipelineTab() {
             <List size={12} /> Tabela
           </button>
         </div>
-        <button onClick={() => setModal({ data: { ...emptyProposta }, editing: null })}
-          className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40] transition-colors">
-          <Plus size={15} /> Nova Proposta
-        </button>
       </div>
 
       {userDepts && (

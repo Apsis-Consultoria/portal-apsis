@@ -168,6 +168,7 @@ export default function Layout({ children, currentPageName }) {
 
   // Estados de autenticação e permissões
   const [userRole, setUserRole] = useState("admin");
+  const [userDepartamento, setUserDepartamento] = useState("Portal APSIS");
   const [currentUser, setCurrentUser] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef(null);

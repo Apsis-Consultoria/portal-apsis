@@ -68,16 +68,16 @@ export default function Projetos() {
                   <button
                     key={id}
                     onClick={() => navigate(`/Projetos?tab=${id}`)}
-                             className={`flex items-center h-full px-4 text-xs font-semibold whitespace-nowrap border-b-2 transition-all ${
-                               isActive
-                                 ? "border-[#F47920] text-[#F47920]"
-                                 : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-200"
-                             }`}
-                             >
-                             {label}
-                             </button>
-                             );}
-              })}
+                    className={`flex items-center h-full px-4 text-xs font-semibold whitespace-nowrap border-b-2 transition-all ${
+                      isActive
+                        ? "border-[#F47920] text-[#F47920]"
+                        : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-200"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+                })
             </div>
 
             {/* Actions */}

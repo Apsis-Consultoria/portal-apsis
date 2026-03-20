@@ -77,8 +77,8 @@ export default function Projetos() {
                     {label}
                   </button>
                 );
-                })
-            </div>
+                })}
+                </div>
 
             {/* Actions */}
             <div className="flex items-center gap-2 flex-shrink-0 pl-4">

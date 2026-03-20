@@ -69,12 +69,13 @@ export default function VendasClientes() {
 
   return (
     <div className="space-y-5">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Clientes</h1>
-          <p className="text-sm text-slate-500 mt-1">Cadastro e relacionamento comercial</p>
-        </div>
+      {/* Filtros */}
+      <div className="flex flex-wrap gap-3">
+        <div className="relative flex-1 min-w-[220px]">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input value={busca} onChange={e => setBusca(e.target.value)}
+            placeholder="Buscar por nome, CNPJ ou responsável..."
+            className="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:border-[#F47920]" />
         </div>
         <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)}
           className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none min-w-[160px]">
@@ -86,14 +87,6 @@ export default function VendasClientes() {
           <span className="text-xs text-slate-400">cliente{filtrados.length !== 1 ? "s" : ""}</span>
         </div>
       </div>
-
-      {/* Tabela */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        {filtrados.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center">
-              <Building2 size={24} className="text-slate-300" />
-            </div>
             <p className="text-sm font-semibold text-slate-500">Nenhum cliente encontrado</p>
             <p className="text-xs text-slate-400">Adicione um cliente para começar</p>
           </div>

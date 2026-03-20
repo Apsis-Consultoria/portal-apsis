@@ -1,15 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
-import { base44 } from "@/api/base44Client";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import NovoProjetoModal from "@/components/projetos/NovoProjetoModal";
-import ProjetosDashboard from "@/components/projetos/hub/ProjetosDashboard";
-import ProjetosLista from "@/components/projetos/hub/ProjetosLista";
-import ProjetosKanban from "@/components/projetos/hub/ProjetosKanban";
-import ProjetosDocumentos from "@/components/projetos/hub/ProjetosDocumentos";
-import ProjetosRiscos from "@/components/projetos/hub/ProjetosRiscos";
-import ProjetosConfiguracoes from "@/components/projetos/hub/ProjetosConfiguracoes";
-import ProjetosParcelas from "@/components/projetos/hub/ProjetosParcelas";
+import { useState, useCallback } from "react";
+import { useApi } from "@/hooks/useApi";
+import { projectService } from "@/services/projectService";
 
 const TABS = [
   { id: "dashboard", label: "Dashboard" },
@@ -28,10 +19,13 @@ export default function Projetos() {
   const activeTab = urlParams.get("tab") || "dashboard";
 
   const [showNovo, setShowNovo] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-  const [data, setData] = useState({
-    projetos: [],
+  // Dados do padrão novo
+  const { data: projetos, loading, error, refetch } = useApi(() => projectService.list(), { autoFetch: true });
+
+  // Manter compatibilidade com sub-componentes por enquanto
+  const data = {
+    projetos: projetos || [],
     parcelas: [],
     tarefas: [],
     entradas: [],
@@ -39,25 +33,9 @@ export default function Projetos() {
     propostas: [],
     documentos: [],
     riscos: [],
-  });
+  };
 
-  const loadAll = useCallback(async () => {
-    setLoading(true);
-    const [projetos, parcelas, tarefas, entradas, alocacoes, propostas, documentos, riscos] = await Promise.all([
-      base44.entities.OrdemServico.list("-created_date", 500),
-      base44.entities.Parcela.list("-created_date", 1000),
-      base44.entities.Tarefa.list("-created_date", 1000),
-      base44.entities.EntradaTempo.list("-data", 2000),
-      base44.entities.AlocacaoHoras.list("-created_date", 500),
-      base44.entities.Proposta.list("-created_date", 500),
-      base44.entities.DocumentoProjeto.list("-created_date", 500),
-      base44.entities.RiscoProjeto.list("-created_date", 500),
-    ]);
-    setData({ projetos, parcelas, tarefas, entradas, alocacoes, propostas, documentos, riscos });
-    setLoading(false);
-  }, []);
-
-  useEffect(() => { loadAll(); }, [loadAll]);
+  const loadAll = useCallback(() => refetch(), [refetch]);
 
   const currentTab = TABS.find(t => t.id === activeTab) || TABS[0];
 
@@ -90,14 +68,13 @@ export default function Projetos() {
                   <button
                     key={id}
                     onClick={() => navigate(`/Projetos?tab=${id}`)}
-                    className={`flex items-center h-full px-4 text-xs font-semibold whitespace-nowrap border-b-2 transition-all ${
-                      isActive
-                        ? "border-[#F47920] text-[#F47920]"
-                        : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-200"
-                    }`}
-                  >
-                    {label}
-                  </button>
+                             className={`flex items-center h-full px-4 text-xs font-semibold whitespace-nowrap border-b-2 transition-all ${
+                               isActive
+                                 ? "border-[#F47920] text-[#F47920]"
+                                 : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-200"
+                             }`}
+                           >
+                             {label}
                 );
               })}
             </div>

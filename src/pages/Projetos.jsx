@@ -1,6 +1,15 @@
 import { useState, useCallback } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useApi } from "@/hooks/useApi";
 import { projectService } from "@/services/projectService";
+import ProjetosDashboard from "@/components/projetos/hub/ProjetosDashboard";
+import ProjetosLista from "@/components/projetos/hub/ProjetosLista";
+import ProjetosKanban from "@/components/projetos/hub/ProjetosKanban";
+import ProjetosDocumentos from "@/components/projetos/hub/ProjetosDocumentos";
+import ProjetosRiscos from "@/components/projetos/hub/ProjetosRiscos";
+import ProjetosParcelas from "@/components/projetos/hub/ProjetosParcelas";
+import ProjetosConfiguracoes from "@/components/projetos/hub/ProjetosConfiguracoes";
+import NovoProjetoModal from "@/components/projetos/NovoProjetoModal";
 
 const TABS = [
   { id: "dashboard", label: "Dashboard" },

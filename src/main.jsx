@@ -13,9 +13,13 @@ async function bootstrap() {
 
   // Se não estiver disponível no frontend, busca via função backend
   if (!clientId || clientId === 'undefined' || !tenantId || tenantId === 'undefined') {
-    const res = await base44.functions.invoke('getAzureConfig', {});
-    clientId = res.data.clientId;
-    tenantId = res.data.tenantId;
+    try {
+      const res = await base44.functions.invoke('getAzureConfig', {});
+      clientId = res.data.clientId;
+      tenantId = res.data.tenantId;
+    } catch (e) {
+      console.warn('Não foi possível buscar config Azure (usuário não autenticado ainda):', e);
+    }
   }
 
   const msalConfig = {

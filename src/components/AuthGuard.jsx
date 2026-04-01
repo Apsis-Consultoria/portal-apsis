@@ -16,11 +16,9 @@ export default function AuthGuard({ children }) {
   const isAuthenticated = useIsAuthenticated();
   const [loading, setLoading] = useState(false);
 
-  // Se estiver no preview, ignora autenticação
-  if (isPreview) return children;
-
   // Limpa estado travado do MSAL no carregamento
   useEffect(() => {
+    if (isPreview) return;
     const keys = Object.keys(localStorage);
     keys.forEach(k => {
       if (k.includes('interaction.status') || k.includes('msal.interaction')) {
@@ -28,6 +26,9 @@ export default function AuthGuard({ children }) {
       }
     });
   }, []);
+
+  // Se estiver no preview, ignora autenticação
+  if (isPreview) return children;
 
   const handleLogin = async () => {
     if (loading || inProgress !== InteractionStatus.None) return;

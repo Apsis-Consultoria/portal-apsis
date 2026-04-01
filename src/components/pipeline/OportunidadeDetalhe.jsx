@@ -49,11 +49,19 @@ export default function OportunidadeDetalhe({ oap, onClose, onReload }) {
   const [converted, setConverted] = useState(false);
   const [projectId, setProjectId] = useState(null);
   const [savingProp, setSavingProp] = useState(false);
+  const [proposta, setProposta] = useState({ valor: "", prazo: "", probabilidade: "" });
+  const logEndRef = useRef(null);
+  const userName = "Usuário";
 
   useEffect(() => {
     setLogEntries(parseLog(oap.observacoes));
     setConverted(!!oap.convertida_ap);
     setProjectId(oap.project_id || null);
+    setProposta({
+      valor: oap.valor || "",
+      prazo: oap.prazo || "",
+      probabilidade: oap.probabilidade || "",
+    });
   }, [oap]);
 
   useEffect(() => {

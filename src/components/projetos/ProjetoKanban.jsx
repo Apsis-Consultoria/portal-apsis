@@ -24,12 +24,13 @@ const PRIO = {
 const EMPTY_FORM = { titulo: "", responsavel: "", prioridade: "Média", horas_estimadas: "", data_fim: "" };
 
 export default function ProjetoKanban({ osId, projeto }) {
-  const [tarefas,  setTarefas]  = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [addingIn, setAddingIn] = useState(null);
-  const [form,     setForm]     = useState(EMPTY_FORM);
-  const [dragging, setDragging] = useState(null);
-  const [over,     setOver]     = useState(null);
+  const [tarefas,    setTarefas]    = useState([]);
+  const [loading,    setLoading]    = useState(true);
+  const [addingIn,   setAddingIn]   = useState(null);
+  const [form,       setForm]       = useState(EMPTY_FORM);
+  const [dragging,   setDragging]   = useState(null);
+  const [over,       setOver]       = useState(null);
+  const [fullscreen, setFullscreen] = useState(false);
 
   useEffect(() => {
     base44.entities.Tarefa.filter({ os_id: osId }).then(t => { setTarefas(t); setLoading(false); });
@@ -67,8 +68,6 @@ export default function ProjetoKanban({ osId, projeto }) {
       <div className="w-6 h-6 border-2 border-slate-200 border-t-[#1A4731] rounded-full animate-spin" />
     </div>
   );
-
-  const [fullscreen, setFullscreen] = useState(false);
 
   const total = tarefas.length;
   const concluidas = tarefas.filter(t => t.status === "Concluída").length;

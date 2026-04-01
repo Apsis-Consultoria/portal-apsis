@@ -95,7 +95,7 @@ function getErrorAction(code) {
  */
 function logError(errorInfo) {
   // Log em console (desenvolvimento)
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     console.error('[API Error]', {
       code: errorInfo.code,
       message: errorInfo.message,

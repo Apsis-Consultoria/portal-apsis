@@ -202,8 +202,8 @@ export default function Layout({ children, currentPageName }) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const handleLogout = () => {
-    base44.auth.logout("/");
+  const handleLogout = async () => {
+    await base44.auth.logout("/ClientLogin");
   };
 
   /**
@@ -445,16 +445,16 @@ export default function Layout({ children, currentPageName }) {
                 <User size={14} className="text-white" />
               </button>
               {showUserMenu && (
-                <div className="absolute right-0 top-10 w-52 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-50">
-                  <div className="px-4 py-2 border-b border-slate-100">
-                    <p className="text-xs font-semibold text-slate-800 truncate">{currentUser?.full_name || "Usuário"}</p>
-                    <p className="text-xs text-slate-400 truncate">{currentUser?.email || ""}</p>
+                <div className="absolute right-0 top-10 w-56 bg-white rounded-xl shadow-lg border border-slate-200 py-3 z-50">
+                  <div className="px-4 py-3 border-b border-slate-100">
+                    <p className="text-sm font-semibold text-slate-900">{currentUser?.full_name || "Usuário"}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{currentUser?.email || "Sem email"}</p>
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-2.5 text-xs text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2"
+                    className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium"
                   >
-                    <span>Sair</span>
+                    Sair
                   </button>
                 </div>
               )}

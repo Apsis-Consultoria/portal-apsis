@@ -192,10 +192,19 @@ export default function Layout({ children, currentPageName }) {
     // Carrega dados do usuário do MSAL (Azure AD)
     if (accounts && accounts.length > 0) {
       const acc = accounts[0];
+      console.log('[Layout] Azure account found:', acc);
       setCurrentUser({
-        full_name: acc.name || acc.username || "Usuário",
-        email: acc.username || ""
+        full_name: acc.name || acc.username?.split('@')[0] || "Usuário",
+        email: acc.username || acc.localAccountId || ""
       });
+    } else {
+      // Fallback: tenta pegar do base44
+      base44.auth.me().then(u => {
+        if (u) {
+          console.log('[Layout] Base44 user:', u);
+          setCurrentUser(u);
+        }
+      }).catch(e => console.log('[Layout] Base44 error:', e));
     }
     setUserRole("admin");
     setUserDepartamento("Portal APSIS");

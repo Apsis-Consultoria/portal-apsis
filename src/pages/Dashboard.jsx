@@ -1,6 +1,4 @@
-import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import ModernBarChart from "@/components/charts/ModernBarChart";
 import ModernPieChart from "@/components/charts/ModernPieChart";
 import ModernLineChart from "@/components/charts/ModernLineChart";
@@ -30,24 +28,10 @@ const BUDGET2026_MES = [
 export default function Dashboard() {
   const [anoSel, setAnoSel] = useState(2026);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['dashboard-data'],
-    queryFn: async () => {
-      const [p, pa, b, os] = await Promise.all([
-        base44.entities.Proposta.list(),
-        base44.entities.Parcela.list(),
-        base44.entities.Budget.list(),
-        base44.entities.OrdemServico.list(),
-      ]);
-      return { propostas: p, parcelas: pa, budgets: b, oss: os };
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutos
-  });
-
-  const propostas = data?.propostas || [];
-  const parcelas = data?.parcelas || [];
-  const budgets = data?.budgets || [];
-  const oss = data?.oss || [];
+  const propostas = [];
+  const parcelas = [];
+  const budgets = [];
+  const oss = [];
 
   const fmt = (v) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(v || 0);
 
@@ -111,7 +95,7 @@ export default function Dashboard() {
   propostas.forEach(p => { statusMap[p.status] = (statusMap[p.status] || 0) + 1; });
   const pipelineData = Object.entries(statusMap).map(([name, value]) => ({ name, value }));
 
-  if (isLoading) return <LoadingState message="Carregando dashboard..." />;
+
 
   return (
     <div className="space-y-6">

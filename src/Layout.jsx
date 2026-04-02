@@ -13,7 +13,6 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";
 import { createPageUrl } from "@/utils";
-import { base44 } from "@/api/base44Client";
 import {
   LayoutDashboard, GitBranch, FolderKanban,
   DollarSign, BarChart3, FileText, ChevronLeft,
@@ -211,7 +210,7 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   const handleLogout = async () => {
-    await base44.auth.logout("/ClientLogin");
+    // Logout será implementado via MSAL quando necessário
   };
 
   /**

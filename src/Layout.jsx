@@ -11,7 +11,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { useAccount } from "@azure/msal-react";
+import { useMsal } from "@azure/msal-react";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import {
@@ -186,22 +186,20 @@ export default function Layout({ children, currentPageName }) {
    * 3. Extrai departamento(s) do colaborador
    * 4. Carrega permissões customizadas de páginas (se existirem)
    */
-  const account = useAccount();
+  const { accounts } = useMsal();
 
   useEffect(() => {
     // Carrega dados do usuário do MSAL (Azure AD)
-    if (account) {
+    if (accounts && accounts.length > 0) {
+      const acc = accounts[0];
       setCurrentUser({
-        full_name: account.name || "Usuário",
-        email: account.username || ""
+        full_name: acc.name || acc.username || "Usuário",
+        email: acc.username || ""
       });
-    } else {
-      // Fallback para base44 auth
-      base44.auth.me().then(u => { if (u) setCurrentUser(u); }).catch(() => {});
     }
     setUserRole("admin");
     setUserDepartamento("Portal APSIS");
-  }, [account]);
+  }, [accounts]);
 
   useEffect(() => {
     const handleClick = (e) => {

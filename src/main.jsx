@@ -6,6 +6,8 @@ import { PublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
 import AuthGuard from "@/components/AuthGuard";
 
+document.title = 'Portal Apsis';
+
 async function bootstrap() {
   const clientId = import.meta.env.VITE_AZURE_CLIENT_ID;
   const tenantId = import.meta.env.VITE_AZURE_TENANT_ID;

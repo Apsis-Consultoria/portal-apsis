@@ -85,12 +85,14 @@ export function processarDados(rows) {
   const statusSet = new Set();
 
   rows.forEach(row => {
-    const nome = (row["Pessoa"] || "").trim();
-    if (!nome) return;
-
     // Helper: normaliza string removendo acentos e caixa
     const norm = (s) => (s || "").trim().toLowerCase()
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    // Coluna A: Pessoa (busca robusta pela coluna)
+    const pessoaEntry = Object.entries(row).find(([k]) => norm(k) === "pessoa");
+    const nome = (pessoaEntry?.[1] || "").trim();
+    if (!nome) return;
 
     // Filtro 1: Área deve conter BV-SP ou BV-RJ (chave pode variar)
     const areaVal = Object.entries(row).find(([k]) => norm(k).includes("area") && norm(k).includes("colabor"))?.[1] || "";

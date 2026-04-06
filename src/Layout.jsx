@@ -81,7 +81,12 @@ const navItems = [
     ]
   },
   { label: "Infraestrutura", page: "Infraestrutura", icon: Server },
-  { label: "Controle de Alocação de Horas", page: "BusinessValuation", icon: Landmark },
+  {
+    label: "Business Valuation", page: "BusinessValuation", icon: Landmark,
+    children: [
+      { label: "Controle de Alocação de Horas", page: "BusinessValuation", icon: Clock },
+    ]
+  },
   {
     label: "Financeiro", page: "Financeiro", icon: DollarSign,
     children: [

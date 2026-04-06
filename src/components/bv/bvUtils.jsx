@@ -34,10 +34,13 @@ function getConsumo(status) {
   return CONSUMO_STATUS[status] ?? 0.40;
 }
 
+// Pesos cumulativos: 1 fase=20%, 2=40%, 3=60%, 4=80%, 5=90%
+const FASE_PESOS = [0, 0.20, 0.40, 0.60, 0.80, 0.90];
+const FASE_KEYS = ["docRecebida", "modelagem", "revisao", "coladoValor", "minuta"];
+
 function calcConsumoPorFases(fases) {
-  const FASE_KEYS = ["docRecebida", "modelagem", "revisao", "coladoValor", "minuta"];
   const checked = FASE_KEYS.filter(k => fases[k]).length;
-  return checked * 0.20;
+  return FASE_PESOS[checked] ?? 0;
 }
 
 function getFase(status) {
@@ -122,7 +125,7 @@ export function processarDados(rows) {
         horasAlocadas,
         horasLancadas: Number(row["Horas Lançadas"]) || 0,
         consumo: consumoFases,
-        horasAjustadas: Math.round(horasAlocadas * consumoFases),
+        horasAjustadas: Math.round(horasAlocadas * (1 - consumoFases)),
         fases: fasesProjeto,
         funcaoEquipe: row["Função na Equipe"] || "",
       };

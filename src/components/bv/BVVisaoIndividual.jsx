@@ -37,10 +37,11 @@ function CheckBox({ checked, onChange }) {
 }
 
 const FASE_KEYS = ["docRecebida", "modelagem", "revisao", "coladoValor", "minuta"];
+const FASE_PESOS = [0, 0.20, 0.40, 0.60, 0.80, 0.90];
 
 function calcConsumo(fases) {
   const checked = FASE_KEYS.filter(k => fases[k]).length;
-  return checked * 0.20;
+  return FASE_PESOS[checked] ?? 0;
 }
 
 function ConsultorTable({ consultor, fasesOverride, toggleFase, comentarios, setComentario }) {
@@ -69,7 +70,7 @@ function ConsultorTable({ consultor, fasesOverride, toggleFase, comentarios, set
           {consultor.projetos.map((p, i) => {
             const fases = fasesOverride[p.os] || p.fases;
             const consumo = calcConsumo(fases);
-            const horasAjustadas = Math.round(p.horasAlocadas * consumo);
+            const horasAjustadas = Math.round(p.horasAlocadas * (1 - consumo));
             return (
               <tr key={p.os + i} className={`border-t border-gray-100 ${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"} hover:bg-blue-50/30`}>
                 <td className="px-3 py-2.5">
@@ -84,7 +85,7 @@ function ConsultorTable({ consultor, fasesOverride, toggleFase, comentarios, set
                     {p.checkData}
                   </span>
                 </td>
-                <td className="px-3 py-2.5 text-center font-semibold text-[#1A4731]">{Math.round(consumo * 100)}%</td>
+                <td className="px-3 py-2.5 text-center font-semibold text-[#1A4731]">{Math.round((1 - consumo) * 100)}%</td>
                 <td className="px-3 py-2.5 text-center font-semibold text-gray-800">{horasAjustadas}</td>
                 {FASE_KEYS.map(fase => (
                   <td key={fase} className="px-2 py-2.5 text-center">
@@ -120,7 +121,7 @@ function ConsultorCard({ consultor, fasesOverride, toggleFase, comentarios, setC
   // Recalcula totais com fases editadas
   const totalAjustado = consultor.projetos.reduce((s, p) => {
     const fases = fasesOverride[p.os] || p.fases;
-    return s + Math.round(p.horasAlocadas * calcConsumo(fases));
+    return s + Math.round(p.horasAlocadas * (1 - calcConsumo(fases)));
   }, 0);
 
   const header = (

@@ -1,13 +1,12 @@
 import { useState, useRef, useCallback } from "react";
 import * as XLSX from "xlsx";
 import { Upload, Download, FileSpreadsheet } from "lucide-react";
-import { processarDados, exportarXlsx, CARGO_ORDER } from "../components/bv/bvUtils";
+import { processarDados, exportarXlsx } from "../components/bv/bvUtils";
 import BVResumoCards from "../components/bv/BVResumoCards";
 import BVFiltros from "../components/bv/BVFiltros";
 import BVConsultorRow from "../components/bv/BVConsultorRow";
 
 const TABLE_HEADERS = ["Consultor", "Cargo", "Projetos", "H. Brutas", "H. Ajustadas", "Pendências", "Status Carga"];
-const PROJ_HEADERS = ["Código AP", "Cliente", "Tipo Serviço", "Status SAN", "H. Alocadas", "H. Ajustadas", "Data Minuta", "Comentário"];
 
 export default function BusinessValuation() {
   const [uploadInfo, setUploadInfo] = useState(null);
@@ -28,7 +27,6 @@ export default function BusinessValuation() {
     const reader = new FileReader();
     reader.onload = (evt) => {
       const wb = XLSX.read(evt.target.result, { type: "array", cellDates: false });
-      // Tentar encontrar aba "BaseBruta" ou usar a primeira
       const sheetName = wb.SheetNames.find(n => n.toLowerCase().includes("base")) || wb.SheetNames[0];
       const ws = wb.Sheets[sheetName];
       const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
@@ -41,9 +39,6 @@ export default function BusinessValuation() {
     e.target.value = "";
   };
 
-  // Re-processar quando excluirTerceiro muda — não temos os rows originais, então guardamos
-  // (simplificado: a re-exclusão de terceiros requer novo upload — avisar usuário)
-
   const consultoresFiltrados = consultoresBrutos.filter(c => {
     if (filtros.nome && !c.nome.toLowerCase().includes(filtros.nome.toLowerCase())) return false;
     if (filtros.cargos.length > 0 && !filtros.cargos.some(cargo => c.cargo.toLowerCase().includes(cargo.toLowerCase()))) return false;
@@ -55,10 +50,13 @@ export default function BusinessValuation() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Cabeçalho */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1F3864" }}>Controle de Alocação de Horas</h1>
-          <p className="text-sm text-gray-500">Painel de gestão de horas por consultor · Sistema SAN</p>
+      <div className="bg-white border-b border-gray-200 px-6 py-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-1 h-8 rounded-full bg-[#F47920]" />
+          <div>
+            <h1 className="text-xl font-bold text-[#1A4731]">Controle de Alocação de Horas</h1>
+            <p className="text-sm text-gray-500">Painel de gestão de horas por consultor · Sistema SAN</p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           {uploadInfo && (
@@ -73,15 +71,15 @@ export default function BusinessValuation() {
           )}
           <button
             onClick={() => fileRef.current.click()}
-            className="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium text-white"
-            style={{ background: "#1F3864" }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white hover:opacity-90 transition-opacity"
+            style={{ background: "#1A4731" }}
           >
             <Upload size={15} /> Importar Relatório SAN (.xlsx)
           </button>
           {consultoresBrutos.length > 0 && (
             <button
               onClick={() => exportarXlsx(consultoresFiltrados, comentarios)}
-              className="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border border-[#1A4731] text-[#1A4731] bg-white hover:bg-green-50 transition-colors"
             >
               <Download size={15} /> Exportar (.xlsx)
             </button>
@@ -98,8 +96,8 @@ export default function BusinessValuation() {
             <p className="text-sm text-gray-400 mt-1">Importe o relatório de alocação exportado do SAN para começar.</p>
             <button
               onClick={() => fileRef.current.click()}
-              className="mt-6 flex items-center gap-2 px-5 py-2.5 rounded text-sm font-medium text-white"
-              style={{ background: "#1F3864" }}
+              className="mt-6 flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-white hover:opacity-90 transition-opacity"
+              style={{ background: "#1A4731" }}
             >
               <Upload size={15} /> Importar Relatório SAN (.xlsx)
             </button>
@@ -107,7 +105,6 @@ export default function BusinessValuation() {
         ) : (
           <>
             <BVResumoCards consultores={consultoresFiltrados} />
-
             <BVFiltros
               filtros={filtros}
               setFiltros={setFiltros}
@@ -115,11 +112,10 @@ export default function BusinessValuation() {
               excluirTerceiro={excluirTerceiro}
               setExcluirTerceiro={setExcluirTerceiro}
             />
-
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr style={{ background: "#1F3864" }}>
+                  <tr style={{ background: "#1A4731" }}>
                     {TABLE_HEADERS.map(h => (
                       <th key={h} className="px-4 py-3 text-xs font-semibold text-white uppercase tracking-wide whitespace-nowrap">{h}</th>
                     ))}
@@ -141,10 +137,7 @@ export default function BusinessValuation() {
                   )}
                 </tbody>
               </table>
-
-              {/* Subtabela header (visível apenas quando há expandidos) */}
             </div>
-
             <p className="text-xs text-gray-400 mt-3">
               * As horas ajustadas são calculadas com base no % de consumo estimado por etapa do projeto. Projetos Cancelados e Pausados são excluídos automaticamente.
             </p>

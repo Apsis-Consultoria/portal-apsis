@@ -88,22 +88,27 @@ export function processarDados(rows) {
     const nome = (row["Pessoa"] || "").trim();
     if (!nome) return;
 
-    // Filtro 1: Área do Colaborador deve ser BV-SP ou BV-RJ
-    const area = (row["Área do Colaborador"] || "").trim();
-    if (!area.includes("BV-SP") && !area.includes("BV-RJ")) return;
+    // Helper: normaliza string removendo acentos e caixa
+    const norm = (s) => (s || "").trim().toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-    // Filtro 2: Status deve ser "Aprovação"
+    // Filtro 1: Área deve conter BV-SP ou BV-RJ (chave pode variar)
+    const areaVal = Object.entries(row).find(([k]) => norm(k).includes("area") && norm(k).includes("colabor"))?.[1] || "";
+    if (!String(areaVal).includes("BV-SP") && !String(areaVal).includes("BV-RJ")) return;
+
+    // Filtro 2: Status deve ser "Aprovação" ou "Aprovado"
     const status = (row["Status"] || "").trim();
-    if (status !== "Aprovação") return;
+    const statusNorm = norm(status);
+    if (!statusNorm.startsWith("aprov")) return;
     if (status) statusSet.add(status);
 
     // Filtro 3: Grupo de Serviços diferente de Jurídico
-    const grupoServicos = (row["Grupo de Serviços"] || "").trim();
-    if (grupoServicos.toLowerCase() === "jurídico" || grupoServicos.toLowerCase() === "juridico") return;
+    const grupoVal = Object.entries(row).find(([k]) => norm(k).includes("grupo") && norm(k).includes("servico"))?.[1] || "";
+    if (norm(String(grupoVal)).includes("juridic")) return;
 
     // Filtro 4: Função na Equipe diferente de Revisor
-    const funcaoEquipe = (row["Função na Equipe"] || "").trim();
-    if (funcaoEquipe.toLowerCase() === "revisor") return;
+    const funcaoVal = Object.entries(row).find(([k]) => norm(k).includes("funcao") || norm(k).includes("função"))?.[1] || "";
+    if (norm(String(funcaoVal)) === "revisor") return;
 
     if (!consultoresMap[nome]) {
       consultoresMap[nome] = {

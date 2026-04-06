@@ -127,7 +127,7 @@ const navItems = [
   { label: "Diretoria Técnica", page: "DiretoriaTecnica", icon: Award },
   { label: "Consultoria Estratégica", page: "ConsultoriaEstrategica", icon: Target },
   { label: "Sustentabilidade", page: "Sustentabilidade", icon: Leaf },
-  { label: "AXON IA", page: "AxonIA", icon: Sparkles },
+
   {
     label: "Apps APSIS", page: "AppsAPSIS", icon: Grid3x3,
     children: [

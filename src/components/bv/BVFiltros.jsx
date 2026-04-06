@@ -77,7 +77,7 @@ function MultiSelect({ label, options, selected, onChange, placeholder = "Todos"
   );
 }
 
-export default function BVFiltros({ filtros, setFiltros, allStatuses, excluirTerceiro, setExcluirTerceiro }) {
+export default function BVFiltros({ filtros, setFiltros, allStatuses, allCargos, excluirTerceiro, setExcluirTerceiro }) {
   return (
     <div className="bg-white border border-gray-200 rounded-xl px-5 py-4 mb-4 flex flex-wrap gap-4 items-end shadow-sm">
       {/* Busca */}
@@ -97,7 +97,7 @@ export default function BVFiltros({ filtros, setFiltros, allStatuses, excluirTer
 
       <MultiSelect
         label="Cargo"
-        options={CARGO_ORDER}
+        options={allCargos}
         selected={filtros.cargos}
         onChange={vals => setFiltros(f => ({ ...f, cargos: vals }))}
         placeholder="Todos os cargos"

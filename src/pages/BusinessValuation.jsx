@@ -14,6 +14,7 @@ export default function BusinessValuation() {
   const [uploadInfo, setUploadInfo] = useState(null);
   const [consultores, setConsultores] = useState([]);
   const [allStatuses, setAllStatuses] = useState([]);
+  const [allCargos, setAllCargos] = useState([]);
   const [filtros, setFiltros] = useState({ nome: "", cargos: [], statuses: [], soPendencias: false });
   const [excluirTerceiro, setExcluirTerceiro] = useState(false);
   const [comentarios, setComentarios] = useState({});
@@ -32,9 +33,10 @@ export default function BusinessValuation() {
       const wb = XLSX.read(evt.target.result, { type: "array", cellDates: false });
       const ws = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
-      const { consultores: cons, allStatuses: statuses } = processarDados(rows);
+      const { consultores: cons, allStatuses: statuses, allCargos: cargos } = processarDados(rows);
       setConsultores(cons);
       setAllStatuses(statuses);
+      setAllCargos(cargos);
       setUploadInfo({ nome: file.name, data: new Date().toLocaleString("pt-BR"), qtd: cons.length });
     };
     reader.readAsArrayBuffer(file);
@@ -117,6 +119,7 @@ export default function BusinessValuation() {
           filtros={filtros}
           setFiltros={setFiltros}
           allStatuses={allStatuses}
+          allCargos={allCargos}
           excluirTerceiro={excluirTerceiro}
           setExcluirTerceiro={setExcluirTerceiro}
         />

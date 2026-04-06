@@ -124,6 +124,14 @@ export function processarDados(rows) {
 
   const allStatuses = Array.from(statusSet);
 
+  const cargoSet = new Set();
+  Object.values(consultoresMap).forEach(c => { if (c.cargo) cargoSet.add(c.cargo.trim()); });  
+  const allCargos = Array.from(cargoSet).sort((a, b) => {
+    const ia = CARGO_ORDER.findIndex(c => a.includes(c));
+    const ib = CARGO_ORDER.findIndex(c => b.includes(c));
+    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+  });
+
   const consultores = Object.values(consultoresMap).map(c => {
     const projetos = Object.values(c.projetos);
     const totalHoras = projetos.reduce((s, p) => s + p.horasAlocadas, 0);
@@ -149,7 +157,7 @@ export function processarDados(rows) {
     return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib) || a.nome.localeCompare(b.nome);
   });
 
-  return { consultores, allStatuses };
+  return { consultores, allStatuses, allCargos };
 }
 
 export function exportarXlsx(consultores, comentarios) {

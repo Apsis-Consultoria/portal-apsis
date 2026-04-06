@@ -17,7 +17,7 @@ import {
   LayoutDashboard, DollarSign, BarChart3, FileText, ChevronLeft,
   ChevronRight, Bell, User, Menu, X, Megaphone, TrendingUp, PieChart, Settings, Sparkles, Users, Grid3x3, Home,
   Search, Calendar, Split, ArrowRightLeft, Package, Cpu,
-  Server, Landmark, Star, GitMerge, Calculator, BookOpen, Award, Target, Leaf, ShoppingCart, Briefcase
+  Server, Landmark, Star, GitMerge, Calculator, BookOpen, Award, Target, Leaf, ShoppingCart, Briefcase, Building2
 } from "lucide-react";
 import { Clock } from "lucide-react";
 import AssistantWidget from "@/components/AssistantWidget";
@@ -98,6 +98,7 @@ const navItems = [
       { label: "APP Ativo Fixo", page: "AppAtivoFixo", icon: Briefcase },
       { label: "App Conciliação", page: "AppConciliacao", icon: BarChart3 },
       { label: "App Imóveis", page: "AppImoveis", icon: Home },
+      { label: "Avaliação de Imóveis", page: "AvaliacaoImoveis", icon: Building2 },
     ]
   },
   { label: "Projetos Especiais", page: "ProjetosEspeciais", icon: Star },

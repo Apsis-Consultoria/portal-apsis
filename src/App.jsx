@@ -41,6 +41,7 @@ import Comercial from './pages/Comercial';
 import DiretoriaTecnica from './pages/DiretoriaTecnica';
 import ConsultoriaEstrategica from './pages/ConsultoriaEstrategica';
 import Sustentabilidade from './pages/Sustentabilidade';
+import AvaliacaoImoveis from './pages/AvaliacaoImoveis';
 import PortalClienteLayout from './components/portal/PortalClienteLayout';
 import PortalClienteInicio from './pages/portal/PortalClienteInicio';
 import PortalClienteComunicacao from './pages/portal/PortalClienteComunicacao';
@@ -120,6 +121,7 @@ function App() {
             <Route path="/DiretoriaTecnica" element={<LayoutWrapper currentPageName="DiretoriaTecnica"><DiretoriaTecnica /></LayoutWrapper>} />
             <Route path="/ConsultoriaEstrategica" element={<LayoutWrapper currentPageName="ConsultoriaEstrategica"><ConsultoriaEstrategica /></LayoutWrapper>} />
             <Route path="/Sustentabilidade" element={<LayoutWrapper currentPageName="Sustentabilidade"><Sustentabilidade /></LayoutWrapper>} />
+            <Route path="/AvaliacaoImoveis" element={<LayoutWrapper currentPageName="AvaliacaoImoveis"><AvaliacaoImoveis /></LayoutWrapper>} />
 
             {/* Portal do Cliente Routes */}
             <Route path="/PortalClienteInicio" element={<PortalClienteLayout><ClientProtectedRoute><PortalClienteInicio /></ClientProtectedRoute></PortalClienteLayout>} />

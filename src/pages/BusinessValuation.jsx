@@ -89,60 +89,51 @@ export default function BusinessValuation() {
       </div>
 
       <div className="px-6 py-6">
-        {consultoresBrutos.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-32 text-center">
-            <FileSpreadsheet size={48} className="text-gray-300 mb-4" />
-            <p className="text-lg font-medium text-gray-500">Nenhum dado carregado</p>
-            <p className="text-sm text-gray-400 mt-1">Importe o relatório de alocação exportado do SAN para começar.</p>
-            <button
-              onClick={() => fileRef.current.click()}
-              className="mt-6 flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-white hover:opacity-90 transition-opacity"
-              style={{ background: "#1A4731" }}
-            >
-              <Upload size={15} /> Importar Relatório SAN (.xlsx)
-            </button>
-          </div>
-        ) : (
-          <>
-            <BVResumoCards consultores={consultoresFiltrados} />
-            <BVFiltros
-              filtros={filtros}
-              setFiltros={setFiltros}
-              allStatuses={allStatuses}
-              excluirTerceiro={excluirTerceiro}
-              setExcluirTerceiro={setExcluirTerceiro}
-            />
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr style={{ background: "#1A4731" }}>
-                    {TABLE_HEADERS.map(h => (
-                      <th key={h} className="px-4 py-3 text-xs font-semibold text-white uppercase tracking-wide whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {consultoresFiltrados.length === 0 ? (
-                    <tr><td colSpan={7} className="text-center py-10 text-gray-400 text-sm">Nenhum consultor encontrado com os filtros aplicados.</td></tr>
-                  ) : (
-                    consultoresFiltrados.map((c, i) => (
-                      <BVConsultorRow
-                        key={c.nome}
-                        consultor={c}
-                        index={i}
-                        comentarios={comentarios}
-                        setComentario={setComentario}
-                      />
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <p className="text-xs text-gray-400 mt-3">
-              * As horas ajustadas são calculadas com base no % de consumo estimado por etapa do projeto. Projetos Cancelados e Pausados são excluídos automaticamente.
-            </p>
-          </>
-        )}
+        <BVResumoCards consultores={consultoresFiltrados} />
+        <BVFiltros
+          filtros={filtros}
+          setFiltros={setFiltros}
+          allStatuses={allStatuses}
+          excluirTerceiro={excluirTerceiro}
+          setExcluirTerceiro={setExcluirTerceiro}
+        />
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr style={{ background: "#1A4731" }}>
+                {TABLE_HEADERS.map(h => (
+                  <th key={h} className="px-4 py-3 text-xs font-semibold text-white uppercase tracking-wide whitespace-nowrap">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {consultoresFiltrados.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-16 text-gray-400">
+                    <div className="flex flex-col items-center gap-2">
+                      <FileSpreadsheet size={32} className="text-gray-300" />
+                      <p className="text-sm font-medium">Nenhum dado carregado</p>
+                      <p className="text-xs text-gray-400">Importe o relatório SAN (.xlsx) para popular a tabela</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                consultoresFiltrados.map((c, i) => (
+                  <BVConsultorRow
+                    key={c.nome}
+                    consultor={c}
+                    index={i}
+                    comentarios={comentarios}
+                    setComentario={setComentario}
+                  />
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <p className="text-xs text-gray-400 mt-3">
+          * As horas ajustadas são calculadas com base no % de consumo estimado por etapa do projeto. Projetos Cancelados e Pausados são excluídos automaticamente.
+        </p>
       </div>
     </div>
   );

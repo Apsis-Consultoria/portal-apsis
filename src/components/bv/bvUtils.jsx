@@ -34,6 +34,12 @@ function getConsumo(status) {
   return CONSUMO_STATUS[status] ?? 0.40;
 }
 
+function calcConsumoPorFases(fases) {
+  const FASE_KEYS = ["docRecebida", "modelagem", "revisao", "coladoValor", "minuta"];
+  const checked = FASE_KEYS.filter(k => fases[k]).length;
+  return checked * 0.20;
+}
+
 function getFase(status) {
   return FASES_STATUS[status] ?? { docRecebida: false, modelagem: false, revisao: false, coladoValor: false, minuta: false };
 }
@@ -97,12 +103,13 @@ export function processarDados(rows) {
     if (!os) return;
 
     if (!consultoresMap[nome].projetos[os]) {
-      const consumo = getConsumo(status);
       const horasAlocadas = Number(row["Horas Alocadas"]) || 0;
       const dataMinuta = formatDate(row["Data de Envio da Minuta"]);
       const prazo = row["Prazo em Dias"];
       const dataAlocacao = row["Data de Alocação"];
 
+      const fasesProjeto = getFase(status);
+      const consumoFases = calcConsumoPorFases(fasesProjeto);
       consultoresMap[nome].projetos[os] = {
         os,
         cliente: (row["Cliente"] || "").trim(),
@@ -114,9 +121,9 @@ export function processarDados(rows) {
         checkData: checkData(dataMinuta, prazo, dataAlocacao),
         horasAlocadas,
         horasLancadas: Number(row["Horas Lançadas"]) || 0,
-        consumo,
-        horasAjustadas: Math.round(horasAlocadas * consumo),
-        fases: getFase(status),
+        consumo: consumoFases,
+        horasAjustadas: Math.round(horasAlocadas * consumoFases),
+        fases: fasesProjeto,
         funcaoEquipe: row["Função na Equipe"] || "",
       };
     }

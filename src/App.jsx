@@ -69,7 +69,7 @@ function App() {
       <ClientAuthProvider>
         <Router>
           <Routes>
-            <Route path="/" element={<Navigate to="/Dashboard" replace />} />
+            <Route path="/" element={<Navigate to="/BoasVindas" replace />} />
             {Object.entries(Pages).map(([path, Page]) => (
               <Route
                 key={path}

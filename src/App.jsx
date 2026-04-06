@@ -29,6 +29,18 @@ import AppImoveis from './pages/AppImoveis';
 import AppCubus from './pages/AppCubus';
 import AxonIA from './pages/AxonIA';
 import IndicadoresTáticos from './pages/IndicadoresTáticos';
+import Infraestrutura from './pages/Infraestrutura';
+import BusinessValuation from './pages/BusinessValuation';
+import AtivosFixos from './pages/AtivosFixos';
+import ProjetosEspeciais from './pages/ProjetosEspeciais';
+import MA from './pages/MA';
+import ConsultoriaContabil from './pages/ConsultoriaContabil';
+import Editoracao from './pages/Editoracao';
+import Pericias from './pages/Pericias';
+import Comercial from './pages/Comercial';
+import DiretoriaTecnica from './pages/DiretoriaTecnica';
+import ConsultoriaEstrategica from './pages/ConsultoriaEstrategica';
+import Sustentabilidade from './pages/Sustentabilidade';
 import PortalClienteLayout from './components/portal/PortalClienteLayout';
 import PortalClienteInicio from './pages/portal/PortalClienteInicio';
 import PortalClienteComunicacao from './pages/portal/PortalClienteComunicacao';
@@ -96,6 +108,18 @@ function App() {
             <Route path="/AppCubus" element={<LayoutWrapper currentPageName="AppCubus"><AppCubus /></LayoutWrapper>} />
             <Route path="/AxonIA" element={<LayoutWrapper currentPageName="AxonIA"><AxonIA /></LayoutWrapper>} />
             <Route path="/IndicadoresTáticos" element={<LayoutWrapper currentPageName="IndicadoresTáticos"><IndicadoresTáticos /></LayoutWrapper>} />
+            <Route path="/Infraestrutura" element={<LayoutWrapper currentPageName="Infraestrutura"><Infraestrutura /></LayoutWrapper>} />
+            <Route path="/BusinessValuation" element={<LayoutWrapper currentPageName="BusinessValuation"><BusinessValuation /></LayoutWrapper>} />
+            <Route path="/AtivosFixos" element={<LayoutWrapper currentPageName="AtivosFixos"><AtivosFixos /></LayoutWrapper>} />
+            <Route path="/ProjetosEspeciais" element={<LayoutWrapper currentPageName="ProjetosEspeciais"><ProjetosEspeciais /></LayoutWrapper>} />
+            <Route path="/MA" element={<LayoutWrapper currentPageName="MA"><MA /></LayoutWrapper>} />
+            <Route path="/ConsultoriaContabil" element={<LayoutWrapper currentPageName="ConsultoriaContabil"><ConsultoriaContabil /></LayoutWrapper>} />
+            <Route path="/Editoracao" element={<LayoutWrapper currentPageName="Editoracao"><Editoracao /></LayoutWrapper>} />
+            <Route path="/Pericias" element={<LayoutWrapper currentPageName="Pericias"><Pericias /></LayoutWrapper>} />
+            <Route path="/Comercial" element={<LayoutWrapper currentPageName="Comercial"><Comercial /></LayoutWrapper>} />
+            <Route path="/DiretoriaTecnica" element={<LayoutWrapper currentPageName="DiretoriaTecnica"><DiretoriaTecnica /></LayoutWrapper>} />
+            <Route path="/ConsultoriaEstrategica" element={<LayoutWrapper currentPageName="ConsultoriaEstrategica"><ConsultoriaEstrategica /></LayoutWrapper>} />
+            <Route path="/Sustentabilidade" element={<LayoutWrapper currentPageName="Sustentabilidade"><Sustentabilidade /></LayoutWrapper>} />
 
             {/* Portal do Cliente Routes */}
             <Route path="/PortalClienteInicio" element={<PortalClienteLayout><ClientProtectedRoute><PortalClienteInicio /></ClientProtectedRoute></PortalClienteLayout>} />

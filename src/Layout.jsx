@@ -14,10 +14,10 @@ import { Link } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";
 import { createPageUrl } from "@/utils";
 import {
-  LayoutDashboard, GitBranch, FolderKanban,
-  DollarSign, BarChart3, FileText, ChevronLeft,
-  ChevronRight, Bell, User, Menu, X, Megaphone, TrendingUp, PieChart, Settings, ClipboardCheck, Sparkles, Users, Grid3x3, Home,
-  Search, Columns2, Calendar, CreditCard, MessageSquare, AlertOctagon, ShoppingBag, Briefcase, Split, Globe, ArrowRightLeft, Package, Cpu
+  LayoutDashboard, DollarSign, BarChart3, FileText, ChevronLeft,
+  ChevronRight, Bell, User, Menu, X, Megaphone, TrendingUp, PieChart, Settings, Sparkles, Users, Grid3x3, Home,
+  Search, Calendar, Split, ArrowRightLeft, Package, Cpu,
+  Server, Landmark, Star, GitMerge, Calculator, BookOpen, Award, Target, Leaf, ShoppingCart, Briefcase
 } from "lucide-react";
 import { Clock } from "lucide-react";
 import AssistantWidget from "@/components/AssistantWidget";
@@ -70,31 +70,17 @@ const DEFAULT_ROLE_PAGES = {
  * - externalUrl: link externo (opcional)
  */
 const navItems = [
-  { label: "Boas-Vindas", page: "BoasVindas", icon: Home },
-  { label: "Indicadores Táticos", page: "IndicadoresTáticos", icon: TrendingUp },
   {
-    label: "Projetos", page: "Projetos", icon: FolderKanban,
+    label: "Inovação e Tecnologia", page: "TecnologiaInicio", icon: Cpu,
     children: [
-      { label: "Dashboard", page: "Projetos", icon: LayoutDashboard, tabParam: "dashboard" },
-      { label: "Lista de Projetos", page: "Projetos", icon: FileText, tabParam: "lista" },
-      { label: "Kanban", page: "Projetos", icon: Columns2, tabParam: "kanban" },
-      { label: "Documentos", page: "Projetos", icon: FileText, tabParam: "documentos" },
-      { label: "Riscos", page: "Projetos", icon: AlertOctagon, tabParam: "riscos" },
-      { label: "Parcelas", page: "Projetos", icon: CreditCard, tabParam: "parcelas" },
-      { label: "Configurações", page: "Projetos", icon: Settings, tabParam: "configuracoes" },
+      { label: "Estoque de Ativos", page: "EstoqueAtivos", icon: Package },
+      { label: "Alocação de Equipamentos", page: "AlocacaoEquipamentos", icon: Users },
+      { label: "Movimentações", page: "MovimentacoesEquipamentos", icon: TrendingUp },
+      { label: "Dashboard", page: "DashboardTI", icon: BarChart3 },
     ]
   },
-  {
-    label: "Vendas", page: "Vendas", icon: ShoppingBag,
-    children: [
-      { label: "Dashboard", page: "Vendas", icon: LayoutDashboard, tabParam: "dashboard" },
-      { label: "Pipeline", page: "Vendas", icon: GitBranch, tabParam: "pipeline" },
-      { label: "Oportunidades", page: "Vendas", icon: Briefcase, tabParam: "oportunidades" },
-      { label: "Clientes", page: "Vendas", icon: Users, tabParam: "clientes" },
-      { label: "Propostas", page: "Vendas", icon: FileText, tabParam: "propostas" },
-      { label: "Configurações", page: "Vendas", icon: Settings, tabParam: "configuracoes" },
-    ]
-  },
+  { label: "Infraestrutura", page: "Infraestrutura", icon: Server },
+  { label: "Business Valuation", page: "BusinessValuation", icon: Landmark },
   {
     label: "Financeiro", page: "Financeiro", icon: DollarSign,
     children: [
@@ -105,26 +91,18 @@ const navItems = [
       { label: "Rateio de Despesas", page: "RateioDespesas", icon: Split },
     ]
   },
+  { label: "Ativos Fixos", page: "AtivosFixos", icon: Briefcase },
+  { label: "Projetos Especiais", page: "ProjetosEspeciais", icon: Star },
+  { label: "M&A", page: "MA", icon: GitMerge },
   {
-    label: "Marketing Estratégico", page: "Marketing", icon: Megaphone,
+    label: "Marketing & Estratégia", page: "Marketing", icon: Megaphone,
     children: [
       { label: "Indicadores Estratégicos", page: "MarketingIndicadores", icon: LayoutDashboard },
       { label: "Comercial", page: "MarketingComercial", icon: TrendingUp },
       { label: "Orçado vs Real", page: "MarketingOrcado", icon: PieChart },
     ]
   },
-  {
-    label: "APSIS Nexus", page: "NexusInicio", icon: Globe,
-    children: [
-      { label: "Início", page: "NexusInicio", icon: Home },
-      { label: "Comunicação", page: "NexusComunicacao", icon: MessageSquare },
-      { label: "Solicitações", page: "NexusSolicitacoes", icon: FileText },
-      { label: "Documentos", page: "NexusDocumentos", icon: FileText },
-      { label: "Projetos", page: "NexusProjetos", icon: LayoutDashboard },
-      { label: "Portal do Cliente", page: "NexusPortalCliente", icon: Globe },
-      { label: "Configurações", page: "NexusConfiguracoes", icon: Settings },
-    ]
-  },
+  { label: "Consultoria Contábil & Tributária", page: "ConsultoriaContabil", icon: Calculator },
   {
     label: "Capital Humano", page: "CapitalHumano", icon: Users,
     children: [
@@ -135,16 +113,13 @@ const navItems = [
       { label: "Configurações", page: "CapitalHumano", icon: Settings, tabParam: "configuracoes" },
     ]
   },
-  {
-    label: "Tecnologia e Inovação", page: "TecnologiaInicio", icon: Cpu,
-    children: [
-      { label: "Estoque de Ativos", page: "EstoqueAtivos", icon: Package },
-      { label: "Alocação de Equipamentos", page: "AlocacaoEquipamentos", icon: Users },
-      { label: "Movimentações", page: "MovimentacoesEquipamentos", icon: TrendingUp },
-      { label: "Dashboard", page: "DashboardTI", icon: BarChart3 },
-    ]
-  },
-  { label: "Dashboard Qualidade", page: "DashboardQualidade", icon: BarChart3 },
+  { label: "Editoração", page: "Editoracao", icon: BookOpen },
+  { label: "Perícias", page: "Pericias", icon: Search },
+  { label: "Comercial", page: "Comercial", icon: ShoppingCart },
+  { label: "Diretoria Técnica", page: "DiretoriaTecnica", icon: Award },
+  { label: "Consultoria Estratégica", page: "ConsultoriaEstrategica", icon: Target },
+  { label: "Sustentabilidade", page: "Sustentabilidade", icon: Leaf },
+  { label: "AXON IA", page: "AxonIA", icon: Sparkles },
   {
     label: "Apps APSIS", page: "AppsAPSIS", icon: Grid3x3,
     children: [
@@ -154,7 +129,7 @@ const navItems = [
       { label: "APSIS CUBUS", page: "AppCubus", icon: Sparkles },
     ]
   },
-  { label: "AXON IA", page: "AxonIA", icon: Sparkles },
+  { label: "Dashboard Qualidade", page: "DashboardQualidade", icon: BarChart3 },
   { label: "Configurações", page: "Configuracoes", icon: Settings },
 ];
 

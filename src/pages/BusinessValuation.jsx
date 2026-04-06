@@ -57,8 +57,8 @@ export default function BusinessValuation() {
       {/* Cabeçalho */}
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1F3864" }}>Business Valuation</h1>
-          <p className="text-sm text-gray-500">Painel de Alocação de Consultores</p>
+          <h1 className="text-xl font-bold" style={{ color: "#1F3864" }}>Controle de Alocação de Horas</h1>
+          <p className="text-sm text-gray-500">Painel de gestão de horas por consultor · Sistema SAN</p>
         </div>
         <div className="flex items-center gap-3">
           {uploadInfo && (

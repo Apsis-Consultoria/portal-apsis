@@ -1,18 +1,20 @@
 export default function BVResumoCards({ consultores }) {
   const totalConsultores = consultores.length;
   const totalProjetos = new Set(consultores.flatMap(c => c.projetos.map(p => p.os))).size;
-  const totalBrutas = consultores.reduce((s, c) => s + c.horasBrutas, 0);
-  const totalAjustadas = consultores.reduce((s, c) => s + c.horasAjustadas, 0);
+  const totalBrutas = consultores.reduce((s, c) => s + c.totalHoras, 0);
+  const totalAjustadas = consultores.reduce((s, c) => s + c.totalAjustado, 0);
+  const totalPendencias = consultores.reduce((s, c) => s + c.pendencias, 0);
 
   const cards = [
-    { label: "Consultores", value: totalConsultores, color: "#1F3864" },
-    { label: "Projetos Ativos", value: totalProjetos, color: "#1F3864" },
-    { label: "Horas Brutas", value: totalBrutas.toFixed(1) + "h", color: "#1F3864" },
-    { label: "Horas Ajustadas", value: totalAjustadas.toFixed(1) + "h", color: "#1F3864" },
+    { label: "Consultores", value: totalConsultores, color: "#1A4731" },
+    { label: "Projetos Ativos", value: totalProjetos, color: "#1A4731" },
+    { label: "Horas Brutas", value: totalBrutas + "h", color: "#1A4731" },
+    { label: "Horas Ajustadas", value: totalAjustadas + "h", color: "#1A4731" },
+    { label: "Pendências", value: totalPendencias, color: totalPendencias > 0 ? "#DC2626" : "#16A34A" },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
       {cards.map(c => (
         <div key={c.label} className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
           <p className="text-xs text-gray-500 mb-1">{c.label}</p>

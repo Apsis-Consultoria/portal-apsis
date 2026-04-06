@@ -4,17 +4,20 @@ import { Upload, Download, FileSpreadsheet } from "lucide-react";
 import { processarDados, exportarXlsx } from "../components/bv/bvUtils";
 import BVResumoCards from "../components/bv/BVResumoCards";
 import BVFiltros from "../components/bv/BVFiltros";
-import BVConsultorRow from "../components/bv/BVConsultorRow";
+import BVVisaoIndividual from "../components/bv/BVVisaoIndividual";
+import BVVisaoGerentes from "../components/bv/BVVisaoGerentes";
+import BVVisaoGeral from "../components/bv/BVVisaoGeral";
 
-const TABLE_HEADERS = ["Consultor", "Cargo", "Projetos", "H. Brutas", "H. Ajustadas", "Pendências", "Status Carga"];
+const ABAS = ["Visão Individual", "Reunião Gerentes", "Visão Geral"];
 
 export default function BusinessValuation() {
   const [uploadInfo, setUploadInfo] = useState(null);
-  const [consultoresBrutos, setConsultoresBrutos] = useState([]);
+  const [consultores, setConsultores] = useState([]);
   const [allStatuses, setAllStatuses] = useState([]);
-  const [excluirTerceiro, setExcluirTerceiro] = useState(false);
   const [filtros, setFiltros] = useState({ nome: "", cargos: [], statuses: [], soPendencias: false });
+  const [excluirTerceiro, setExcluirTerceiro] = useState(false);
   const [comentarios, setComentarios] = useState({});
+  const [abaAtiva, setAbaAtiva] = useState("Visão Individual");
   const fileRef = useRef();
 
   const setComentario = useCallback((os, val) => {
@@ -27,19 +30,20 @@ export default function BusinessValuation() {
     const reader = new FileReader();
     reader.onload = (evt) => {
       const wb = XLSX.read(evt.target.result, { type: "array", cellDates: false });
-      const sheetName = wb.SheetNames.find(n => n.toLowerCase().includes("base")) || wb.SheetNames[0];
-      const ws = wb.Sheets[sheetName];
-      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
-      const { consultores, allStatuses } = processarDados(rows, excluirTerceiro);
-      setConsultoresBrutos(consultores);
-      setAllStatuses(allStatuses);
-      setUploadInfo({ nome: file.name, data: new Date().toLocaleString("pt-BR"), qtd: consultores.length });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
+      const { consultores: cons, allStatuses: statuses } = processarDados(rows);
+      setConsultores(cons);
+      setAllStatuses(statuses);
+      setUploadInfo({ nome: file.name, data: new Date().toLocaleString("pt-BR"), qtd: cons.length });
     };
     reader.readAsArrayBuffer(file);
     e.target.value = "";
   };
 
-  const consultoresFiltrados = consultoresBrutos.filter(c => {
+  // Filtros aplicados
+  const consultoresFiltrados = consultores.filter(c => {
+    if (excluirTerceiro && c.tipoContratacao !== "CLT") return false;
     if (filtros.nome && !c.nome.toLowerCase().includes(filtros.nome.toLowerCase())) return false;
     if (filtros.cargos.length > 0 && !filtros.cargos.some(cargo => c.cargo.toLowerCase().includes(cargo.toLowerCase()))) return false;
     if (filtros.statuses.length > 0 && !c.projetos.some(p => filtros.statuses.includes(p.status))) return false;
@@ -50,7 +54,7 @@ export default function BusinessValuation() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Cabeçalho */}
-      <div className="bg-white border-b border-gray-200 px-6 py-5 flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-white border-b border-gray-200 px-6 py-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-1 h-8 rounded-full bg-[#F47920]" />
           <div>
@@ -74,9 +78,9 @@ export default function BusinessValuation() {
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white hover:opacity-90 transition-opacity"
             style={{ background: "#1A4731" }}
           >
-            <Upload size={15} /> Importar Relatório SAN (.xlsx)
+            <Upload size={15} /> Importar Planilha SAN (.xlsx)
           </button>
-          {consultoresBrutos.length > 0 && (
+          {consultores.length > 0 && (
             <button
               onClick={() => exportarXlsx(consultoresFiltrados, comentarios)}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border border-[#1A4731] text-[#1A4731] bg-white hover:bg-green-50 transition-colors"
@@ -85,6 +89,25 @@ export default function BusinessValuation() {
             </button>
           )}
           <input ref={fileRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={handleFile} />
+        </div>
+      </div>
+
+      {/* Abas */}
+      <div className="bg-white border-b border-gray-200 px-6">
+        <div className="flex gap-0">
+          {ABAS.map(aba => (
+            <button
+              key={aba}
+              onClick={() => setAbaAtiva(aba)}
+              className={`px-5 py-3 text-sm font-medium border-b-2 transition-all ${
+                abaAtiva === aba
+                  ? "border-[#F47920] text-[#1A4731] font-semibold"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              {aba}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -97,43 +120,20 @@ export default function BusinessValuation() {
           excluirTerceiro={excluirTerceiro}
           setExcluirTerceiro={setExcluirTerceiro}
         />
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr style={{ background: "#1A4731" }}>
-                {TABLE_HEADERS.map(h => (
-                  <th key={h} className="px-4 py-3 text-xs font-semibold text-white uppercase tracking-wide whitespace-nowrap">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {consultoresFiltrados.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="text-center py-16 text-gray-400">
-                    <div className="flex flex-col items-center gap-2">
-                      <FileSpreadsheet size={32} className="text-gray-300" />
-                      <p className="text-sm font-medium">Nenhum dado carregado</p>
-                      <p className="text-xs text-gray-400">Importe o relatório SAN (.xlsx) para popular a tabela</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                consultoresFiltrados.map((c, i) => (
-                  <BVConsultorRow
-                    key={c.nome}
-                    consultor={c}
-                    index={i}
-                    comentarios={comentarios}
-                    setComentario={setComentario}
-                  />
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        <p className="text-xs text-gray-400 mt-3">
-          * As horas ajustadas são calculadas com base no % de consumo estimado por etapa do projeto. Projetos Cancelados e Pausados são excluídos automaticamente.
-        </p>
+
+        {abaAtiva === "Visão Individual" && (
+          <BVVisaoIndividual
+            consultores={consultoresFiltrados}
+            comentarios={comentarios}
+            setComentario={setComentario}
+          />
+        )}
+        {abaAtiva === "Reunião Gerentes" && (
+          <BVVisaoGerentes consultores={consultoresFiltrados} comentarios={comentarios} setComentario={setComentario} />
+        )}
+        {abaAtiva === "Visão Geral" && (
+          <BVVisaoGeral consultores={consultoresFiltrados} />
+        )}
       </div>
     </div>
   );

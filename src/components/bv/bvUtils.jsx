@@ -1,152 +1,181 @@
-// Hierarquia de cargo para ordenação
+import * as XLSX from "xlsx";
+
 export const CARGO_ORDER = [
-  "Diretor", "Executivo B", "Executivo A",
-  "Consultor B", "Consultor A", "Consultor Jr",
-  "Trainee", "Estagiário"
+  "Sócio", "Diretor", "Gerente Sênior", "Gerente", "Supervisor",
+  "Especialista", "Analista Sênior", "Analista", "Assistente Sênior",
+  "Assistente", "Trainee", "Estagiário",
 ];
 
-// % consumo por status
-const STATUS_CONSUMO = {
-  "Iniciação": 0.20,
+// Consumo % por status do projeto
+export const CONSUMO_STATUS = {
+  "Iniciação": 0.40,
   "Execução": 0.40,
   "Revisão": 0.60,
-  "Colado Valores": 0.80,
-  "Aprovação (Minuta Enviada)": 0.90,
-  "Aprovação Cliente/Auditoria": 1.00,
+  "Aprovação": 0.20,
+  "Colado": 0.80,
+  "Minuta": 0.90,
+  "Concluído": 1.0,
+  "Cancelado": 0,
+  "Pausado": 0,
 };
 
-export function calcHorasAjustadas(status, horasAlocadas) {
-  const pct = STATUS_CONSUMO[status];
-  if (pct === undefined) return horasAlocadas * 0.5;
-  return horasAlocadas * (1 - pct);
+// Fase das checkboxes por status
+export const FASES_STATUS = {
+  "Iniciação":  { docRecebida: true,  modelagem: false, revisao: false, coladoValor: false, minuta: false },
+  "Execução":   { docRecebida: true,  modelagem: true,  revisao: false, coladoValor: false, minuta: false },
+  "Revisão":    { docRecebida: true,  modelagem: true,  revisao: true,  coladoValor: false, minuta: false },
+  "Aprovação":  { docRecebida: true,  modelagem: true,  revisao: true,  coladoValor: false, minuta: false },
+  "Colado":     { docRecebida: true,  modelagem: true,  revisao: true,  coladoValor: true,  minuta: false },
+  "Minuta":     { docRecebida: true,  modelagem: true,  revisao: true,  coladoValor: true,  minuta: true  },
+  "Concluído":  { docRecebida: true,  modelagem: true,  revisao: true,  coladoValor: true,  minuta: true  },
+};
+
+function getConsumo(status) {
+  return CONSUMO_STATUS[status] ?? 0.40;
 }
 
-export function minutaAlert(dataMinuta) {
-  if (!dataMinuta) return "sem_minuta";
-  const d = dataMinuta instanceof Date ? dataMinuta : new Date(dataMinuta);
-  if (isNaN(d.getTime())) return "sem_minuta";
-  const diff = (new Date() - d) / (1000 * 60 * 60 * 24);
-  if (diff > 30) return "atualizar";
-  return "ok";
+function getFase(status) {
+  return FASES_STATUS[status] ?? { docRecebida: false, modelagem: false, revisao: false, coladoValor: false, minuta: false };
 }
 
-export function cargaStatus(horasAjustadas) {
-  if (horasAjustadas <= 80) return "disponivel";
-  if (horasAjustadas <= 160) return "atencao";
-  return "sobrecarregado";
-}
-
-// Parse e processa as linhas do Excel
-export function processarDados(rows, excluirTerceiro = false) {
-  // Detectar header na primeira linha
-  // Colunas esperadas (índice 0-based):
-  // 0: Pessoa, 1: Área Colaborador, 2: Cargo, 3: Tipo Contratação, 4: Status,
-  // 5: OS, 6: Cliente, 7: Grupo Serviços, 8: Tipo Serviço, 9: Área Serviço,
-  // 10: Líder, 11: Prazo Dias, 12: Data Minuta, 13: Função Equipe,
-  // 14: Data Alocação, 15: Data Esforço, 16: Data Avaliação, 17: Avaliação,
-  // 18: Comentário Avaliação, 19: Avaliador, 20: Horas Alocadas, 21: Valor Alocado,
-  // 22: Horas Lançadas, 23: Valor Lançado
-
-  const header = rows[0];
-  const data = rows.slice(1);
-
-  function col(row, name) {
-    const idx = header.findIndex(h => h && h.toString().toLowerCase().includes(name.toLowerCase()));
-    return idx >= 0 ? row[idx] : undefined;
-  }
-
-  const filtered = data.filter(row => {
-    if (!row || row.every(c => c === null || c === undefined || c === "")) return false;
-    const status = (col(row, "Status") || "").toString().trim();
-    if (status === "Cancelado" || status === "Pausado") return false;
-    const grupo = (col(row, "Grupo de Servi") || "").toString();
-    if (grupo.toLowerCase().includes("jurídico") || grupo.toLowerCase().includes("juridico")) return false;
-    if (excluirTerceiro) {
-      const tipo = (col(row, "Tipo de Contrata") || "").toString();
-      if (tipo.toLowerCase().includes("terceiro")) return false;
+function excelDateToString(val) {
+  if (!val) return null;
+  if (typeof val === "string" && val.length >= 10) return val.slice(0, 10);
+  if (typeof val === "number") {
+    const date = XLSX.SSF.parse_date_code(val);
+    if (date) {
+      const m = String(date.m).padStart(2, "0");
+      const d = String(date.d).padStart(2, "0");
+      return `${date.y}-${m}-${d}`;
     }
-    return true;
+  }
+  return null;
+}
+
+function formatDate(val) {
+  const s = excelDateToString(val);
+  if (!s) return null;
+  const [y, m, d] = s.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function checkData(dataMinuta, prazoEmDias, dataAlocacao) {
+  if (!dataMinuta) return "ATUALIZAR";
+  return "OK";
+}
+
+/**
+ * Processa planilha no formato SAN exportado (nova estrutura).
+ * Agrupa por Pessoa, deduplica por Ordem de Serviço.
+ */
+export function processarDados(rows) {
+  // rows é array de objetos com as colunas como chaves
+  if (!rows || rows.length === 0) return { consultores: [], allStatuses: [] };
+
+  const consultoresMap = {};
+  const statusSet = new Set();
+
+  rows.forEach(row => {
+    const nome = (row["Pessoa"] || "").trim();
+    if (!nome) return;
+
+    const status = (row["Status"] || "").trim();
+    if (status === "Cancelado" || status === "Pausado") return;
+    if (status) statusSet.add(status);
+
+    if (!consultoresMap[nome]) {
+      consultoresMap[nome] = {
+        nome,
+        area: row["Área do Colaborador"] || "",
+        cargo: row["Cargo do Colaborador"] || "",
+        tipoContratacao: row["Tipo de Contratação"] || "",
+        projetos: {},
+      };
+    }
+
+    const os = (row["Ordem de Serviço"] || "").trim();
+    if (!os) return;
+
+    if (!consultoresMap[nome].projetos[os]) {
+      const consumo = getConsumo(status);
+      const horasAlocadas = Number(row["Horas Alocadas"]) || 0;
+      const dataMinuta = formatDate(row["Data de Envio da Minuta"]);
+      const prazo = row["Prazo em Dias"];
+      const dataAlocacao = row["Data de Alocação"];
+
+      consultoresMap[nome].projetos[os] = {
+        os,
+        cliente: (row["Cliente"] || "").trim(),
+        tipoServico: (row["Tipo de Serviço"] || "").trim(),
+        grupoServicos: (row["Grupo de Serviços"] || "").trim(),
+        status,
+        lider: row["Líder do Projeto"] || "",
+        dataMinuta,
+        checkData: checkData(dataMinuta, prazo, dataAlocacao),
+        horasAlocadas,
+        horasLancadas: Number(row["Horas Lançadas"]) || 0,
+        consumo,
+        horasAjustadas: Math.round(horasAlocadas * consumo),
+        fases: getFase(status),
+        funcaoEquipe: row["Função na Equipe"] || "",
+      };
+    }
   });
 
-  const projects = filtered.map(row => {
-    const horasAlocadas = parseFloat(col(row, "Horas Alocadas") || 0) || 0;
-    const status = (col(row, "Status") || "").toString().trim();
-    const horasAjustadas = calcHorasAjustadas(status, horasAlocadas);
+  const allStatuses = Array.from(statusSet);
 
-    // Data minuta
-    let dataMinuta = col(row, "Data de Envio");
-    if (dataMinuta && typeof dataMinuta === "number") {
-      // Excel serial date
-      dataMinuta = new Date(Math.round((dataMinuta - 25569) * 86400 * 1000));
-    } else if (dataMinuta) {
-      dataMinuta = new Date(dataMinuta);
-    }
+  const consultores = Object.values(consultoresMap).map(c => {
+    const projetos = Object.values(c.projetos);
+    const totalHoras = projetos.reduce((s, p) => s + p.horasAlocadas, 0);
+    const totalAjustado = projetos.reduce((s, p) => s + p.horasAjustadas, 0);
+    const pendencias = projetos.filter(p => p.checkData === "ATUALIZAR").length;
 
     return {
-      pessoa: (col(row, "Pessoa") || "").toString().trim(),
-      area: (col(row, "Área do Colaborador") || "").toString().trim(),
-      cargo: (col(row, "Cargo do Colaborador") || "").toString().trim(),
-      tipoContratacao: (col(row, "Tipo de Contrata") || "").toString().trim(),
-      status,
-      os: (col(row, "Ordem de Servi") || "").toString().trim(),
-      cliente: (col(row, "Cliente") || "").toString().trim(),
-      grupoServicos: (col(row, "Grupo de Servi") || "").toString().trim(),
-      tipoServico: (col(row, "Tipo de Servi") || "").toString().trim(),
-      lider: (col(row, "Líder") || "").toString().trim(),
-      dataMinuta,
-      funcao: (col(row, "Função") || col(row, "Funcao") || "").toString().trim(),
-      horasAlocadas,
-      horasAjustadas,
-      valorAlocado: parseFloat(col(row, "Valor Alocado") || 0) || 0,
-      horasLancadas: parseFloat(col(row, "Horas Lan") || 0) || 0,
+      ...c,
+      projetos,
+      totalHoras,
+      totalAjustado,
+      pendencias,
+      // compatibilidade com BVResumoCards
+      nome: c.nome,
+      cargo: c.cargo,
     };
-  }).filter(p => p.pessoa);
-
-  // Agrupar por consultor
-  const consultorMap = {};
-  for (const p of projects) {
-    if (!consultorMap[p.pessoa]) {
-      consultorMap[p.pessoa] = { nome: p.pessoa, cargo: p.cargo, area: p.area, projetos: [] };
-    }
-    consultorMap[p.pessoa].projetos.push(p);
-  }
-
-  const consultores = Object.values(consultorMap).map(c => {
-    const horasBrutas = c.projetos.reduce((s, p) => s + p.horasAlocadas, 0);
-    const horasAjustadas = c.projetos.reduce((s, p) => s + p.horasAjustadas, 0);
-    const pendencias = c.projetos.filter(p => minutaAlert(p.dataMinuta) !== "ok").length;
-    return { ...c, horasBrutas, horasAjustadas, pendencias };
   });
 
-  // Ordenar por hierarquia de cargo, depois nome
+  // Ordena por cargo hierarchy
   consultores.sort((a, b) => {
-    const ia = CARGO_ORDER.findIndex(c => a.cargo.toLowerCase().includes(c.toLowerCase()));
-    const ib = CARGO_ORDER.findIndex(c => b.cargo.toLowerCase().includes(c.toLowerCase()));
-    const oa = ia === -1 ? 99 : ia;
-    const ob = ib === -1 ? 99 : ib;
-    if (oa !== ob) return oa - ob;
-    return a.nome.localeCompare(b.nome);
+    const ia = CARGO_ORDER.findIndex(c => a.cargo.includes(c));
+    const ib = CARGO_ORDER.findIndex(c => b.cargo.includes(c));
+    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib) || a.nome.localeCompare(b.nome);
   });
 
-  return { consultores, allStatuses: [...new Set(projects.map(p => p.status))].sort() };
+  return { consultores, allStatuses };
 }
 
 export function exportarXlsx(consultores, comentarios) {
-  import("xlsx").then(XLSX => {
-    const rows = [["Consultor","Cargo","OS","Cliente","Tipo Serviço","Status","Horas Alocadas","Horas Ajustadas","Data Minuta","Comentário"]];
-    for (const c of consultores) {
-      for (const p of c.projetos) {
-        rows.push([
-          c.nome, c.cargo, p.os, p.cliente, p.tipoServico, p.status,
-          p.horasAlocadas, Math.round(p.horasAjustadas * 10) / 10,
-          p.dataMinuta ? p.dataMinuta.toLocaleDateString("pt-BR") : "",
-          comentarios[p.os] || ""
-        ]);
-      }
-    }
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Alocação BV");
-    XLSX.writeFile(wb, `alocacao_bv_${new Date().toISOString().slice(0,10)}.xlsx`);
+  const rows = [];
+  consultores.forEach(c => {
+    c.projetos.forEach(p => {
+      rows.push({
+        Consultor: c.nome,
+        Area: c.area,
+        Cargo: c.cargo,
+        OS: p.os,
+        Cliente: p.cliente,
+        TipoServico: p.tipoServico,
+        StatusSAN: p.status,
+        HorasAlocadas: p.horasAlocadas,
+        HorasAjustadas: p.horasAjustadas,
+        Consumo: `${Math.round(p.consumo * 100)}%`,
+        DataMinuta: p.dataMinuta || "",
+        CheckData: p.checkData,
+        Comentario: comentarios[p.os] || "",
+      });
+    });
   });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb, ws, "Controle de Horas");
+  XLSX.writeFile(wb, "controle_alocacao_horas.xlsx");
 }

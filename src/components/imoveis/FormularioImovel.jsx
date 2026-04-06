@@ -31,6 +31,8 @@ export default function FormularioImovel({ onAvaliar, loading }) {
   const [bairros, setBairros] = useState([]);
   const [loadingEstados, setLoadingEstados] = useState(true);
   const [loadingMunicipios, setLoadingMunicipios] = useState(false);
+  const [bairroQuery, setBairroQuery] = useState("");
+  const [showBairroList, setShowBairroList] = useState(false);
 
   const [form, setForm] = useState({
     estado: "",
@@ -70,19 +72,19 @@ export default function FormularioImovel({ onAvaliar, loading }) {
       .catch(() => setLoadingMunicipios(false));
   }, [form.estado]);
 
-  // Busca bairros quando município muda (via IBGE subdistritos)
+  // Busca bairros quando município muda
   useEffect(() => {
-    if (!form.municipio) { setBairros([]); return; }
+    if (!form.municipio) { setBairros([]); setBairroQuery(""); return; }
     const mun = municipios.find(m => m.nome === form.municipio);
     if (!mun) return;
-    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios/${mun.id}/subdistritos`)
+    setBairroQuery("");
+    setForm(f => ({ ...f, bairro: "" }));
+    // Tenta distritos IBGE
+    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios/${mun.id}/distritos`)
       .then(r => r.json())
       .then(data => {
-        if (data && data.length > 0) {
-          setBairros(data.map(s => s.nome));
-        } else {
-          setBairros([]);
-        }
+        if (data && data.length > 0) setBairros(data.map(s => s.nome));
+        else setBairros([]);
       })
       .catch(() => setBairros([]));
   }, [form.municipio]);
@@ -143,17 +145,42 @@ export default function FormularioImovel({ onAvaliar, loading }) {
         </select>
       </div>
 
-      {/* Bairro */}
-      <div>
+      {/* Bairro com autocomplete */}
+      <div className="relative">
         <label className="text-xs font-medium text-gray-600 mb-1 block">Bairro</label>
-        {bairros.length > 0 ? (
-          <select className={selectClass} value={form.bairro} onChange={e => setForm(f => ({ ...f, bairro: e.target.value }))}>
-            <option value="">Selecione o bairro</option>
-            {bairros.map(b => <option key={b} value={b}>{b}</option>)}
-          </select>
-        ) : (
-          <input className={inputClass} placeholder="Digite o bairro" value={form.bairro} onChange={e => setForm(f => ({ ...f, bairro: e.target.value }))} />
-        )}
+        <input
+          className={inputClass}
+          placeholder={form.municipio ? "Digite para buscar o bairro..." : "Selecione o município primeiro"}
+          disabled={!form.municipio}
+          value={bairroQuery}
+          autoComplete="off"
+          onChange={e => {
+            setBairroQuery(e.target.value);
+            setForm(f => ({ ...f, bairro: e.target.value }));
+            setShowBairroList(true);
+          }}
+          onFocus={() => setShowBairroList(true)}
+          onBlur={() => setTimeout(() => setShowBairroList(false), 150)}
+        />
+        {showBairroList && bairros.length > 0 && bairroQuery.length > 0 && (() => {
+          const filtered = bairros.filter(b => b.toLowerCase().includes(bairroQuery.toLowerCase())).slice(0, 8);
+          if (filtered.length === 0) return null;
+          return (
+            <div className="absolute z-50 top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg max-h-44 overflow-y-auto">
+              {filtered.map(b => (
+                <button
+                  key={b} type="button"
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 text-gray-700 transition-colors"
+                  onMouseDown={() => {
+                    setBairroQuery(b);
+                    setForm(f => ({ ...f, bairro: b }));
+                    setShowBairroList(false);
+                  }}
+                >{b}</button>
+              ))}
+            </div>
+          );
+        })()}
       </div>
 
       {/* Características */}

@@ -8,11 +8,13 @@ export default function AvaliacaoImoveis() {
   const [resultado, setResultado] = useState(null);
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState(null);
+  const [dadosImovel, setDadosImovel] = useState(null);
 
   const handleAvaliar = async (dados) => {
     setLoading(true);
     setErro(null);
     setResultado(null);
+    setDadosImovel(dados);
     const res = await base44.functions.invoke("buscarImoveis", dados);
     if (res.data?.success) {
       setResultado(res.data);
@@ -43,22 +45,53 @@ export default function AvaliacaoImoveis() {
           {/* Resultado */}
           <div className="lg:col-span-3">
             {loading && (
-              <div className="bg-white rounded-xl border border-gray-200 p-12 flex flex-col items-center justify-center gap-4">
-                <div className="w-12 h-12 border-4 border-[#1A4731] border-t-transparent rounded-full animate-spin" />
-                <p className="text-gray-500 font-medium">Consultando portais imobiliários...</p>
-                <div className="flex gap-3 text-xs text-gray-400">
-                  <span>🏠 Viva Real</span>
-                  <span>🏢 ZAP Imóveis</span>
-                  <span>🏡 Imóveis Web</span>
-                  <span>🔑 Quinto Andar</span>
+              <div className="space-y-4">
+                {/* Skeleton card principal */}
+                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                  <div className="bg-[#1A4731] px-6 py-5">
+                    <div className="h-3 w-32 bg-white/20 rounded animate-pulse mb-3" />
+                    <div className="h-8 w-48 bg-white/30 rounded animate-pulse" />
+                  </div>
+                  <div className="p-5 grid grid-cols-2 gap-3">
+                    <div className="h-14 bg-gray-100 rounded-lg animate-pulse" />
+                    <div className="h-14 bg-gray-100 rounded-lg animate-pulse" />
+                  </div>
                 </div>
+                {/* Portais */}
+                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                  <div className="h-4 w-36 bg-gray-200 rounded animate-pulse mb-3" />
+                  <div className="grid grid-cols-2 gap-2">
+                    {["🏠 Viva Real","🏢 ZAP Imóveis","🏡 Imóveis Web","🔑 Quinto Andar"].map(p => (
+                      <div key={p} className="flex items-center gap-2 p-2.5 rounded-lg border border-gray-100 bg-gray-50">
+                        <span>{p.split(" ")[0]}</span>
+                        <div className="flex-1">
+                          <div className="h-3 bg-gray-200 rounded animate-pulse mb-1.5" />
+                          <div className="h-2 w-16 bg-gray-100 rounded animate-pulse" />
+                        </div>
+                        <div className="w-3 h-3 rounded-full bg-gray-200 animate-pulse" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Tabela skeleton */}
+                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                  <div className="h-4 w-48 bg-gray-200 rounded animate-pulse mb-4" />
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="flex gap-3 py-2 border-b border-gray-50">
+                      <div className="h-3 w-16 bg-gray-100 rounded animate-pulse" />
+                      <div className="h-3 flex-1 bg-gray-100 rounded animate-pulse" />
+                      <div className="h-3 w-12 bg-gray-100 rounded animate-pulse" />
+                    </div>
+                  ))}
+                </div>
+                <p className="text-center text-sm text-gray-400 animate-pulse">Consultando portais e gerando comparativos...</p>
               </div>
             )}
             {erro && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-red-700 text-sm">{erro}</div>
             )}
             {resultado && !loading && (
-              <ResultadoAvaliacao resultado={resultado} />
+              <ResultadoAvaliacao resultado={resultado} dadosImovel={dadosImovel} />
             )}
             {!resultado && !loading && !erro && (
               <div className="bg-white rounded-xl border border-gray-200 p-12 flex flex-col items-center justify-center gap-3 text-center">

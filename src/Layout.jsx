@@ -70,6 +70,7 @@ const DEFAULT_ROLE_PAGES = {
  * - externalUrl: link externo (opcional)
  */
 const navItems = [
+  { label: "Boas-Vindas", page: "BoasVindas", icon: Home },
   {
     label: "Inovação e Tecnologia", page: "TecnologiaInicio", icon: Cpu,
     children: [

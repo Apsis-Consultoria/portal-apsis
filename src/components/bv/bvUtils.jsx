@@ -98,26 +98,33 @@ export function processarDados(rows) {
     const areaVal = Object.entries(row).find(([k]) => norm(k).includes("area") && norm(k).includes("colabor"))?.[1] || "";
     if (!String(areaVal).includes("BV-SP") && !String(areaVal).includes("BV-RJ")) return;
 
-    // Filtro 2: Status deve ser "Aprovação" ou "Aprovado"
-    const status = (row["Status"] || "").trim();
+    // Filtro 2: Status deve ser "Aprovação" ou "Aprovado" (Coluna E)
+    const statusEntry = Object.entries(row).find(([k]) => norm(k) === "status");
+    const status = (statusEntry?.[1] || "").trim();
     const statusNorm = norm(status);
     if (!statusNorm.startsWith("aprov")) return;
     if (status) statusSet.add(status);
 
-    // Filtro 3: Grupo de Serviços diferente de Jurídico
-    const grupoVal = Object.entries(row).find(([k]) => norm(k).includes("grupo") && norm(k).includes("servico"))?.[1] || "";
-    if (norm(String(grupoVal)).includes("juridic")) return;
+    // Filtro 3: Grupo de Serviços diferente de Jurídico (Coluna H)
+    const grupoEntry = Object.entries(row).find(([k]) => norm(k).includes("grupo") && norm(k).includes("servico"));
+    const grupoVal = (grupoEntry?.[1] || "").trim();
+    if (norm(grupoVal).includes("juridic")) return;
 
-    // Filtro 4: Função na Equipe diferente de Revisor
-    const funcaoVal = Object.entries(row).find(([k]) => norm(k).includes("funcao") || norm(k).includes("função"))?.[1] || "";
-    if (norm(String(funcaoVal)) === "revisor") return;
+    // Filtro 4: Função na Equipe diferente de Revisor (Coluna N)
+    const funcaoEntry = Object.entries(row).find(([k]) => norm(k).includes("funcao") || norm(k).includes("função"));
+    const funcaoVal = (funcaoEntry?.[1] || "").trim();
+    if (norm(funcaoVal) === "revisor") return;
 
     if (!consultoresMap[nome]) {
+      const areaEntry = Object.entries(row).find(([k]) => norm(k).includes("area") && norm(k).includes("colabor"));
+      const cargoEntry = Object.entries(row).find(([k]) => norm(k).includes("cargo") && norm(k).includes("colabor"));
+      const contrataEntry = Object.entries(row).find(([k]) => norm(k).includes("tipo") && norm(k).includes("contrata"));
+      
       consultoresMap[nome] = {
         nome,
-        area: row["Área do Colaborador"] || "",
-        cargo: row["Cargo do Colaborador"] || "",
-        tipoContratacao: row["Tipo de Contratação"] || "",
+        area: (areaEntry?.[1] || "").trim(),
+        cargo: (cargoEntry?.[1] || "").trim(),
+        tipoContratacao: (contrataEntry?.[1] || "").trim(),
         projetos: {},
       };
     }

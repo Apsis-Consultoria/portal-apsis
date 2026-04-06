@@ -92,7 +92,14 @@ const navItems = [
       { label: "Rateio de Despesas", page: "RateioDespesas", icon: Split },
     ]
   },
-  { label: "Ativos Fixos", page: "AtivosFixos", icon: Briefcase },
+  {
+    label: "Ativos Fixos", page: "AtivosFixos", icon: Briefcase,
+    children: [
+      { label: "APP Ativo Fixo", page: "AppAtivoFixo", icon: Briefcase },
+      { label: "App Conciliação", page: "AppConciliacao", icon: BarChart3 },
+      { label: "App Imóveis", page: "AppImoveis", icon: Home },
+    ]
+  },
   { label: "Projetos Especiais", page: "ProjetosEspeciais", icon: Star },
   { label: "M&A", page: "MA", icon: GitMerge },
   {
@@ -124,9 +131,6 @@ const navItems = [
   {
     label: "Apps APSIS", page: "AppsAPSIS", icon: Grid3x3,
     children: [
-      { label: "APP Ativo Fixo", page: "AppAtivoFixo", icon: Briefcase },
-      { label: "App Conciliação", page: "AppConciliacao", icon: BarChart3 },
-      { label: "App Imóveis", page: "AppImoveis", icon: Home },
       { label: "APSIS CUBUS", page: "AppCubus", icon: Sparkles },
     ]
   },

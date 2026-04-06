@@ -80,54 +80,65 @@ function checkData(dataMinuta, prazoEmDias, dataAlocacao) {
 export function processarDados(rows) {
   // rows é array de objetos com as colunas como chaves
   if (!rows || rows.length === 0) return { consultores: [], allStatuses: [], allCargos: [] };
-  
-  // Debug: log de colunas da primeira linha
-  if (rows.length > 0) {
-    console.log("Colunas encontradas:", Object.keys(rows[0]));
-  }
 
   const consultoresMap = {};
   const statusSet = new Set();
+  const rejectReasons = {}; // Debug
 
-  rows.forEach(row => {
+  rows.forEach((row, rowIdx) => {
     // Helper: normaliza string removendo acentos e caixa
     const norm = (s) => (s || "").trim().toLowerCase()
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-    // Coluna A: Pessoa (busca robusta pela coluna)
+    // Coluna A: Pessoa
     const pessoaEntry = Object.entries(row).find(([k]) => norm(k) === "pessoa");
     const nome = (pessoaEntry?.[1] || "").trim();
-    if (!nome) return;
+    if (!nome) {
+      rejectReasons[rowIdx] = "sem Pessoa";
+      return;
+    }
 
-    // Filtro 1: Área deve conter BV-SP ou BV-RJ (chave pode variar)
-    const areaVal = Object.entries(row).find(([k]) => norm(k).includes("area") && norm(k).includes("colabor"))?.[1] || "";
-    if (!String(areaVal).includes("BV-SP") && !String(areaVal).includes("BV-RJ")) return;
+    // Filtro 1: Área do Colaborador contém BV-SP ou BV-RJ
+    const areaEntry = Object.entries(row).find(([k]) => norm(k) === "area do colaborador");
+    const areaVal = (areaEntry?.[1] || "").trim();
+    if (!String(areaVal).includes("BV-SP") && !String(areaVal).includes("BV-RJ")) {
+      rejectReasons[rowIdx] = `área inválida: ${areaVal}`;
+      return;
+    }
 
-    // Filtro 2: Status deve ser "Aprovação" ou "Aprovado" (Coluna E)
+    // Filtro 2: Status deve ser "Aprovação" ou "Aprovado"
     const statusEntry = Object.entries(row).find(([k]) => norm(k) === "status");
     const status = (statusEntry?.[1] || "").trim();
     const statusNorm = norm(status);
-    if (!statusNorm.startsWith("aprov")) return;
+    if (!statusNorm.startsWith("aprov")) {
+      rejectReasons[rowIdx] = `status inválido: ${status}`;
+      return;
+    }
     if (status) statusSet.add(status);
 
-    // Filtro 3: Grupo de Serviços diferente de Jurídico (Coluna H)
-    const grupoEntry = Object.entries(row).find(([k]) => norm(k).includes("grupo") && norm(k).includes("servico"));
+    // Filtro 3: Grupo de Serviços diferente de Jurídico
+    const grupoEntry = Object.entries(row).find(([k]) => norm(k) === "grupo de servicos");
     const grupoVal = (grupoEntry?.[1] || "").trim();
-    if (norm(grupoVal).includes("juridic")) return;
+    if (norm(grupoVal).includes("juridic")) {
+      rejectReasons[rowIdx] = `grupo jurídico`;
+      return;
+    }
 
-    // Filtro 4: Função na Equipe diferente de Revisor (Coluna N)
-    const funcaoEntry = Object.entries(row).find(([k]) => norm(k).includes("funcao") || norm(k).includes("função"));
+    // Filtro 4: Função na Equipe diferente de Revisor
+    const funcaoEntry = Object.entries(row).find(([k]) => norm(k) === "funcao na equipe");
     const funcaoVal = (funcaoEntry?.[1] || "").trim();
-    if (norm(funcaoVal) === "revisor") return;
+    if (norm(funcaoVal) === "revisor") {
+      rejectReasons[rowIdx] = `função: revisor`;
+      return;
+    }
 
     if (!consultoresMap[nome]) {
-      const areaEntry = Object.entries(row).find(([k]) => norm(k).includes("area") && norm(k).includes("colabor"));
-      const cargoEntry = Object.entries(row).find(([k]) => norm(k).includes("cargo") && norm(k).includes("colabor"));
-      const contrataEntry = Object.entries(row).find(([k]) => norm(k).includes("tipo") && norm(k).includes("contrata"));
+      const cargoEntry = Object.entries(row).find(([k]) => norm(k) === "cargo do colaborador");
+      const contrataEntry = Object.entries(row).find(([k]) => norm(k) === "tipo de contratacao");
       
       consultoresMap[nome] = {
         nome,
-        area: (areaEntry?.[1] || "").trim(),
+        area: areaVal,
         cargo: (cargoEntry?.[1] || "").trim(),
         tipoContratacao: (contrataEntry?.[1] || "").trim(),
         projetos: {},
@@ -135,7 +146,10 @@ export function processarDados(rows) {
     }
 
     const os = (row["Ordem de Serviço"] || "").trim();
-    if (!os) return;
+    if (!os) {
+      rejectReasons[rowIdx] = "sem OS";
+      return;
+    }
 
     if (!consultoresMap[nome].projetos[os]) {
       const horasAlocadas = Number(row["Horas Alocadas"]) || 0;
@@ -198,6 +212,12 @@ export function processarDados(rows) {
     const ib = CARGO_ORDER.findIndex(c => b.cargo.includes(c));
     return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib) || a.nome.localeCompare(b.nome);
   });
+
+  // Debug final
+  console.log(`Processados ${rows.length} linhas, obtidos ${consultores.length} consultores`);
+  if (consultores.length === 0) {
+    console.log("Razões de rejeição:", rejectReasons);
+  }
 
   return { consultores, allStatuses, allCargos };
 }

@@ -81,6 +81,12 @@ export function processarDados(rows) {
   // rows é array de objetos com as colunas como chaves
   if (!rows || rows.length === 0) return { consultores: [], allStatuses: [], allCargos: [] };
 
+  // Log das colunas reais da primeira linha
+  if (rows.length > 0) {
+    console.log("Colunas reais:", Object.keys(rows[0]));
+    console.log("Primeira linha:", rows[0]);
+  }
+
   const consultoresMap = {};
   const statusSet = new Set();
   const rejectReasons = {}; // Debug
@@ -90,9 +96,13 @@ export function processarDados(rows) {
     const norm = (s) => (s || "").trim().toLowerCase()
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
+    // Log da primeira linha processada
+    if (rowIdx === 0) console.log("Filtros aplicados na linha 0...");
+
     // Coluna A: Pessoa
     const pessoaEntry = Object.entries(row).find(([k]) => norm(k) === "pessoa");
     const nome = (pessoaEntry?.[1] || "").trim();
+    if (rowIdx === 0) console.log(`  Pessoa: ${nome}`);
     if (!nome) {
       rejectReasons[rowIdx] = "sem Pessoa";
       return;
@@ -101,6 +111,7 @@ export function processarDados(rows) {
     // Filtro 1: Área do Colaborador contém BV-SP ou BV-RJ
     const areaEntry = Object.entries(row).find(([k]) => norm(k) === "area do colaborador");
     const areaVal = (areaEntry?.[1] || "").trim();
+    if (rowIdx === 0) console.log(`  Área do Colaborador: ${areaVal}`);
     if (!String(areaVal).includes("BV-SP") && !String(areaVal).includes("BV-RJ")) {
       rejectReasons[rowIdx] = `área inválida: ${areaVal}`;
       return;
@@ -109,6 +120,7 @@ export function processarDados(rows) {
     // Filtro 2: Status deve ser "Aprovação" ou "Aprovado"
     const statusEntry = Object.entries(row).find(([k]) => norm(k) === "status");
     const status = (statusEntry?.[1] || "").trim();
+    if (rowIdx === 0) console.log(`  Status: ${status}`);
     const statusNorm = norm(status);
     if (!statusNorm.startsWith("aprov")) {
       rejectReasons[rowIdx] = `status inválido: ${status}`;
@@ -119,6 +131,7 @@ export function processarDados(rows) {
     // Filtro 3: Grupo de Serviços diferente de Jurídico
     const grupoEntry = Object.entries(row).find(([k]) => norm(k) === "grupo de servicos");
     const grupoVal = (grupoEntry?.[1] || "").trim();
+    if (rowIdx === 0) console.log(`  Grupo de Serviços: ${grupoVal}`);
     if (norm(grupoVal).includes("juridic")) {
       rejectReasons[rowIdx] = `grupo jurídico`;
       return;
@@ -127,6 +140,7 @@ export function processarDados(rows) {
     // Filtro 4: Função na Equipe diferente de Revisor
     const funcaoEntry = Object.entries(row).find(([k]) => norm(k) === "funcao na equipe");
     const funcaoVal = (funcaoEntry?.[1] || "").trim();
+    if (rowIdx === 0) console.log(`  Função na Equipe: ${funcaoVal}`);
     if (norm(funcaoVal) === "revisor") {
       rejectReasons[rowIdx] = `função: revisor`;
       return;

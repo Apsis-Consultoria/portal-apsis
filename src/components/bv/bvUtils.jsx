@@ -88,9 +88,22 @@ export function processarDados(rows) {
     const nome = (row["Pessoa"] || "").trim();
     if (!nome) return;
 
+    // Filtro 1: Área do Colaborador deve ser BV-SP ou BV-RJ
+    const area = (row["Área do Colaborador"] || "").trim();
+    if (!area.includes("BV-SP") && !area.includes("BV-RJ")) return;
+
+    // Filtro 2: Status deve ser "Aprovação"
     const status = (row["Status"] || "").trim();
-    if (status === "Cancelado" || status === "Pausado") return;
+    if (status !== "Aprovação") return;
     if (status) statusSet.add(status);
+
+    // Filtro 3: Grupo de Serviços diferente de Jurídico
+    const grupoServicos = (row["Grupo de Serviços"] || "").trim();
+    if (grupoServicos.toLowerCase() === "jurídico" || grupoServicos.toLowerCase() === "juridico") return;
+
+    // Filtro 4: Função na Equipe diferente de Revisor
+    const funcaoEquipe = (row["Função na Equipe"] || "").trim();
+    if (funcaoEquipe.toLowerCase() === "revisor") return;
 
     if (!consultoresMap[nome]) {
       consultoresMap[nome] = {

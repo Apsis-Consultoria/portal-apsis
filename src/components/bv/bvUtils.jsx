@@ -108,22 +108,21 @@ export function processarDados(rows) {
       return;
     }
 
-    // Filtro 1: Área do Colaborador contém BV-SP ou BV-RJ
+    // Filtro 1: Área do Colaborador (aceita qualquer uma)
     const areaEntry = Object.entries(row).find(([k]) => norm(k) === "area do colaborador");
     const areaVal = (areaEntry?.[1] || "").trim();
     if (rowIdx === 0) console.log(`  Área do Colaborador: ${areaVal}`);
-    if (!String(areaVal).includes("BV-SP") && !String(areaVal).includes("BV-RJ")) {
-      rejectReasons[rowIdx] = `área inválida: ${areaVal}`;
+    if (!areaVal) {
+      rejectReasons[rowIdx] = "sem área";
       return;
     }
 
-    // Filtro 2: Status deve ser "Aprovação" ou "Aprovado"
+    // Filtro 2: Status (aceita qualquer um)
     const statusEntry = Object.entries(row).find(([k]) => norm(k) === "status");
     const status = (statusEntry?.[1] || "").trim();
     if (rowIdx === 0) console.log(`  Status: ${status}`);
-    const statusNorm = norm(status);
-    if (!statusNorm.startsWith("aprov")) {
-      rejectReasons[rowIdx] = `status inválido: ${status}`;
+    if (!status) {
+      rejectReasons[rowIdx] = "sem status";
       return;
     }
     if (status) statusSet.add(status);

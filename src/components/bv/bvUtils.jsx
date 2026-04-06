@@ -79,7 +79,12 @@ function checkData(dataMinuta, prazoEmDias, dataAlocacao) {
  */
 export function processarDados(rows) {
   // rows é array de objetos com as colunas como chaves
-  if (!rows || rows.length === 0) return { consultores: [], allStatuses: [] };
+  if (!rows || rows.length === 0) return { consultores: [], allStatuses: [], allCargos: [] };
+  
+  // Debug: log de colunas da primeira linha
+  if (rows.length > 0) {
+    console.log("Colunas encontradas:", Object.keys(rows[0]));
+  }
 
   const consultoresMap = {};
   const statusSet = new Set();

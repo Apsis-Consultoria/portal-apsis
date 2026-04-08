@@ -140,6 +140,7 @@ const navItems = [
       { label: "APSIS CUBUS", page: "AppCubus", icon: Sparkles },
     ]
   },
+  { label: "Solicitações de IA", page: "SolicitacoesIA", icon: Sparkles },
   { label: "Dashboard Qualidade", page: "DashboardQualidade", icon: BarChart3 },
   { label: "Configurações", page: "Configuracoes", icon: Settings },
 ];

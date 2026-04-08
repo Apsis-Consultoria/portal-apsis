@@ -42,6 +42,7 @@ import DiretoriaTecnica from './pages/DiretoriaTecnica';
 import ConsultoriaEstrategica from './pages/ConsultoriaEstrategica';
 import Sustentabilidade from './pages/Sustentabilidade';
 import AvaliacaoImoveis from './pages/AvaliacaoImoveis';
+import SolicitacoesIA from './pages/SolicitacoesIA';
 import PortalClienteLayout from './components/portal/PortalClienteLayout';
 import PortalClienteInicio from './pages/portal/PortalClienteInicio';
 import PortalClienteComunicacao from './pages/portal/PortalClienteComunicacao';
@@ -122,6 +123,7 @@ function App() {
             <Route path="/ConsultoriaEstrategica" element={<LayoutWrapper currentPageName="ConsultoriaEstrategica"><ConsultoriaEstrategica /></LayoutWrapper>} />
             <Route path="/Sustentabilidade" element={<LayoutWrapper currentPageName="Sustentabilidade"><Sustentabilidade /></LayoutWrapper>} />
             <Route path="/AvaliacaoImoveis" element={<LayoutWrapper currentPageName="AvaliacaoImoveis"><AvaliacaoImoveis /></LayoutWrapper>} />
+            <Route path="/SolicitacoesIA" element={<LayoutWrapper currentPageName="SolicitacoesIA"><SolicitacoesIA /></LayoutWrapper>} />
 
             {/* Portal do Cliente Routes */}
             <Route path="/PortalClienteInicio" element={<PortalClienteLayout><ClientProtectedRoute><PortalClienteInicio /></ClientProtectedRoute></PortalClienteLayout>} />

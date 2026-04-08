@@ -78,6 +78,7 @@ const navItems = [
       { label: "Alocação de Equipamentos", page: "AlocacaoEquipamentos", icon: Users },
       { label: "Movimentações", page: "MovimentacoesEquipamentos", icon: TrendingUp },
       { label: "Dashboard", page: "DashboardTI", icon: BarChart3 },
+      { label: "Solicitações de IA", page: "SolicitacoesIA", icon: Sparkles },
     ]
   },
   { label: "Infraestrutura", page: "Infraestrutura", icon: Server },
@@ -140,7 +141,6 @@ const navItems = [
       { label: "APSIS CUBUS", page: "AppCubus", icon: Sparkles },
     ]
   },
-  { label: "Solicitações de IA", page: "SolicitacoesIA", icon: Sparkles },
   { label: "Dashboard Qualidade", page: "DashboardQualidade", icon: BarChart3 },
   { label: "Configurações", page: "Configuracoes", icon: Settings },
 ];

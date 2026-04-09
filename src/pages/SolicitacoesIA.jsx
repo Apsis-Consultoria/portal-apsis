@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useMsal } from "@azure/msal-react";
+import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -58,15 +59,20 @@ export default function SolicitacoesIA() {
     try {
       const uploadedUrls = [];
       for (const file of files) {
-        const formData = new FormData();
-        formData.append('file', file);
-        // Armazena nome do arquivo como referência já que upload externo não está disponível
-        uploadedUrls.push(file.name);
+        const fileName = `${Date.now()}-${file.name}`;
+        const { error } = await supabase.storage
+          .from('solicitacoes-ia-anexos')
+          .upload(fileName, file);
+        if (error) throw error;
+        const { data: publicUrlData } = supabase.storage
+          .from('solicitacoes-ia-anexos')
+          .getPublicUrl(fileName);
+        uploadedUrls.push(publicUrlData.publicUrl);
       }
       setForm(f => ({ ...f, anexos: [...f.anexos, ...uploadedUrls] }));
-      toast.success(`${files.length} arquivo(s) referenciado(s)`);
-    } catch {
-      toast.error("Erro ao referenciar arquivos");
+      toast.success(`${files.length} arquivo(s) enviado(s) com sucesso!`);
+    } catch (err) {
+      toast.error("Erro ao fazer upload dos arquivos: " + err.message);
     }
     setUploadingFiles(false);
   };

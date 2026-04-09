@@ -103,17 +103,33 @@ Seja objetivo e direto.`,
 
   const saveRecord = async (status) => {
     setSubmitting(true);
+    const SUPABASE_URL = "https://ybixbsfmxblaippubtvw.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliaXhic2ZteGJsYWlwcHVidHZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTEzMDgsImV4cCI6MjA5MDYyNzMwOH0.4F72hq_oSLw6BVHISLcGS_IdXeMowE-a7_zFGpAVVP4";
     try {
-      const res = await base44.functions.invoke('salvarSolicitacaoIA', {
+      const payload = {
         ...form,
         status,
         data_criacao: new Date().toISOString(),
+      };
+
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/solicitacoes_ia`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Prefer': 'return=representation',
+        },
+        body: JSON.stringify(payload),
       });
 
-      if (!res.data?.success) throw new Error(res.data?.error || 'Erro desconhecido');
+      if (!response.ok) {
+        const err = await response.text();
+        console.error('Supabase error:', err);
+        throw new Error('Erro ao salvar no Supabase');
+      }
 
       if (status === "Novo") {
-        // Notify TI
         await base44.integrations.Core.SendEmail({
           to: "ti@apsis.com.br",
           subject: `[Nova Solicitação IA] ${form.titulo}`,

@@ -60,7 +60,10 @@ export default function SolicitacoesIA() {
     try {
       const uploadedUrls = [];
       for (const file of files) {
-        const fileName = `${Date.now()}-${file.name}`;
+        const safeName = file.name
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentos
+          .replace(/[^a-zA-Z0-9._-]/g, '_'); // substitui chars especiais por _
+        const fileName = `${Date.now()}-${safeName}`;
         const { data: uploadData, error } = await supabase.storage
           .from('solicitacoes-ia-anexos')
           .upload(fileName, file);

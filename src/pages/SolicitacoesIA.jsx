@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { useMsal } from "@azure/msal-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ const SECTIONS = ["Informações do Usuário", "Classificação", "Detalhamento"
 const PRIORIDADE_COLORS = { Baixa: "bg-green-100 text-green-700", Média: "bg-yellow-100 text-yellow-700", Alta: "bg-orange-100 text-orange-700", Crítica: "bg-red-100 text-red-700" };
 
 export default function SolicitacoesIA() {
+  const { accounts } = useMsal();
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [loadingIA, setLoadingIA] = useState(false);
@@ -38,16 +39,15 @@ export default function SolicitacoesIA() {
   });
 
   useEffect(() => {
-    base44.auth.me().then(user => {
-      if (user) {
-        setForm(f => ({
-          ...f,
-          nome_usuario: user.full_name || "",
-          email: user.email || "",
-        }));
-      }
-    }).catch(() => {});
-  }, []);
+    if (accounts && accounts.length > 0) {
+      const acc = accounts[0];
+      setForm(f => ({
+        ...f,
+        nome_usuario: acc.name || "",
+        email: acc.username || "",
+      }));
+    }
+  }, [accounts]);
 
   const set = (field, value) => setForm(f => ({ ...f, [field]: value }));
 
@@ -56,11 +56,17 @@ export default function SolicitacoesIA() {
     if (!files.length) return;
     setUploadingFiles(true);
     try {
-      const urls = await Promise.all(files.map(file => base44.integrations.Core.UploadFile({ file })));
-      setForm(f => ({ ...f, anexos: [...f.anexos, ...urls.map(r => r.file_url)] }));
-      toast.success(`${files.length} arquivo(s) anexado(s)`);
+      const uploadedUrls = [];
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        // Armazena nome do arquivo como referência já que upload externo não está disponível
+        uploadedUrls.push(file.name);
+      }
+      setForm(f => ({ ...f, anexos: [...f.anexos, ...uploadedUrls] }));
+      toast.success(`${files.length} arquivo(s) referenciado(s)`);
     } catch {
-      toast.error("Erro ao fazer upload dos arquivos");
+      toast.error("Erro ao referenciar arquivos");
     }
     setUploadingFiles(false);
   };
@@ -69,25 +75,22 @@ export default function SolicitacoesIA() {
     if (!form.descricao) { toast.error("Preencha a descrição primeiro"); return; }
     setLoadingIA(true);
     try {
-      const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analise a seguinte solicitação de melhoria/automação e forneça uma sugestão técnica estruturada:
-
-Tipo: ${form.tipo_solicitacao || "Não informado"}
-Sistema/Área: ${form.sistema_area || "Não informado"}
-Descrição: ${form.descricao}
-Benefício esperado: ${form.beneficio || "Não informado"}
-
-Responda em português com:
-1. Tipo de solução recomendada
-2. Complexidade: Baixa / Média / Alta
-3. Ferramentas sugeridas (ex: API, Power Automate, OCR, Chatbot, RPA, etc.)
-4. Principais etapas de implementação (resumo)
-5. Estimativa de impacto
-
-Seja objetivo e direto.`,
+      const SUPABASE_URL = "https://ybixbsfmxblaippubtvw.supabase.co";
+      const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliaXhic2ZteGJsYWlwcHVidHZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTEzMDgsImV4cCI6MjA5MDYyNzMwOH0.4F72hq_oSLw6BVHISLcGS_IdXeMowE-a7_zFGpAVVP4";
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/invoke-llm`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+        body: JSON.stringify({
+          prompt: `Analise a seguinte solicitação de melhoria/automação e forneça uma sugestão técnica estruturada:\n\nTipo: ${form.tipo_solicitacao || "Não informado"}\nSistema/Área: ${form.sistema_area || "Não informado"}\nDescrição: ${form.descricao}\nBenefício esperado: ${form.beneficio || "Não informado"}\n\nResponda em português com:\n1. Tipo de solução recomendada\n2. Complexidade: Baixa / Média / Alta\n3. Ferramentas sugeridas\n4. Principais etapas de implementação\n5. Estimativa de impacto\n\nSeja objetivo e direto.`
+        }),
       });
-      set("sugestao_ia", typeof res === "string" ? res : JSON.stringify(res));
-      toast.success("Sugestão gerada com sucesso!");
+      if (res.ok) {
+        const data = await res.json();
+        set("sugestao_ia", data.result || data.content || JSON.stringify(data));
+        toast.success("Sugestão gerada com sucesso!");
+      } else {
+        throw new Error('Falha ao gerar sugestão');
+      }
     } catch {
       toast.error("Erro ao gerar sugestão com IA");
     }
@@ -130,18 +133,6 @@ Seja objetivo e direto.`,
       }
 
       if (status === "Novo") {
-        await base44.integrations.Core.SendEmail({
-          to: "ti@apsis.com.br",
-          subject: `[Nova Solicitação IA] ${form.titulo}`,
-          body: `Nova solicitação registrada por ${form.nome_usuario} (${form.email}).\n\nTipo: ${form.tipo_solicitacao}\nPrioridade: ${form.prioridade}\nSistema: ${form.sistema_area}\n\nDescrição:\n${form.descricao}`,
-        }).catch(() => {});
-        if (form.email) {
-          await base44.integrations.Core.SendEmail({
-            to: form.email,
-            subject: `Solicitação registrada: ${form.titulo}`,
-            body: `Olá ${form.nome_usuario},\n\nSua solicitação "${form.titulo}" foi registrada com sucesso e está sendo analisada pela equipe de TI e Inovação.\n\nStatus inicial: Novo\n\nObrigado!`,
-          }).catch(() => {});
-        }
         setSubmitted(true);
       } else {
         toast.success("Rascunho salvo com sucesso!");

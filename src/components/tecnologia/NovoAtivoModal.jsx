@@ -172,13 +172,16 @@ export default function NovoAtivoModal({ onClose, onSuccess }) {
 
             <div>
               <label className="text-sm font-medium text-[#1A2B1F]">Valor</label>
-              <input
-                type="number"
-                step="0.01"
-                value={form.valor_aquisicao}
-                onChange={(e) => setForm({ ...form, valor_aquisicao: e.target.value })}
-                className="w-full mt-1 px-3 py-2 border border-[#DDE3DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F47920]/50"
-              />
+              <div className="flex mt-1">
+                <span className="px-3 py-2 bg-[#F4F6F4] border border-r-0 border-[#DDE3DE] rounded-l-lg text-sm text-[#5C7060] font-medium">R$</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={form.valor_aquisicao}
+                  onChange={(e) => setForm({ ...form, valor_aquisicao: e.target.value })}
+                  className="flex-1 px-3 py-2 border border-[#DDE3DE] rounded-r-lg focus:outline-none focus:ring-2 focus:ring-[#F47920]/50"
+                />
+              </div>
             </div>
 
             <div>

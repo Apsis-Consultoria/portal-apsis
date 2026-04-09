@@ -72,6 +72,7 @@ export default function SolicitacoesIA() {
       setForm(f => ({ ...f, anexos: [...f.anexos, ...uploadedUrls] }));
       toast.success(`${files.length} arquivo(s) enviado(s) com sucesso!`);
     } catch (err) {
+      console.error('UPLOAD ERROR:', err);
       toast.error("Erro ao fazer upload dos arquivos: " + err.message);
     }
     setUploadingFiles(false);
@@ -143,8 +144,9 @@ export default function SolicitacoesIA() {
       } else {
         toast.success("Rascunho salvo com sucesso!");
       }
-    } catch {
-      toast.error("Erro ao salvar solicitação");
+    } catch (err) {
+      console.error('SAVE ERROR:', err);
+      toast.error("Erro ao salvar solicitação: " + err.message);
     }
     setSubmitting(false);
   };

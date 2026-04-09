@@ -14,8 +14,8 @@ export default function NovoAtivoModal({ onClose, onSuccess }) {
     armazenamento_gb: 0,
     sistema_operacional: "windows",
     data_aquisicao: "",
-    valor: 0,
     fornecedor: "",
+    valor_aquisicao: 0,
   });
 
   const [salvando, setSalvando] = useState(false);

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { supabase } from "@/lib/supabaseClient";
 import { X } from "lucide-react";
 
 export default function NovoAtivoModal({ onClose, onSuccess }) {
@@ -8,7 +8,7 @@ export default function NovoAtivoModal({ onClose, onSuccess }) {
     marca: "",
     modelo: "",
     numero_serie: "",
-    patrimonio: "",
+    numero_patrimonio: "",
     processador: "",
     ram_gb: 0,
     armazenamento_gb: 0,
@@ -24,13 +24,14 @@ export default function NovoAtivoModal({ onClose, onSuccess }) {
     e.preventDefault();
     setSalvando(true);
     try {
-      await base44.entities.AtivoTI.create({
+      const { error } = await supabase.from("estoque_ativos").insert({
         ...form,
         status: "em_estoque",
         ram_gb: parseFloat(form.ram_gb) || 0,
         armazenamento_gb: parseFloat(form.armazenamento_gb) || 0,
-        valor: parseFloat(form.valor) || 0,
+        valor_aquisicao: parseFloat(form.valor_aquisicao) || 0,
       });
+      if (error) throw error;
       onSuccess();
       onClose();
     } catch (error) {
@@ -109,8 +110,8 @@ export default function NovoAtivoModal({ onClose, onSuccess }) {
               <label className="text-sm font-medium text-[#1A2B1F]">Patrimônio</label>
               <input
                 type="text"
-                value={form.patrimonio}
-                onChange={(e) => setForm({ ...form, patrimonio: e.target.value })}
+                value={form.numero_patrimonio}
+                onChange={(e) => setForm({ ...form, numero_patrimonio: e.target.value })}
                 className="w-full mt-1 px-3 py-2 border border-[#DDE3DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F47920]/50"
               />
             </div>
@@ -174,8 +175,8 @@ export default function NovoAtivoModal({ onClose, onSuccess }) {
               <input
                 type="number"
                 step="0.01"
-                value={form.valor}
-                onChange={(e) => setForm({ ...form, valor: e.target.value })}
+                value={form.valor_aquisicao}
+                onChange={(e) => setForm({ ...form, valor_aquisicao: e.target.value })}
                 className="w-full mt-1 px-3 py-2 border border-[#DDE3DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F47920]/50"
               />
             </div>

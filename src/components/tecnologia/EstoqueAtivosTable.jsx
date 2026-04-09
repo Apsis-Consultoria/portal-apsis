@@ -1,6 +1,12 @@
 import { Edit2, Trash2 } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function EstoqueAtivosTable({ ativos, isLoading, refetch }) {
+  const handleDelete = async (id) => {
+    if (!confirm("Deseja excluir este ativo?")) return;
+    await supabase.from("estoque_ativos").delete().eq("id", id);
+    refetch();
+  };
   const getStatusColor = (status) => {
     switch (status) {
       case "em_estoque":
@@ -54,7 +60,7 @@ export default function EstoqueAtivosTable({ ativos, isLoading, refetch }) {
                     {ativo.marca} {ativo.modelo}
                   </td>
                   <td className="px-4 py-3 font-mono text-xs text-[#1A2B1F]">{ativo.numero_serie}</td>
-                  <td className="px-4 py-3 text-[#5C7060]">{ativo.patrimonio || "-"}</td>
+                  <td className="px-4 py-3 text-[#5C7060]">{ativo.numero_patrimonio || "-"}</td>
                   <td className="px-4 py-3">
                     <span className={`text-xs font-semibold px-2 py-1 rounded-full ${getStatusColor(ativo.status)}`}>
                       {statusLabel[ativo.status]}
@@ -69,7 +75,7 @@ export default function EstoqueAtivosTable({ ativos, isLoading, refetch }) {
                     <button className="p-1 hover:bg-[#DDE3DE] rounded text-[#5C7060]">
                       <Edit2 size={16} />
                     </button>
-                    <button className="p-1 hover:bg-red-100 rounded text-red-600">
+                    <button onClick={() => handleDelete(ativo.id)} className="p-1 hover:bg-red-100 rounded text-red-600">
                       <Trash2 size={16} />
                     </button>
                   </td>

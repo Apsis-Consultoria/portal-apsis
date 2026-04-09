@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabaseClient";
 import { Plus, Search } from "lucide-react";
 import EstoqueAtivosTable from "@/components/tecnologia/EstoqueAtivosTable";
 import NovoAtivoModal from "@/components/tecnologia/NovoAtivoModal";
@@ -16,8 +16,13 @@ export default function EstoqueAtivos() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["ativos-ti"],
     queryFn: async () => {
-      const ativos = await base44.entities.AtivoTI.list("-created_date", 200);
-      return ativos || [];
+      const { data, error } = await supabase
+        .from("estoque_ativos")
+        .select("*")
+        .order("criado_em", { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return data || [];
     },
     staleTime: 5 * 60 * 1000,
   });

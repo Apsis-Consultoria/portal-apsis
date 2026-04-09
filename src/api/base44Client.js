@@ -1,14 +1,10 @@
-import { createClient } from '@base44/sdk';
-import { appParams } from '@/lib/app-params';
-
-const { appId, token, functionsVersion, appBaseUrl } = appParams;
-
-//Create a client with authentication required
-export const base44 = createClient({
-  appId,
-  token,
-  functionsVersion,
-  serverUrl: appBaseUrl || import.meta.env.VITE_BASE44_APP_BASE_URL || 'https://app.base44.com',
-  requiresAuth: false,
-  appBaseUrl
-});
+// Base44 SDK desabilitado — app totalmente independente (Azure MSAL + Supabase)
+export const base44 = {
+  auth: { me: () => Promise.resolve(null), logout: () => {}, redirectToLogin: () => {} },
+  entities: new Proxy({}, { get: () => new Proxy({}, { get: () => () => Promise.resolve([]) }) }),
+  integrations: new Proxy({}, { get: () => new Proxy({}, { get: () => () => Promise.resolve({}) }) }),
+  functions: { invoke: () => Promise.resolve({}) },
+  analytics: { track: () => {} },
+  agents: {},
+  users: {},
+};

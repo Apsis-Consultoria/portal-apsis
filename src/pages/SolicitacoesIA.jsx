@@ -104,11 +104,13 @@ Seja objetivo e direto.`,
   const saveRecord = async (status) => {
     setSubmitting(true);
     try {
-      await base44.entities.SolicitacaoIA.create({
+      const res = await base44.functions.invoke('salvarSolicitacaoIA', {
         ...form,
         status,
         data_criacao: new Date().toISOString(),
       });
+
+      if (!res.data?.success) throw new Error(res.data?.error || 'Erro desconhecido');
 
       if (status === "Novo") {
         // Notify TI
@@ -117,7 +119,6 @@ Seja objetivo e direto.`,
           subject: `[Nova Solicitação IA] ${form.titulo}`,
           body: `Nova solicitação registrada por ${form.nome_usuario} (${form.email}).\n\nTipo: ${form.tipo_solicitacao}\nPrioridade: ${form.prioridade}\nSistema: ${form.sistema_area}\n\nDescrição:\n${form.descricao}`,
         }).catch(() => {});
-        // Confirm to user
         if (form.email) {
           await base44.integrations.Core.SendEmail({
             to: form.email,

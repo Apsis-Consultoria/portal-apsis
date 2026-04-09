@@ -162,15 +162,7 @@ ${form.beneficio}
 ${form.processo_atual ? `🔄 Processo Atual:\n${form.processo_atual}\n\n` : ''}${form.processo_desejado ? `🎯 Processo Desejado:\n${form.processo_desejado}\n\n` : ''}${form.link_evidencia ? `🔗 Link de Evidência: ${form.link_evidencia}\n` : ''}${form.anexos?.length > 0 ? `📎 Anexos: ${form.anexos.length} arquivo(s) enviado(s)\n` : ''}${form.sugestao_ia ? `\n🤖 Sugestão IA:\n${form.sugestao_ia}` : ''}
 `.trim();
 
-        const destinatarios = ['filipe.oliveira@apsis.com.br', 'leonardo.carvalho@apsis.com.br'];
-        await Promise.all(destinatarios.map(to =>
-          base44.integrations.Core.SendEmail({
-            to,
-            subject: `[Solicitação IA] ${form.titulo} - ${form.prioridade}`,
-            body: emailBody,
-            from_name: 'Portal APSIS'
-          })
-        ));
+        await base44.functions.invoke('enviarEmailSolicitacaoIA', { form });
 
         setSubmitted(true);
       } else {

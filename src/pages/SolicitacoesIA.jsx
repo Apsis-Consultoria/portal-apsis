@@ -112,6 +112,7 @@ export default function SolicitacoesIA() {
       const payload = {
         ...form,
         status,
+        data_criacao: new Date().toISOString(),
       };
 
       const response = await fetch(`${SUPABASE_URL}/rest/v1/solicitacoes_ia`, {

@@ -79,6 +79,7 @@ const navItems = [
       { label: "Movimentações", page: "MovimentacoesEquipamentos", icon: TrendingUp },
       { label: "Dashboard", page: "DashboardTI", icon: BarChart3 },
       { label: "Solicitações de IA", page: "SolicitacoesIA", icon: Sparkles },
+      { label: "Painel de Solicitações IA", page: "SolicitacoesIAAdmin", icon: LayoutDashboard },
     ]
   },
   { label: "Infraestrutura", page: "Infraestrutura", icon: Server },

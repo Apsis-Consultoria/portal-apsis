@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useMsal } from "@azure/msal-react";
 import { supabase } from "@/lib/supabaseClient";
-import { base44 } from "@/api/base44Client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -165,7 +165,7 @@ ${form.beneficio}
 ${form.processo_atual ? `🔄 Processo Atual:\n${form.processo_atual}\n\n` : ''}${form.processo_desejado ? `🎯 Processo Desejado:\n${form.processo_desejado}\n\n` : ''}${form.link_evidencia ? `🔗 Link de Evidência: ${form.link_evidencia}\n` : ''}${form.anexos?.length > 0 ? `📎 Anexos: ${form.anexos.length} arquivo(s) enviado(s)\n` : ''}${form.sugestao_ia ? `\n🤖 Sugestão IA:\n${form.sugestao_ia}` : ''}
 `.trim();
 
-        await base44.functions.invoke('enviarEmailSolicitacaoIA', { form });
+
 
         setSubmitted(true);
       } else {

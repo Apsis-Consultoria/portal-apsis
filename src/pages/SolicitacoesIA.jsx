@@ -60,9 +60,10 @@ export default function SolicitacoesIA() {
       const uploadedUrls = [];
       for (const file of files) {
         const fileName = `${Date.now()}-${file.name}`;
-        const { error } = await supabase.storage
+        const { data: uploadData, error } = await supabase.storage
           .from('solicitacoes-ia-anexos')
           .upload(fileName, file);
+        console.log('Upload result:', uploadData, error);
         if (error) throw error;
         const { data: publicUrlData } = supabase.storage
           .from('solicitacoes-ia-anexos')

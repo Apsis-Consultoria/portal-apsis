@@ -78,7 +78,6 @@ const navItems = [
       { label: "Alocação de Equipamentos", page: "AlocacaoEquipamentos", icon: Users },
       { label: "Movimentações", page: "MovimentacoesEquipamentos", icon: TrendingUp },
       { label: "Dashboard", page: "DashboardTI", icon: BarChart3 },
-      { label: "Solicitações de IA", page: "SolicitacoesIA", icon: Sparkles },
       { label: "Painel de Solicitações IA", page: "SolicitacoesIAAdmin", icon: LayoutDashboard },
     ]
   },
@@ -105,7 +104,6 @@ const navItems = [
       { label: "APP Ativo Fixo", page: "AppAtivoFixo", icon: Briefcase },
       { label: "App Conciliação", page: "AppConciliacao", icon: BarChart3 },
       { label: "App Imóveis", page: "AppImoveis", icon: Home },
-      { label: "Avaliação de Imóveis", page: "AvaliacaoImoveis", icon: Building2 },
     ]
   },
   { label: "Projetos Especiais", page: "ProjetosEspeciais", icon: Star },

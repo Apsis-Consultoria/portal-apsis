@@ -70,7 +70,6 @@ import Financeiro from './pages/Financeiro';
 import Marketing from './pages/Marketing';
 import MarketingComercial from './pages/MarketingComercial';
 import MarketingOrcado from './pages/MarketingOrcado';
-import Pipeline from './pages/Pipeline';
 import Projetos from './pages/Projetos';
 import Recover from './pages/Recover';
 import Relatorios from './pages/Relatorios';
@@ -104,7 +103,6 @@ export const PAGES = {
     "Marketing": Marketing,
     "MarketingComercial": MarketingComercial,
     "MarketingOrcado": MarketingOrcado,
-    "Pipeline": Pipeline,
     "Projetos": Projetos,
     "Recover": Recover,
     "Relatorios": Relatorios,

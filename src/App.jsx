@@ -38,8 +38,6 @@ import Comercial from './pages/Comercial';
 import DiretoriaTecnica from './pages/DiretoriaTecnica';
 import ConsultoriaEstrategica from './pages/ConsultoriaEstrategica';
 import Sustentabilidade from './pages/Sustentabilidade';
-import AvaliacaoImoveis from './pages/AvaliacaoImoveis';
-import SolicitacoesIA from './pages/SolicitacoesIA';
 import SolicitacoesIAAdmin from './pages/SolicitacoesIAAdmin';
 import OnboardingInterno from './pages/OnboardingInterno';
 import OnboardingPublico from './pages/OnboardingPublico';
@@ -117,8 +115,6 @@ function App() {
               <Route path="/DiretoriaTecnica" element={<LayoutWrapper currentPageName="DiretoriaTecnica"><DiretoriaTecnica /></LayoutWrapper>} />
               <Route path="/ConsultoriaEstrategica" element={<LayoutWrapper currentPageName="ConsultoriaEstrategica"><ConsultoriaEstrategica /></LayoutWrapper>} />
               <Route path="/Sustentabilidade" element={<LayoutWrapper currentPageName="Sustentabilidade"><Sustentabilidade /></LayoutWrapper>} />
-              <Route path="/AvaliacaoImoveis" element={<LayoutWrapper currentPageName="AvaliacaoImoveis"><AvaliacaoImoveis /></LayoutWrapper>} />
-              <Route path="/SolicitacoesIA" element={<LayoutWrapper currentPageName="SolicitacoesIA"><SolicitacoesIA /></LayoutWrapper>} />
               <Route path="/SolicitacoesIAAdmin" element={<LayoutWrapper currentPageName="SolicitacoesIAAdmin"><SolicitacoesIAAdmin /></LayoutWrapper>} />
               <Route path="/OnboardingInterno" element={<LayoutWrapper currentPageName="OnboardingInterno"><OnboardingInterno /></LayoutWrapper>} />
               <Route path="/OnboardingPublico" element={<OnboardingPublico />} />

@@ -1,8 +1,15 @@
-import { useState } from 'react';
-import { LayoutDashboard, Users, Calendar, Settings } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { LayoutDashboard, Users, Calendar, Settings, Briefcase, ExternalLink } from 'lucide-react';
 
 export default function CapitalHumano() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const urlTab = new URLSearchParams(window.location.search).get('tab');
+  const [activeTab, setActiveTab] = useState(urlTab || 'dashboard');
+
+  useEffect(() => {
+    const tab = new URLSearchParams(window.location.search).get('tab');
+    if (tab) setActiveTab(tab);
+  }, []);
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -98,9 +105,27 @@ export default function CapitalHumano() {
           )}
 
           {activeTab === 'configuracoes' && (
-            <div className="text-center py-12">
-              <Settings size={48} className="text-[var(--text-secondary)] opacity-20 mx-auto mb-4" />
-              <p className="text-[var(--text-secondary)]">Funcionalidade de Configurações em desenvolvimento</p>
+            <div className="space-y-4">
+              <h3 className="text-base font-semibold text-[var(--text-primary)]">Configurações de Capital Humano</h3>
+
+              {/* Card Onboarding */}
+              <div className="bg-white border border-[var(--border)] rounded-xl p-5 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-[#F47920]/10 rounded-xl">
+                    <Briefcase size={22} className="text-[#F47920]" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-[var(--text-primary)]">Onboarding de Colaboradores</h4>
+                    <p className="text-xs text-[var(--text-secondary)] mt-0.5">Visualize e gerencie o formulário de onboarding interno</p>
+                  </div>
+                </div>
+                <Link
+                  to="/OnboardingInterno"
+                  className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40] transition-colors"
+                >
+                  <ExternalLink size={14} /> Abrir Onboarding
+                </Link>
+              </div>
             </div>
           )}
         </div>

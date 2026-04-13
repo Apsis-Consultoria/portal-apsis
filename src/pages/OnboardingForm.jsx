@@ -152,17 +152,6 @@ export default function OnboardingForm() {
 
   useEffect(() => {
     document.title = "Formulário de Admissão — APSIS";
-    // Hide the internal app layout when this page is accessed as a public link
-    const style = document.createElement("style");
-    style.id = "onboarding-public-override";
-    style.textContent = `
-      aside { display: none !important; }
-      header.sticky { display: none !important; }
-      .fade-in { animation: none !important; }
-      main { padding: 0 !important; }
-    `;
-    document.head.appendChild(style);
-    return () => { document.getElementById("onboarding-public-override")?.remove(); };
   }, []);
 
   useEffect(() => {

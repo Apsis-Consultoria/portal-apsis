@@ -40,19 +40,7 @@ import Sustentabilidade from '@/pages/Sustentabilidade';
 import SolicitacoesIAAdmin from '@/pages/SolicitacoesIAAdmin';
 import OnboardingInterno from '@/pages/OnboardingInterno';
 import OnboardingPublico from '@/pages/OnboardingPublico';
-import PortalClienteLayout from '@/components/portal/PortalClienteLayout';
-import PortalClienteInicio from '@/pages/portal/PortalClienteInicio';
-import PortalClienteComunicacao from '@/pages/portal/PortalClienteComunicacao';
-import PortalClienteDocumentos from '@/pages/portal/PortalClienteDocumentos';
-import PortalClienteSolicitacoes from '@/pages/portal/PortalClienteSolicitacoes';
-import PortalClienteProjetos from '@/pages/portal/PortalClienteProjetos';
-import PortalClientePerfil from '@/pages/portal/PortalClientePerfil';
-import ClientLogin from '@/pages/ClientLogin';
-import ClientFirstAccess from '@/pages/ClientFirstAccess';
-import ClientForgotPassword from '@/pages/ClientForgotPassword';
-import ClientResetPassword from '@/pages/ClientResetPassword';
-import ClientProtectedRoute from '@/components/ClientProtectedRoute';
-import { ClientAuthProvider } from '@/lib/ClientAuthContext';
+
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -65,8 +53,7 @@ function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <ClientAuthProvider>
-          <Router>
+            <Router>
             <Routes>
               <Route path="/" element={<Navigate to="/BoasVindas" replace />} />
 
@@ -118,25 +105,12 @@ function App() {
               <Route path="/OnboardingInterno" element={<LayoutWrapper currentPageName="OnboardingInterno"><OnboardingInterno /></LayoutWrapper>} />
               <Route path="/OnboardingPublico" element={<OnboardingPublico />} />
 
-              {/* Portal do Cliente Routes */}
-              <Route path="/PortalClienteInicio" element={<PortalClienteLayout><ClientProtectedRoute><PortalClienteInicio /></ClientProtectedRoute></PortalClienteLayout>} />
-              <Route path="/PortalClienteComunicacao" element={<PortalClienteLayout><ClientProtectedRoute><PortalClienteComunicacao /></ClientProtectedRoute></PortalClienteLayout>} />
-              <Route path="/PortalClienteDocumentos" element={<PortalClienteLayout><ClientProtectedRoute><PortalClienteDocumentos /></ClientProtectedRoute></PortalClienteLayout>} />
-              <Route path="/PortalClienteSolicitacoes" element={<PortalClienteLayout><ClientProtectedRoute><PortalClienteSolicitacoes /></ClientProtectedRoute></PortalClienteLayout>} />
-              <Route path="/PortalClienteProjetos" element={<PortalClienteLayout><ClientProtectedRoute><PortalClienteProjetos /></ClientProtectedRoute></PortalClienteLayout>} />
-              <Route path="/PortalClientePerfil" element={<PortalClienteLayout><ClientProtectedRoute><PortalClientePerfil /></ClientProtectedRoute></PortalClienteLayout>} />
 
-              {/* Client Auth Routes */}
-              <Route path="/ClientLogin" element={<ClientLogin />} />
-              <Route path="/ClientFirstAccess" element={<ClientFirstAccess />} />
-              <Route path="/ClientForgotPassword" element={<ClientForgotPassword />} />
-              <Route path="/ClientResetPassword" element={<ClientResetPassword />} />
 
               <Route path="*" element={<PageNotFound />} />
             </Routes>
             <Toaster />
           </Router>
-        </ClientAuthProvider>
       </QueryClientProvider>
     </AuthProvider>
   )

@@ -8,6 +8,7 @@ const fmt = (v) => v ? new Intl.NumberFormat("pt-BR", { style: "currency", curre
 export default function AlocacoesHoras() {
   const [alocacoes, setAlocacoes] = useState([]);
   const [oss, setOss] = useState([]);
+  const [colaboradoresList, setColaboradoresList] = useState([]);
   const [filtroSetor, setFiltroSetor] = useState("Todos");
   const [filtroProjeto, setFiltroProjeto] = useState("Todos");
   const [filtroStatus, setFiltroStatus] = useState("Todos");
@@ -20,9 +21,11 @@ export default function AlocacoesHoras() {
     Promise.all([
       base44.entities.AlocacaoHoras.list("-created_date", 200),
       base44.entities.OrdemServico.list("-created_date", 200),
-    ]).then(([aloc, orders]) => {
+      base44.entities.Colaborador.filter({ ativo: true }, "nome", 300),
+    ]).then(([aloc, orders, cols]) => {
       setAlocacoes(aloc);
       setOss(orders);
+      setColaboradoresList(cols.sort((a, b) => a.nome.localeCompare(b.nome)));
       setLoading(false);
     });
   }, []);
@@ -262,7 +265,29 @@ export default function AlocacoesHoras() {
               <button onClick={() => setModal(null)}><X size={18} className="text-[#5C7060]" /></button>
             </div>
             <div className="p-6 grid grid-cols-2 gap-4">
-              <InputField label="Colaborador" field="colaborador" />
+              <div>
+                <label className="block text-xs font-medium text-[#5C7060] mb-1">Colaborador</label>
+                <select
+                  className="w-full border border-[#DDE3DE] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#F47920]"
+                  value={modal?.data?.colaborador || ""}
+                  onChange={e => {
+                    const col = colaboradoresList.find(c => c.nome === e.target.value);
+                    setModal(m => ({
+                      ...m,
+                      data: {
+                        ...m.data,
+                        colaborador: e.target.value,
+                        setor: col?.departamento || m.data?.setor || ""
+                      }
+                    }));
+                  }}
+                >
+                  <option value="">Selecionar colaborador</option>
+                  {colaboradoresList.map(c => (
+                    <option key={c.id} value={c.nome}>{c.nome}{c.departamento ? ` — ${c.departamento}` : ""}</option>
+                  ))}
+                </select>
+              </div>
               <InputField label="Setor" field="setor" options={["Contábil", "Consultoria", "Tributária", "Societária", "M&A", "Outros"]} />
               <InputField label="Projeto/OS" field="projeto_id" />
               <InputField label="Status" field="status" options={["Planejada", "Em andamento", "Concluída", "Suspensa"]} />

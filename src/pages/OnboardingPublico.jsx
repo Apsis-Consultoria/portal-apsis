@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { CheckCircle2, ChevronRight, ChevronLeft, Upload, X, Loader2, Shield, Clock, User, MapPin, Briefcase, Users, Bus, Utensils, CreditCard, Phone, FileText, FileCheck, AlertCircle, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,8 +41,10 @@ const DOCUMENT_TYPES = [
 ];
 
 export default function OnboardingPublico() {
+  // Suporta tanto /capital-humano/onboarding/public/:token quanto ?token=...
+  const params = useParams();
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
+  const token = params.token || urlParams.get("token");
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);

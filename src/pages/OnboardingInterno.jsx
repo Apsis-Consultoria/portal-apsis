@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { 
-  Users, Plus, Search, Filter, Download, Eye, Send, CheckCircle2, 
-  XCircle, AlertCircle, Clock, RefreshCw, Link2, ChevronDown,
+  Users, Plus, Search, Download, Eye, CheckCircle2, 
+  AlertCircle, Clock, Link2,
   BarChart3, FileText, Settings, Zap, Loader2, X, Copy, ExternalLink,
-  ChevronRight, Calendar, User, Building2
+  User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +46,7 @@ export default function OnboardingInterno() {
   const [filterStatus, setFilterStatus] = useState("todos");
   const [selectedItem, setSelectedItem] = useState(null);
   const [showNovo, setShowNovo] = useState(false);
+  const [linkGerado, setLinkGerado] = useState(null);
 
   useEffect(() => { loadOnboardings(); }, []);
 
@@ -72,9 +73,8 @@ export default function OnboardingInterno() {
     try {
       await supabase.from("onboarding_links").insert({ onboarding_id: id, token, status: "ativo", created_at: new Date().toISOString() });
       await supabase.from("employees_onboarding").update({ status_formulario: "link_enviado" }).eq("id", id);
-      const link = `${window.location.origin}/OnboardingPublico?token=${token}`;
-      await navigator.clipboard.writeText(link);
-      toast.success("Link gerado e copiado!");
+      const link = `${window.location.origin}/capital-humano/onboarding/public/${token}`;
+      setLinkGerado({ link, id });
       loadOnboardings();
     } catch (err) {
       toast.error("Erro ao gerar link: " + err.message);
@@ -293,6 +293,40 @@ export default function OnboardingInterno() {
       {/* Modal Novo */}
       {showNovo && (
         <OnboardingNovoModal onClose={() => setShowNovo(false)} onSaved={() => { setShowNovo(false); loadOnboardings(); }} />
+      )}
+
+      {/* Modal Link Gerado */}
+      {linkGerado && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="bg-gradient-to-r from-[#1A4731] to-[#245E40] px-6 py-5 flex items-center justify-between">
+              <h2 className="text-white font-semibold text-lg">Link Público Gerado</h2>
+              <button onClick={() => setLinkGerado(null)} className="text-white/70 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+                <CheckCircle2 className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                <p className="text-green-700 font-semibold text-sm">Link criado com sucesso!</p>
+                <p className="text-green-600 text-xs mt-1">Compartilhe com o novo colaborador para preenchimento.</p>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">URL pública de acesso</label>
+                <div className="flex gap-2">
+                  <input readOnly value={linkGerado.link} className="flex-1 text-xs border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 text-slate-700 font-mono focus:outline-none" />
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button className="flex-1 gap-2 bg-[#1A4731] hover:bg-[#245E40] text-white" onClick={() => { navigator.clipboard.writeText(linkGerado.link); toast.success("Link copiado!"); }}>
+                  <Copy className="w-4 h-4" /> Copiar link
+                </Button>
+                <Button variant="outline" className="flex-1 gap-2" onClick={() => window.open(linkGerado.link, "_blank")}>
+                  <ExternalLink className="w-4 h-4" /> Abrir página
+                </Button>
+              </div>
+              <Button variant="ghost" className="w-full text-slate-500 text-sm" onClick={() => setLinkGerado(null)}>Fechar</Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -9,6 +9,10 @@ const isPreview =
   window.location.hostname.includes('preview-sandbox') ||
   window !== window.top; // detecta iframe
 
+// Rotas públicas que não requerem autenticação
+const PUBLIC_ROUTES = ['/capital-humano/onboarding/public'];
+const isPublicRoute = PUBLIC_ROUTES.some(r => window.location.pathname.startsWith(r));
+
 const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a1fc4b60b4c477ea324579/40af152e2_Design-sem-nome.png";
 
 export default function AuthGuard({ children }) {
@@ -27,8 +31,8 @@ export default function AuthGuard({ children }) {
     });
   }, []);
 
-  // Se estiver no preview, ignora autenticação
-  if (isPreview) return children;
+  // Se estiver no preview ou rota pública, ignora autenticação
+  if (isPreview || isPublicRoute) return children;
 
   const handleLogin = async () => {
     if (loading || inProgress !== InteractionStatus.None) return;

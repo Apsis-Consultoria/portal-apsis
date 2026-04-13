@@ -40,6 +40,7 @@ import Sustentabilidade from '@/pages/Sustentabilidade';
 import SolicitacoesIAAdmin from '@/pages/SolicitacoesIAAdmin';
 import OnboardingInterno from '@/pages/OnboardingInterno';
 import OnboardingPublico from '@/pages/OnboardingPublico';
+import Configuracoes from '@/pages/Configuracoes';
 
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -104,6 +105,7 @@ function App() {
               <Route path="/SolicitacoesIAAdmin" element={<LayoutWrapper currentPageName="SolicitacoesIAAdmin"><SolicitacoesIAAdmin /></LayoutWrapper>} />
               <Route path="/OnboardingInterno" element={<LayoutWrapper currentPageName="OnboardingInterno"><OnboardingInterno /></LayoutWrapper>} />
               <Route path="/OnboardingPublico" element={<OnboardingPublico />} />
+              <Route path="/Configuracoes" element={<LayoutWrapper currentPageName="Configuracoes"><Configuracoes /></LayoutWrapper>} />
 
 
 

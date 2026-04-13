@@ -1,17 +1,13 @@
 import { useState } from 'react';
-import { LayoutDashboard, Users, Calendar, Settings, UserCheck } from 'lucide-react';
-import OnboardingInterno from './OnboardingInterno';
+import { LayoutDashboard, Users, Calendar, Settings } from 'lucide-react';
 
 export default function CapitalHumano() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const defaultTab = urlParams.get('tab') || 'dashboard';
-  const [activeTab, setActiveTab] = useState(defaultTab);
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'colaboradores', label: 'Colaboradores', icon: Users },
     { id: 'alocacoes', label: 'Alocações', icon: Calendar },
-    { id: 'onboarding', label: 'Onboarding', icon: UserCheck },
     { id: 'configuracoes', label: 'Configurações', icon: Settings },
   ];
 
@@ -99,10 +95,6 @@ export default function CapitalHumano() {
               <Calendar size={48} className="text-[var(--text-secondary)] opacity-20 mx-auto mb-4" />
               <p className="text-[var(--text-secondary)]">Funcionalidade de Alocações em desenvolvimento</p>
             </div>
-          )}
-
-          {activeTab === 'onboarding' && (
-            <OnboardingInterno />
           )}
 
           {activeTab === 'configuracoes' && (

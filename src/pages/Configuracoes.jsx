@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
-import { Plus, Edit2, X, Loader2, UserCheck, Save } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Plus, Edit2, X, Loader2, UserCheck, Save, Briefcase, ExternalLink } from "lucide-react";
 
 export default function Configuracoes() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -90,6 +91,26 @@ export default function Configuracoes() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-5">
+
+      {/* Card de acesso rápido — Onboarding */}
+      <div className="bg-white border border-[#DDE3DE] rounded-2xl p-5 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-[#F47920]/10 rounded-xl">
+            <Briefcase size={22} className="text-[#F47920]" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-[#1A2B1F]">Onboarding de Colaboradores</h3>
+            <p className="text-xs text-[#5C7060] mt-0.5">Visualize e gerencie o formulário de onboarding interno</p>
+          </div>
+        </div>
+        <Link
+          to="/OnboardingInterno"
+          className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40] transition-colors"
+        >
+          <ExternalLink size={14} /> Abrir Onboarding
+        </Link>
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

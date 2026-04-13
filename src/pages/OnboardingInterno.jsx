@@ -11,6 +11,7 @@ import OnboardingStatusBadge from "@/components/onboarding/OnboardingStatusBadge
 import OnboardingTimeline from "@/components/onboarding/OnboardingTimeline";
 import NovoOnboardingModal from "@/components/onboarding/NovoOnboardingModal";
 import OnboardingDetalheModal from "@/components/onboarding/OnboardingDetalheModal";
+import GerarLinkModal from "@/components/onboarding/GerarLinkModal";
 
 const STATUS_WORKFLOW = [
   { id: "link_nao_enviado", label: "Link não enviado", color: "slate" },
@@ -57,6 +58,7 @@ export default function OnboardingInterno() {
   const [showNovoModal, setShowNovoModal] = useState(false);
   const [selectedOnboarding, setSelectedOnboarding] = useState(null);
   const [showDetalhe, setShowDetalhe] = useState(false);
+  const [showGerarLink, setShowGerarLink] = useState(false);
   const [activeTab, setActiveTab] = useState("visao_geral");
 
   const TABS = [
@@ -80,23 +82,9 @@ export default function OnboardingInterno() {
     setLoading(false);
   };
 
-  const gerarLink = async (onboardingId) => {
-    const token = crypto.randomUUID();
-    const { error } = await supabase.from("onboarding_links").insert({
-      onboarding_id: onboardingId,
-      token,
-      status: "ativo",
-      criado_em: new Date().toISOString(),
-    });
-    if (!error) {
-      const link = `${window.location.origin}/OnboardingPublico?token=${token}`;
-      navigator.clipboard.writeText(link);
-      toast.success("Link gerado e copiado!");
-      await supabase.from("employees_onboarding").update({
-        overall_status: "link_enviado", updated_at: new Date().toISOString()
-      }).eq("id", onboardingId);
-      loadOnboardings();
-    }
+  const abrirGerarLink = (onboarding) => {
+    setSelectedOnboarding(onboarding);
+    setShowGerarLink(true);
   };
 
   const aprovarOnboarding = async (id) => {
@@ -139,12 +127,14 @@ export default function OnboardingInterno() {
           <h1 className="text-xl font-bold">Onboarding — Capital Humano</h1>
           <p className="text-white/70 text-sm mt-1">Gestão completa do processo de admissão de colaboradores</p>
         </div>
-        <button
-          onClick={() => setShowNovoModal(true)}
-          className="flex items-center gap-2 bg-[#F47920] hover:bg-[#d96b1a] text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-lg"
-        >
-          <Plus className="w-4 h-4" /> Novo Onboarding
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowNovoModal(true)}
+            className="flex items-center gap-2 bg-[#F47920] hover:bg-[#d96b1a] text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-lg"
+          >
+            <Plus className="w-4 h-4" /> Novo Onboarding
+          </button>
+        </div>
       </div>
 
       {/* KPIs */}
@@ -261,9 +251,9 @@ export default function OnboardingInterno() {
                                 <Eye className="w-4 h-4" />
                               </button>
                               <button
-                                onClick={() => gerarLink(o.id)}
+                                onClick={() => abrirGerarLink(o)}
                                 className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                title="Gerar/Copiar link"
+                                title="Gerar link público"
                               >
                                 <Link2 className="w-4 h-4" />
                               </button>
@@ -406,6 +396,13 @@ export default function OnboardingInterno() {
           onboarding={selectedOnboarding}
           onClose={() => setShowDetalhe(false)}
           onRefresh={loadOnboardings}
+        />
+      )}
+      {showGerarLink && selectedOnboarding && (
+        <GerarLinkModal
+          onboarding={selectedOnboarding}
+          onClose={() => setShowGerarLink(false)}
+          onSuccess={loadOnboardings}
         />
       )}
     </div>

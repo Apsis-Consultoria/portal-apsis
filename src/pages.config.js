@@ -78,6 +78,7 @@ import ResetPassword from './pages/ResetPassword';
 import MainView from './pages/MainView';
 import ModelosAvaliacao from './pages/ModelosAvaliacao';
 import OnboardingPublico from './pages/OnboardingPublico';
+import OnboardingForm from './pages/OnboardingForm';
 import __Layout from './Layout.jsx';
 
 
@@ -113,6 +114,7 @@ export const PAGES = {
     "MainView": MainView,
     "ModelosAvaliacao": ModelosAvaliacao,
     "OnboardingPublico": OnboardingPublico,
+    "OnboardingForm": OnboardingForm,
 }
 
 export const pagesConfig = {

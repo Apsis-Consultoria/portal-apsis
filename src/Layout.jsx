@@ -126,6 +126,7 @@ const navItems = [
       { label: "Colaboradores", page: "CapitalHumano", icon: Users, tabParam: "colaboradores" },
       { label: "Alocações", page: "CapitalHumano", icon: Calendar, tabParam: "alocacoes" },
       { label: "Rateios CH", page: "RateiosCapitalHumano", icon: Split },
+      { label: "Onboarding", page: "OnboardingInterno", icon: Briefcase },
       { label: "Configurações", page: "CapitalHumano", icon: Settings, tabParam: "configuracoes" },
     ]
   },

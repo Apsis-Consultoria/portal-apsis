@@ -16,12 +16,12 @@ export default function CapitalHumano() {
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'colaboradores' && colaboradores.length === 0) {
+    if (activeTab === 'colaboradores') {
       setLoadingColabs(true);
       base44.entities.Colaborador.list().then(data => {
         setColaboradores(data || []);
         setLoadingColabs(false);
-      });
+      }).catch(() => setLoadingColabs(false));
     }
   }, [activeTab]);
 

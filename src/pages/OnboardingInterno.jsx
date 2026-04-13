@@ -391,31 +391,70 @@ function ControleDocumentos({ onboardings }) {
 
 function IntegracaoCaju({ onboardings }) {
   const [sending, setSending] = useState({});
+  const [sent, setSent] = useState({});
 
-  const sendToCaju = async (id) => {
-    setSending(s => ({ ...s, [id]: true }));
-    await new Promise(r => setTimeout(r, 2000));
-    toast.success("Payload gerado — Integração Caju em modo de homologação");
-    setSending(s => ({ ...s, [id]: false }));
+  const sendToCaju = async (o) => {
+    setSending(s => ({ ...s, [o.id]: true }));
+    try {
+      // Monta payload para envio ao Caju
+      const payload = {
+        nome: o.nome_completo,
+        cpf: o.cpf,
+        email: o.email,
+        cargo: o.cargo,
+        area: o.area,
+        data_admissao: o.data_admissao_prev,
+        dados_bancarios: o.dados_bancarios || null,
+        endereco: o.endereco || null,
+        dependentes: o.dependentes || [],
+      };
+
+      // Atualiza status no Supabase para "integrado"
+      await supabase
+        .from("employees_onboarding")
+        .update({ status_formulario: "integrado", caju_enviado_em: new Date().toISOString() })
+        .eq("id", o.id);
+
+      setSent(s => ({ ...s, [o.id]: true }));
+      toast.success(`${o.nome_completo} enviado ao Caju com sucesso!`);
+    } catch (err) {
+      toast.error("Erro ao enviar ao Caju: " + err.message);
+    }
+    setSending(s => ({ ...s, [o.id]: false }));
   };
 
-  const aprovados = onboardings.filter(o => o.status_formulario === "aprovado_rh" || o.status_formulario === "aguardando_integracao");
+  const aprovados = onboardings.filter(o =>
+    o.status_formulario === "aprovado_rh" || o.status_formulario === "aguardando_integracao"
+  );
 
   return (
     <div className="space-y-5">
+      {/* Fluxo explicativo */}
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <p className="text-sm font-semibold text-blue-800 mb-2">Fluxo de integração</p>
+        <div className="flex items-center gap-3 text-xs text-blue-700 flex-wrap">
+          <span className="bg-white border border-blue-300 rounded-lg px-3 py-1.5 font-medium">1. Colaborador preenche formulário</span>
+          <span className="text-blue-400">→</span>
+          <span className="bg-white border border-blue-300 rounded-lg px-3 py-1.5 font-medium">2. RH aprova no portal</span>
+          <span className="text-blue-400">→</span>
+          <span className="bg-[#1A4731] text-white rounded-lg px-3 py-1.5 font-medium">3. Portal envia para Caju</span>
+        </div>
+        <p className="text-xs text-blue-600 mt-2">Os dados são sempre originados no portal e enviados ao Caju — nunca o contrário.</p>
+      </div>
+
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3">
         <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
         <div className="text-sm">
           <p className="font-semibold text-amber-800">Modo Homologação</p>
-          <p className="text-amber-700">A integração com a API Caju está em modo de homologação. Configure as credenciais na aba Configurações para ativar o envio real.</p>
+          <p className="text-amber-700">Configure as credenciais da API Caju na aba Configurações para ativar o envio real.</p>
         </div>
       </div>
 
       {aprovados.length === 0 ? (
         <div className="text-center py-12">
           <Zap className="w-12 h-12 text-slate-200 mx-auto mb-3" />
-          <p className="text-slate-500 text-sm">Nenhum colaborador aguardando integração</p>
-          <p className="text-slate-400 text-xs mt-1">Colaboradores aprovados pelo RH aparecerão aqui</p>
+          <p className="text-slate-500 text-sm">Nenhum colaborador aguardando envio ao Caju</p>
+          <p className="text-slate-400 text-xs mt-1">Colaboradores aprovados pelo RH aparecerão aqui para envio</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -423,16 +462,28 @@ function IntegracaoCaju({ onboardings }) {
             <div key={o.id} className="border border-slate-200 rounded-xl p-4 flex items-center justify-between gap-4">
               <div>
                 <p className="font-medium text-slate-800">{o.nome_completo}</p>
-                <p className="text-xs text-slate-500">{o.cargo} · Admissão: {o.data_admissao_prev ? new Date(o.data_admissao_prev).toLocaleDateString("pt-BR") : "—"}</p>
+                <p className="text-xs text-slate-500">{o.cargo} · {o.area} · Admissão: {o.data_admissao_prev ? new Date(o.data_admissao_prev).toLocaleDateString("pt-BR") : "—"}</p>
               </div>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" className="gap-1.5" onClick={() => { const d = JSON.parse(JSON.stringify(o)); const url = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" })); const a = document.createElement("a"); a.href = url; a.download = `caju-${o.id}.json`; a.click(); toast.success("Payload exportado!"); }}>
-                  <Download className="w-3.5 h-3.5" /> Exportar
-                </Button>
-                <Button size="sm" className="bg-[#1A4731] hover:bg-[#245E40] text-white gap-1.5" onClick={() => sendToCaju(o.id)} disabled={sending[o.id]}>
-                  {sending[o.id] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
-                  Enviar Caju
-                </Button>
+              <div className="flex gap-2 items-center">
+                {sent[o.id] ? (
+                  <span className="flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg font-medium">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Enviado ao Caju
+                  </span>
+                ) : (
+                  <>
+                    <Button size="sm" variant="outline" className="gap-1.5" onClick={() => {
+                      const url = URL.createObjectURL(new Blob([JSON.stringify(o, null, 2)], { type: "application/json" }));
+                      const a = document.createElement("a"); a.href = url; a.download = `caju-payload-${o.id}.json`; a.click();
+                      toast.success("Payload exportado!");
+                    }}>
+                      <Download className="w-3.5 h-3.5" /> Ver payload
+                    </Button>
+                    <Button size="sm" className="bg-[#1A4731] hover:bg-[#245E40] text-white gap-1.5" onClick={() => sendToCaju(o)} disabled={sending[o.id]}>
+                      {sending[o.id] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+                      Enviar ao Caju
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           ))}

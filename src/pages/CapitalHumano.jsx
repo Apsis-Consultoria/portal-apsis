@@ -7,7 +7,7 @@ export default function CapitalHumano() {
   const urlTab = new URLSearchParams(window.location.search).get('tab');
   const [activeTab, setActiveTab] = useState(urlTab || 'dashboard');
   const [colaboradores, setColaboradores] = useState([]);
-  const [loadingColabs, setLoadingColabs] = useState(false);
+  const [loadingColabs, setLoadingColabs] = useState(true);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
@@ -15,15 +15,13 @@ export default function CapitalHumano() {
     if (tab) setActiveTab(tab);
   }, []);
 
+  // Carrega colaboradores uma única vez ao montar a página
   useEffect(() => {
-    if (activeTab === 'colaboradores') {
-      setLoadingColabs(true);
-      base44.entities.Colaborador.list().then(data => {
-        setColaboradores(data || []);
-        setLoadingColabs(false);
-      }).catch(() => setLoadingColabs(false));
-    }
-  }, [activeTab]);
+    base44.entities.Colaborador.list().then(data => {
+      setColaboradores(data || []);
+      setLoadingColabs(false);
+    }).catch(() => setLoadingColabs(false));
+  }, []);
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -64,24 +62,27 @@ export default function CapitalHumano() {
 
         {/* Content */}
         <div className="p-6">
-          {activeTab === 'dashboard' && (
+          {activeTab === 'dashboard' && (() => {
+            const ativos = colaboradores.filter(c => c.ativo !== false);
+            const total = ativos.length;
+            return (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-[var(--surface-2)] p-6 rounded-lg border border-[var(--border)]">
                   <p className="text-sm text-[var(--text-secondary)] mb-2">Total de Colaboradores</p>
-                  <p className="text-3xl font-bold text-[var(--apsis-green)]">48</p>
+                  <p className="text-3xl font-bold text-[var(--apsis-green)]">{loadingColabs ? '...' : total}</p>
                 </div>
                 <div className="bg-[var(--surface-2)] p-6 rounded-lg border border-[var(--border)]">
                   <p className="text-sm text-[var(--text-secondary)] mb-2">Alocados</p>
-                  <p className="text-3xl font-bold text-[var(--apsis-orange)]">35</p>
+                  <p className="text-3xl font-bold text-[var(--apsis-orange)]">—</p>
                 </div>
                 <div className="bg-[var(--surface-2)] p-6 rounded-lg border border-[var(--border)]">
                   <p className="text-sm text-[var(--text-secondary)] mb-2">Disponíveis</p>
-                  <p className="text-3xl font-bold text-green-600">13</p>
+                  <p className="text-3xl font-bold text-green-600">—</p>
                 </div>
                 <div className="bg-[var(--surface-2)] p-6 rounded-lg border border-[var(--border)]">
                   <p className="text-sm text-[var(--text-secondary)] mb-2">Taxa de Ocupação</p>
-                  <p className="text-3xl font-bold text-blue-600">72.9%</p>
+                  <p className="text-3xl font-bold text-blue-600">—</p>
                 </div>
               </div>
               <div className="bg-[var(--surface-2)] p-6 rounded-lg border border-[var(--border)]">
@@ -102,7 +103,8 @@ export default function CapitalHumano() {
                 </ul>
               </div>
             </div>
-          )}
+            );
+          })()}
 
           {activeTab === 'colaboradores' && (
             <div className="space-y-4">

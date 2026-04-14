@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { Plus, Edit2, X, Loader2, UserCheck, Save, Briefcase, ExternalLink } from "lucide-react";
 
@@ -16,13 +15,12 @@ export default function Configuracoes() {
 
   useEffect(() => {
     base44.auth.me().then(async u => {
-      if (!u) { window.location.href = createPageUrl("Dashboard"); return; }
-      if (u.role !== "admin" && u.role !== "manager") {
-        window.location.href = createPageUrl("AccessDenied"); return;
-      }
       setCurrentUser(u);
       setAuthLoading(false);
       load(u);
+    }).catch(() => {
+      setAuthLoading(false);
+      load(null);
     });
   }, []);
 

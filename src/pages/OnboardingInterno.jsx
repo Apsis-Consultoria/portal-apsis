@@ -4,7 +4,7 @@ import {
   Users, Plus, Search, Download, Eye, CheckCircle2, 
   AlertCircle, Clock, Link2,
   BarChart3, FileText, Settings, Zap, Loader2, X, Copy, ExternalLink,
-  User
+  User, Monitor
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,10 +71,12 @@ export default function OnboardingInterno() {
   const gerarLink = async (id) => {
     const token = `onb-${id}-${Date.now()}-${Math.random().toString(36).slice(2,10)}`;
     try {
-      await supabase.from("onboarding_links").insert({ onboarding_id: id, token, status: "ativo", created_at: new Date().toISOString() });
+      const { error: insertError } = await supabase.from("onboarding_links").insert({ onboarding_id: id, token, status: "ativo", created_at: new Date().toISOString() });
+      if (insertError) throw insertError;
       await supabase.from("employees_onboarding").update({ status_formulario: "link_enviado" }).eq("id", id);
       const link = `${window.location.origin}/capital-humano/onboarding/public/${token}`;
       setLinkGerado({ link, id });
+      toast.success("Link gerado com sucesso!");
       loadOnboardings();
     } catch (err) {
       toast.error("Erro ao gerar link: " + err.message);
@@ -280,7 +282,7 @@ export default function OnboardingInterno() {
 
           {/* CONFIGURAÇÕES */}
           {activeTab === "configuracoes" && (
-            <ConfiguracaoOnboarding />
+            <ConfiguracaoOnboarding gerarLink={gerarLink} onboardings={onboardings} />
           )}
         </div>
       </div>
@@ -493,12 +495,45 @@ function IntegracaoCaju({ onboardings }) {
   );
 }
 
-function ConfiguracaoOnboarding() {
+function ConfiguracaoOnboarding({ gerarLink, onboardings }) {
   const [config, setConfig] = useState({ caju_enabled: false, caju_url: "", caju_token: "", payroll_active: true, transport_active: true, benefits_active: true, dependents_active: true, signature_required: true });
+  const [previewToken, setPreviewToken] = useState(null);
   const setC = (k, v) => setConfig(c => ({ ...c, [k]: v }));
+
+  // Pega o token ativo mais recente de qualquer onboarding para usar como prévia
+  const abrirPrevia = () => {
+    // Tenta pegar um token existente
+    const comLink = onboardings?.find(o => o.links && o.links.length > 0);
+    if (comLink) {
+      const activeLink = comLink.links.find(l => l.status === "ativo") || comLink.links[0];
+      if (activeLink) {
+        window.open(`${window.location.origin}/capital-humano/onboarding/public/${activeLink.token}`, "_blank");
+        return;
+      }
+    }
+    // Sem token real, abre a rota pública sem token para ver o layout
+    window.open(`${window.location.origin}/capital-humano/onboarding/public/preview-layout`, "_blank");
+  };
 
   return (
     <div className="space-y-6 max-w-2xl">
+
+      {/* Preview da Página Pública */}
+      <div className="bg-gradient-to-r from-[#1A4731] to-[#245E40] rounded-xl p-5 text-white">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="font-semibold text-base mb-1">Prévia da Página Pública</h3>
+            <p className="text-white/70 text-sm">Visualize o formulário que o colaborador irá preencher.</p>
+          </div>
+          <Button onClick={abrirPrevia} className="bg-[#F47920] hover:bg-[#d96b1a] text-white gap-2 flex-shrink-0">
+            <ExternalLink className="w-4 h-4" /> Abrir Página
+          </Button>
+        </div>
+        <div className="mt-4 bg-white/10 rounded-lg p-3 text-xs text-white/80">
+          <span className="font-mono">{window.location.origin}/capital-humano/onboarding/public/[token]</span>
+        </div>
+      </div>
+
       <div>
         <h3 className="font-semibold text-slate-700 mb-4">Integração Caju Benefícios</h3>
         <div className="space-y-3 bg-slate-50 rounded-xl border border-slate-200 p-4">

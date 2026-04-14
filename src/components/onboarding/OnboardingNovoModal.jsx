@@ -45,7 +45,7 @@ export default function OnboardingNovoModal({ onClose, onSaved }) {
         descricao: "Onboarding criado pelo RH", created_at: new Date().toISOString(),
       });
 
-      const link = `${window.location.origin}/OnboardingPublico?token=${token}`;
+      const link = `${window.location.origin}/capital-humano/onboarding/public/${token}`;
       setLinkGerado(link);
       toast.success("Onboarding criado com sucesso!");
       onSaved();

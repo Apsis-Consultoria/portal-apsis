@@ -76,8 +76,12 @@ export default function OnboardingPublico() {
 
   const set = (field, value) => setForm(f => ({ ...f, [field]: value }));
 
+  const isPreview = token === "preview-layout";
+
   useEffect(() => {
     if (!token) { setError("Link inválido ou expirado."); setLoading(false); return; }
+    // Modo prévia: não busca no banco, apenas exibe o formulário de demonstração
+    if (isPreview) { setLoading(false); return; }
     loadLink();
   }, [token]);
 
@@ -105,7 +109,7 @@ export default function OnboardingPublico() {
   };
 
   const saveDraft = async () => {
-    if (!linkData) return;
+    if (!linkData || isPreview) { if (isPreview) toast.info("Modo prévia — dados não são salvos."); return; }
     const payload = { ...form, documentos: JSON.stringify(form.documentos), dependentes: JSON.stringify(form.dependentes), status_formulario: "em_preenchimento", updated_at: new Date().toISOString() };
     await supabase.from("employees_onboarding").update(payload).eq("id", linkData.onboarding_id);
     toast.success("Progresso salvo!");
@@ -154,6 +158,7 @@ export default function OnboardingPublico() {
   };
 
   const handleSubmit = async () => {
+    if (isPreview) { toast.info("Modo prévia — envio desabilitado."); return; }
     if (!form.decl_veracidade || !form.decl_autorizacao || !form.decl_lgpd) {
       toast.error("Aceite todas as declarações para continuar"); return;
     }
@@ -220,6 +225,12 @@ export default function OnboardingPublico() {
 
   return (
     <div className="min-h-screen bg-[#f4f6f4]">
+      {/* Banner de Prévia */}
+      {isPreview && (
+        <div className="bg-amber-400 text-amber-900 text-sm font-semibold text-center py-2 px-4">
+          ⚠️ Modo Prévia — Esta é uma visualização do formulário. Nenhum dado será salvo.
+        </div>
+      )}
       {/* Header */}
       <div className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">

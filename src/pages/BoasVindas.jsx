@@ -1,139 +1,193 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
-  LayoutDashboard, FolderKanban, DollarSign, Megaphone,
-  FileText, Settings, TrendingUp, Users, BarChart3, GitBranch, Sparkles,
-  ArrowRight, Lock, Zap, Eye, Share2, Lightbulb
+  FolderKanban, DollarSign, TrendingUp, Users,
+  FileText, Settings, Sparkles, ArrowRight,
+  AlertTriangle, ChevronRight, Plus, Target,
+  Zap, BarChart3, Clock, CheckCircle2, Activity,
+  Lightbulb, Brain, Bell, Calendar
 } from "lucide-react";
 import SeuDiaBloco from "@/components/SeuDiaBloco";
 
-const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a1fc4b60b4c477ea324579/40af152e2_Design-sem-nome.png";
-
-// Módulos principais
-const mainModules = [
-  { name: "Dashboard", icon: LayoutDashboard, color: "bg-gradient-to-br from-[#F47920] to-[#F9A15A]", page: "Dashboard", description: "Visão executiva" },
-  { name: "Projetos", icon: FolderKanban, color: "bg-gradient-to-br from-[#1A4731] to-[#245E40]", page: "Projetos", description: "Gestão de projetos" },
-  { name: "Vendas", icon: TrendingUp, color: "bg-gradient-to-br from-[#F47920] to-[#F9A15A]", page: "Vendas", description: "Pipeline e oportunidades" },
-  { name: "Financeiro", icon: DollarSign, color: "bg-gradient-to-br from-[#2B5E47] to-[#3A7A5F]", page: "Financeiro", description: "Gestão financeira" },
+// PRIMARY modules — large cards
+const primaryModules = [
+  {
+    name: "Projetos",
+    icon: FolderKanban,
+    page: "Projetos",
+    description: "Gestão de projetos e ordens de serviço",
+    accent: "#1A4731",
+    bg: "from-[#1A4731] to-[#245E40]",
+    stat: "Projetos ativos",
+  },
+  {
+    name: "Financeiro",
+    icon: DollarSign,
+    page: "Financeiro",
+    description: "Contas, fluxo de caixa e parcelas",
+    accent: "#2B5E47",
+    bg: "from-[#2B5E47] to-[#3A7A5F]",
+    stat: "Receita monitorada",
+  },
+  {
+    name: "Vendas",
+    icon: TrendingUp,
+    page: "Vendas",
+    description: "Pipeline comercial e oportunidades",
+    accent: "#F47920",
+    bg: "from-[#F47920] to-[#F9A15A]",
+    stat: "Propostas abertas",
+  },
+  {
+    name: "Capital Humano",
+    icon: Users,
+    page: "CapitalHumano",
+    description: "Colaboradores, alocações e onboarding",
+    accent: "#3A6B52",
+    bg: "from-[#3A6B52] to-[#4D8A6A]",
+    stat: "Colaboradores ativos",
+  },
 ];
 
-// Módulos secundários
+// SECONDARY modules — compact cards
 const secondaryModules = [
-  { name: "APSIS Nexus", icon: Share2, color: "bg-gradient-to-br from-[#1A4731] to-[#245E40]", page: "NexusInicio", description: "Portal do cliente" },
-  { name: "Relatórios", icon: FileText, color: "bg-gradient-to-br from-[#2B5E47] to-[#3A7A5F]", page: "Relatorios", description: "Análises e relatórios" },
-  { name: "AXON IA", icon: Sparkles, color: "bg-gradient-to-br from-[#F47920] to-[#F9A15A]", page: "AxonIA", description: "Inteligência artificial" },
-  { name: "Configurações", icon: Settings, color: "bg-gradient-to-br from-[#5C7060] to-[#7A8E7F]", page: "Configuracoes", description: "Preferências e setup" },
+  { name: "Relatórios", icon: FileText, page: "Relatorios", description: "Análises e exports" },
+  { name: "AXON IA", icon: Sparkles, page: "AxonIA", description: "Inteligência artificial" },
+  { name: "Configurações", icon: Settings, page: "Configuracoes", description: "Preferências e setup" },
 ];
 
-// Atalhos rápidos
+// Quick actions
 const quickActions = [
-  { label: "Abrir Projetos", icon: FolderKanban, page: "Projetos" },
-  { label: "Pipeline de Vendas", icon: GitBranch, page: "Vendas" },
-  { label: "APSIS Nexus", icon: Share2, page: "NexusInicio" },
-  { label: "Configurações", icon: Settings, page: "Configuracoes" },
+  { label: "Criar novo projeto", icon: Plus, page: "Projetos", color: "text-[#1A4731]", bg: "bg-[#1A4731]/5 hover:bg-[#1A4731]/10" },
+  { label: "Registrar oportunidade", icon: Target, page: "Vendas", color: "text-[#F47920]", bg: "bg-[#F47920]/5 hover:bg-[#F47920]/10" },
+  { label: "Iniciar análise IA", icon: Brain, page: "AxonIA", color: "text-purple-600", bg: "bg-purple-50 hover:bg-purple-100" },
+  { label: "Solicitar automação", icon: Zap, page: "AxonIA", color: "text-blue-600", bg: "bg-blue-50 hover:bg-blue-100" },
+  { label: "Gerar relatório executivo", icon: BarChart3, page: "Relatorios", color: "text-[#2B5E47]", bg: "bg-[#2B5E47]/5 hover:bg-[#2B5E47]/10" },
 ];
 
-// Indicadores institucionais
-const badges = [
-  { icon: Lock, label: "Seguro", color: "text-green-700" },
-  { icon: Zap, label: "Integrado", color: "text-blue-700" },
-  { icon: Eye, label: "Auditável", color: "text-purple-700" },
-  { icon: Share2, label: "Colaborativo", color: "text-orange-700" },
+// Smart insights
+const insights = [
+  { icon: AlertTriangle, color: "text-amber-500", bg: "bg-amber-50", text: "3 projetos com prazo vencendo esta semana — revise o cronograma.", cta: "Ver projetos", page: "Projetos" },
+  { icon: Activity, color: "text-emerald-600", bg: "bg-emerald-50", text: "Pipeline comercial com R$ 420k em propostas quentes — acompanhe o follow-up.", cta: "Abrir pipeline", page: "Vendas" },
+  { icon: Lightbulb, color: "text-blue-500", bg: "bg-blue-50", text: "Relatório executivo mensal disponível para geração — dados consolidados prontos.", cta: "Gerar relatório", page: "Relatorios" },
 ];
 
 export default function BoasVindas() {
+  const [activeInsight, setActiveInsight] = useState(0);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F4F6F4] via-white to-[#E8EDE9]">
+    <div className="min-h-screen bg-[#F4F6F4]">
       <style>{`
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
-        .animate-fade-in { animation: fadeIn 0.6s ease-out; }
-        .card-hover { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(26, 71, 49, 0.1); }
+        .card-lift { transition: transform 0.22s cubic-bezier(.4,0,.2,1), box-shadow 0.22s cubic-bezier(.4,0,.2,1); }
+        .card-lift:hover { transform: translateY(-3px); box-shadow: 0 16px 32px rgba(26,71,49,0.13); }
+        .action-btn { transition: background 0.15s, transform 0.15s; }
+        .action-btn:hover { transform: translateX(2px); }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+        .fade-up { animation: fadeUp 0.55s ease both; }
+        .fade-up-1 { animation-delay: 0.05s; }
+        .fade-up-2 { animation-delay: 0.12s; }
+        .fade-up-3 { animation-delay: 0.20s; }
+        .fade-up-4 { animation-delay: 0.28s; }
+        .fade-up-5 { animation-delay: 0.36s; }
       `}</style>
 
-      <div className="max-w-7xl mx-auto px-8 py-12 space-y-16">
-        {/* HERO PRINCIPAL */}
-        <div className="animate-fade-in-up space-y-6">
-          <div>
-            <h1 className="text-5xl lg:text-6xl font-bold text-[#1A4731] leading-tight mb-3">
-              Bem-vindo(a) ao Portal APSIS
-            </h1>
-            <p className="text-xl text-[#5C7060] font-medium mb-3">
-              Seu workspace corporativo para gestão, colaboração, projetos, documentos e inteligência operacional.
-            </p>
-            <p className="text-sm text-[#5C7060] leading-relaxed max-w-2xl">
-              Acesso centralizado a todas as ferramentas necessárias para gerenciar operações, projetos, financeiro e relacionamento com clientes.
-            </p>
-          </div>
+      <div className="max-w-7xl mx-auto px-6 py-10 space-y-12">
 
-          {/* Badges Institucionais */}
-          <div className="flex flex-wrap gap-4 pt-4">
-            {badges.map((badge, idx) => {
-              const Icon = badge.icon;
-              return (
-                <div 
-                  key={idx} 
-                  className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border border-[#DDE3DE] shadow-sm animate-fade-in-up" 
-                  style={{ animationDelay: `${idx * 0.1}s` }}
-                >
-                  <Icon size={16} className={badge.color} />
-                  <span className="text-sm font-medium text-[#1A4731]">{badge.label}</span>
-                </div>
-              );
-            })}
+        {/* ── HERO ── */}
+        <div className="fade-up fade-up-1 bg-gradient-to-br from-[#1A4731] via-[#1F5238] to-[#2B5E47] rounded-2xl p-8 md:p-12 text-white overflow-hidden relative shadow-xl">
+          {/* decorative circles */}
+          <div className="absolute -top-16 -right-16 w-64 h-64 bg-white/5 rounded-full" />
+          <div className="absolute -bottom-10 right-32 w-40 h-40 bg-[#F47920]/10 rounded-full" />
+
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+            <div className="max-w-2xl space-y-4">
+              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-xs font-semibold tracking-wider uppercase text-white/80">
+                <Activity size={12} /> Portal Corporativo
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight">
+                Portal APSIS
+              </h1>
+              <p className="text-lg text-white/75 leading-relaxed">
+                Gestão integrada de operações, projetos e inteligência corporativa
+              </p>
+
+              {/* Dynamic insight ticker */}
+              <div className="flex items-center gap-3 bg-white/10 border border-white/15 rounded-xl px-4 py-3 mt-2">
+                <Bell size={15} className="text-[#F9A15A] flex-shrink-0" />
+                <p className="text-sm text-white/85 leading-snug">
+                  <span className="font-semibold text-white">Insight do dia: </span>
+                  3 projetos com entrega esta semana e 5 propostas aguardando follow-up
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 flex-shrink-0">
+              <Link to={createPageUrl("Projetos")}
+                className="flex items-center gap-2 bg-white text-[#1A4731] font-semibold px-6 py-3 rounded-xl text-sm hover:bg-[#F4F6F4] transition-colors shadow-md">
+                <AlertTriangle size={15} className="text-amber-500" />
+                Ver Pendências Críticas
+              </Link>
+              <Link to={createPageUrl("Dashboard")}
+                className="flex items-center gap-2 bg-[#F47920] text-white font-semibold px-6 py-3 rounded-xl text-sm hover:bg-[#e86d15] transition-colors shadow-md">
+                <BarChart3 size={15} />
+                Abrir Dashboard Executivo
+                <ChevronRight size={14} />
+              </Link>
+            </div>
           </div>
         </div>
 
-        {/* SEU DIA - PENDÊNCIAS */}
-        <SeuDiaBloco />
+        {/* ── SEU DIA ── */}
+        <div className="fade-up fade-up-2">
+          <SeuDiaBloco />
+        </div>
 
-        {/* ATALHOS RÁPIDOS */}
-        <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-          <h2 className="text-sm uppercase font-bold text-[#5C7060] tracking-widest mb-4">Ações Rápidas</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* ── QUICK ACTIONS ── */}
+        <div className="fade-up fade-up-3 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-1 h-5 rounded-full bg-[#F47920]" />
+            <h2 className="text-xs font-bold uppercase tracking-widest text-[#5C7060]">Ações Rápidas</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             {quickActions.map((action, idx) => {
               const Icon = action.icon;
               return (
-                <Link
-                  key={idx}
-                  to={createPageUrl(action.page)}
-                  className="group card-hover"
-                >
-                  <div className="bg-white border border-[#DDE3DE] rounded-lg px-4 py-3 flex items-center gap-3 cursor-pointer hover:border-[#F47920]">
-                    <Icon size={18} className="text-[#F47920] flex-shrink-0" />
-                    <span className="text-sm font-medium text-[#1A4731]">{action.label}</span>
-                    <ArrowRight size={14} className="text-[#DDE3DE] group-hover:text-[#F47920] ml-auto transition-colors" />
+                <Link key={idx} to={createPageUrl(action.page)}
+                  className={`action-btn group flex items-center gap-3 ${action.bg} border border-transparent hover:border-[#DDE3DE] rounded-xl px-4 py-3.5 cursor-pointer`}>
+                  <div className={`w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center flex-shrink-0`}>
+                    <Icon size={15} className={action.color} />
                   </div>
+                  <span className="text-sm font-medium text-[#1A2B1F] leading-tight">{action.label}</span>
+                  <ArrowRight size={13} className="ml-auto text-[#DDE3DE] group-hover:text-[#5C7060] transition-colors flex-shrink-0" />
                 </Link>
               );
             })}
           </div>
         </div>
 
-        {/* MÓDULOS PRINCIPAIS */}
-        <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-          <h2 className="text-sm uppercase font-bold text-[#5C7060] tracking-widest mb-6">Módulos Principais</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {mainModules.map(({ name, icon: Icon, color, page, description }) => (
-              <Link key={page} to={createPageUrl(page)} className="group">
-                <div className={`${color} card-hover rounded-xl p-6 text-white cursor-pointer shadow-md hover:shadow-lg overflow-hidden relative`}>
-                  {/* Gradiente de fundo decorativo */}
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12" />
-                  <div className="relative z-10 space-y-3">
-                    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                      <Icon size={24} className="text-white" />
+        {/* ── PRIMARY MODULES ── */}
+        <div className="fade-up fade-up-3 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-1 h-5 rounded-full bg-[#1A4731]" />
+            <h2 className="text-xs font-bold uppercase tracking-widest text-[#5C7060]">Módulos Principais</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {primaryModules.map(({ name, icon: Icon, page, description, bg }) => (
+              <Link key={page} to={createPageUrl(page)} className="group card-lift">
+                <div className={`bg-gradient-to-br ${bg} rounded-2xl p-6 text-white shadow-md overflow-hidden relative h-full`}>
+                  <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/8 rounded-full" />
+                  <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/10 to-transparent rounded-b-2xl" />
+                  <div className="relative z-10 space-y-4">
+                    <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                      <Icon size={22} className="text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold">{name}</h3>
-                      <p className="text-sm text-white/80 mt-0.5">{description}</p>
+                      <h3 className="text-xl font-bold mb-1">{name}</h3>
+                      <p className="text-sm text-white/70 leading-snug">{description}</p>
+                    </div>
+                    <div className="flex items-center gap-1 text-white/60 text-xs font-medium group-hover:text-white/90 transition-colors pt-1">
+                      Acessar módulo <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
                 </div>
@@ -142,45 +196,81 @@ export default function BoasVindas() {
           </div>
         </div>
 
-        {/* MÓDULOS SECUNDÁRIOS */}
-        <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-          <h2 className="text-sm uppercase font-bold text-[#5C7060] tracking-widest mb-6">Outros Módulos</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {secondaryModules.map(({ name, icon: Icon, color, page, description }) => (
-              <Link key={page} to={createPageUrl(page)} className="group">
-                <div className={`${color} card-hover rounded-lg p-5 text-white cursor-pointer shadow-sm hover:shadow-md overflow-hidden relative`}>
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -mr-10 -mt-10" />
-                  <div className="relative z-10 space-y-2">
-                    <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                      <Icon size={20} className="text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-semibold">{name}</h3>
-                      <p className="text-xs text-white/75 mt-0.5">{description}</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
+        {/* ── SECONDARY MODULES + INTELLIGENCE ── */}
+        <div className="fade-up fade-up-4 grid grid-cols-1 lg:grid-cols-3 gap-5">
 
-        {/* BLOCO DE ORIENTAÇÃO */}
-        <div className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-          <div className="bg-white rounded-xl shadow-sm border border-[#DDE3DE] p-8 space-y-4">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#F47920] to-[#F9A15A] flex items-center justify-center flex-shrink-0">
-                <Lightbulb size={24} className="text-white" />
+          {/* Secondary modules */}
+          <div className="lg:col-span-1 space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-5 rounded-full bg-[#5C7060]" />
+              <h2 className="text-xs font-bold uppercase tracking-widest text-[#5C7060]">Suporte & Ferramentas</h2>
+            </div>
+            <div className="space-y-3">
+              {secondaryModules.map(({ name, icon: Icon, page, description }) => (
+                <Link key={page} to={createPageUrl(page)} className="group card-lift block">
+                  <div className="bg-white border border-[#DDE3DE] rounded-xl px-5 py-4 flex items-center gap-4 hover:border-[#1A4731]/30">
+                    <div className="w-10 h-10 bg-[#F4F6F4] rounded-xl flex items-center justify-center group-hover:bg-[#1A4731]/8 transition-colors flex-shrink-0">
+                      <Icon size={18} className="text-[#1A4731]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-[#1A2B1F] text-sm">{name}</p>
+                      <p className="text-xs text-[#5C7060] mt-0.5">{description}</p>
+                    </div>
+                    <ChevronRight size={15} className="text-[#DDE3DE] group-hover:text-[#F47920] transition-colors flex-shrink-0" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Intelligence block */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-5 rounded-full bg-purple-500" />
+              <h2 className="text-xs font-bold uppercase tracking-widest text-[#5C7060]">Sugestões Inteligentes</h2>
+            </div>
+            <div className="bg-white border border-[#DDE3DE] rounded-2xl overflow-hidden shadow-sm">
+              <div className="p-5 border-b border-[#F4F6F4] flex items-center gap-3">
+                <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center">
+                  <Brain size={18} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-[#1A2B1F] text-sm">AXON — Análise Contextual</h3>
+                  <p className="text-xs text-[#5C7060]">Insights gerados com base no estado atual das operações</p>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-[#1A4731] mb-2">Como Navegar no Portal APSIS</h3>
-                <p className="text-sm text-[#5C7060] leading-relaxed">
-                  Utilize os módulos principais para acessar rapidamente suas áreas de trabalho. O Portal APSIS centraliza operações, projetos, dados financeiros, relacionamento com clientes e inteligência corporativa em uma única experiência integrada. Use o menu lateral para navegação completa ou os atalhos rápidos acima para acesso imediato.
+              <div className="divide-y divide-[#F4F6F4]">
+                {insights.map((ins, idx) => {
+                  const Icon = ins.icon;
+                  return (
+                    <div key={idx} className="flex items-start gap-4 px-5 py-4 hover:bg-[#F4F6F4]/50 transition-colors">
+                      <div className={`w-8 h-8 ${ins.bg} rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                        <Icon size={15} className={ins.color} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-[#1A2B1F] leading-snug">{ins.text}</p>
+                      </div>
+                      <Link to={createPageUrl(ins.page)}
+                        className="flex-shrink-0 text-xs font-semibold text-[#F47920] hover:text-[#e86d15] flex items-center gap-1 whitespace-nowrap">
+                        {ins.cta} <ArrowRight size={11} />
+                      </Link>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="px-5 py-4 bg-[#F4F6F4]/50 flex items-center justify-between">
+                <p className="text-xs text-[#5C7060] flex items-center gap-1.5">
+                  <Clock size={11} /> Atualizado agora
                 </p>
+                <Link to={createPageUrl("AxonIA")}
+                  className="text-xs font-semibold text-[#1A4731] hover:text-[#F47920] flex items-center gap-1 transition-colors">
+                  Ver análise completa <ChevronRight size={12} />
+                </Link>
               </div>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );

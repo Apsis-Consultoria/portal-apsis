@@ -72,7 +72,6 @@ import MarketingComercial from './pages/MarketingComercial';
 import MarketingOrcado from './pages/MarketingOrcado';
 import Projetos from './pages/Projetos';
 import Recover from './pages/Recover';
-import Relatorios from './pages/Relatorios';
 import ResetPassword from './pages/ResetPassword';
 import MainView from './pages/MainView';
 import ModelosAvaliacao from './pages/ModelosAvaliacao';
@@ -105,7 +104,6 @@ export const PAGES = {
     "MarketingOrcado": MarketingOrcado,
     "Projetos": Projetos,
     "Recover": Recover,
-    "Relatorios": Relatorios,
     "ResetPassword": ResetPassword,
     "MainView": MainView,
     "ModelosAvaliacao": ModelosAvaliacao,

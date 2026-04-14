@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   FolderKanban, DollarSign, TrendingUp, Users,
-  FileText, Settings, Sparkles, ArrowRight,
+  Settings, Sparkles, ArrowRight,
   AlertTriangle, ChevronRight, Plus, Target,
   Zap, BarChart3, Clock, CheckCircle2, Activity,
   Lightbulb, Brain, Bell, Calendar
@@ -52,7 +52,6 @@ const primaryModules = [
 
 // SECONDARY modules — compact cards
 const secondaryModules = [
-  { name: "Relatórios", icon: FileText, page: "Relatorios", description: "Análises e exports" },
   { name: "AXON IA", icon: Sparkles, page: "AxonIA", description: "Inteligência artificial" },
   { name: "Configurações", icon: Settings, page: "Configuracoes", description: "Preferências e setup" },
 ];
@@ -63,14 +62,14 @@ const quickActions = [
   { label: "Registrar oportunidade", icon: Target, page: "Vendas", color: "text-[#F47920]", bg: "bg-[#F47920]/5 hover:bg-[#F47920]/10" },
   { label: "Iniciar análise IA", icon: Brain, page: "AxonIA", color: "text-purple-600", bg: "bg-purple-50 hover:bg-purple-100" },
   { label: "Solicitar automação", icon: Zap, page: "AxonIA", color: "text-blue-600", bg: "bg-blue-50 hover:bg-blue-100" },
-  { label: "Gerar relatório executivo", icon: BarChart3, page: "Relatorios", color: "text-[#2B5E47]", bg: "bg-[#2B5E47]/5 hover:bg-[#2B5E47]/10" },
+  { label: "Gerar relatório executivo", icon: BarChart3, page: "Dashboard", color: "text-[#2B5E47]", bg: "bg-[#2B5E47]/5 hover:bg-[#2B5E47]/10" },
 ];
 
 // Smart insights
 const insights = [
   { icon: AlertTriangle, color: "text-amber-500", bg: "bg-amber-50", text: "3 projetos com prazo vencendo esta semana — revise o cronograma.", cta: "Ver projetos", page: "Projetos" },
   { icon: Activity, color: "text-emerald-600", bg: "bg-emerald-50", text: "Pipeline comercial com R$ 420k em propostas quentes — acompanhe o follow-up.", cta: "Abrir pipeline", page: "Vendas" },
-  { icon: Lightbulb, color: "text-blue-500", bg: "bg-blue-50", text: "Relatório executivo mensal disponível para geração — dados consolidados prontos.", cta: "Gerar relatório", page: "Relatorios" },
+  { icon: Lightbulb, color: "text-blue-500", bg: "bg-blue-50", text: "Relatório executivo mensal disponível para geração — dados consolidados prontos.", cta: "Gerar relatório", page: "Dashboard" },
 ];
 
 export default function BoasVindas() {
@@ -266,6 +265,7 @@ export default function BoasVindas() {
                   className="text-xs font-semibold text-[#1A4731] hover:text-[#F47920] flex items-center gap-1 transition-colors">
                   Ver análise completa <ChevronRight size={12} />
                 </Link>
+
               </div>
             </div>
           </div>

@@ -6,8 +6,8 @@ export default function SeuDiaBloco() {
   // Dados simulados de pendências (em produção, viriam da API)
   const pendencias = [
     { type: 'projetos', icon: AlertCircle, label: 'Projetos em atraso', count: 3, color: 'text-red-600', bgColor: 'bg-red-50', page: 'Projetos' },
-    { type: 'mensagens', icon: MessageSquare, label: 'Mensagens não lidas', count: 5, color: 'text-blue-600', bgColor: 'bg-blue-50', page: 'NexusComunicacao' },
-    { type: 'solicitacoes', icon: CheckCircle, label: 'Solicitações abertas', count: 2, color: 'text-amber-600', bgColor: 'bg-amber-50', page: 'NexusSolicitacoes' },
+    { type: 'mensagens', icon: MessageSquare, label: 'Mensagens não lidas', count: 5, color: 'text-blue-600', bgColor: 'bg-blue-50', page: 'Projetos' },
+    { type: 'solicitacoes', icon: CheckCircle, label: 'Solicitações abertas', count: 2, color: 'text-amber-600', bgColor: 'bg-amber-50', page: 'Projetos' },
     { type: 'vendas', icon: TrendingUp, label: 'Oportunidades paradas', count: 4, color: 'text-orange-600', bgColor: 'bg-orange-50', page: 'Vendas' },
   ];
 

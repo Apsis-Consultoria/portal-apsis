@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PERSPECTIVAS, PERSPECTIVA_COLORS, calcKpiStatus, KPI_STATUS_CONFIG, isSubItem, exportToExcel } from "./peUtils";
+import { KPIS_SEED } from "./kpisSeed";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import KPITableView from "./KPITableView";
 import KPICardsView from "./KPICardsView";
@@ -19,6 +20,7 @@ const VIEWS = [
 export default function KPIsTab() {
   const [kpis, setKpis] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [seeded, setSeeded] = useState(false);
   const [view, setView] = useState("table");
   const [search, setSearch] = useState("");
   const [filterPerspectiva, setFilterPerspectiva] = useState("todas");
@@ -30,7 +32,13 @@ export default function KPIsTab() {
   const load = async () => {
     setLoading(true);
     const data = await base44.entities.KPI2026.list("-created_date", 200);
-    setKpis(data);
+    if (data.length === 0 && !seeded) {
+      setSeeded(true);
+      const criados = await Promise.all(KPIS_SEED.map(s => base44.entities.KPI2026.create(s)));
+      setKpis(criados);
+    } else {
+      setKpis(data);
+    }
     setLoading(false);
   };
 

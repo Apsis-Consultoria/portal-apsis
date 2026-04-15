@@ -33,15 +33,15 @@ export default function MetasResumoView({ items }) {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border border-gray-200 p-5 text-center shadow-sm">
-          <p className="text-3xl font-bold text-[#003366]">{total}</p>
+          <p className="text-3xl font-bold text-[#1A4731]">{total}</p>
           <p className="text-sm text-gray-500 mt-1">Total de Metas</p>
         </div>
         <div className="bg-white rounded-xl border border-green-200 p-5 text-center shadow-sm">
           <p className="text-3xl font-bold text-green-600">{concluidas}</p>
           <p className="text-sm text-gray-500 mt-1">Concluídas</p>
         </div>
-        <div className="bg-white rounded-xl border border-blue-200 p-5 text-center shadow-sm">
-          <p className="text-3xl font-bold text-blue-600">{emAndamento}</p>
+        <div className="bg-white rounded-xl border border-[#1A4731]/20 p-5 text-center shadow-sm">
+          <p className="text-3xl font-bold text-[#1A4731]">{emAndamento}</p>
           <p className="text-sm text-gray-500 mt-1">Em Andamento</p>
         </div>
         <div className="bg-white rounded-xl border border-[#E87722]/30 p-5 text-center shadow-sm">
@@ -64,7 +64,7 @@ export default function MetasResumoView({ items }) {
                 {temasComDados.map(t => (
                   <th key={t} className="px-3 py-3 text-center text-xs font-semibold text-gray-600 min-w-[100px]">{t}</th>
                 ))}
-                <th className="px-3 py-3 text-center text-xs font-semibold text-[#003366]">Total</th>
+                <th className="px-3 py-3 text-center text-xs font-semibold text-[#1A4731]">Total</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -80,17 +80,17 @@ export default function MetasResumoView({ items }) {
                       return (
                         <td key={tema} className="px-3 py-3 text-center">
                           <div className="text-sm font-bold text-gray-800">{cell.total}</div>
-                          <div className={`text-xs font-medium ${cell.pct === 100 ? "text-green-600" : cell.pct > 0 ? "text-blue-600" : "text-gray-400"}`}>
+                          <div className={`text-xs font-medium ${cell.pct === 100 ? "text-green-600" : cell.pct > 0 ? "text-[#1A4731]" : "text-gray-400"}`}>
                             {cell.pct}%
                           </div>
                           <div className="w-full bg-gray-100 rounded-full h-1 mt-1">
-                            <div className={`h-1 rounded-full ${cell.pct === 100 ? "bg-green-500" : "bg-blue-400"}`} style={{ width: `${cell.pct}%` }} />
+                            <div className={`h-1 rounded-full ${cell.pct === 100 ? "bg-green-500" : "bg-[#1A4731]"}`} style={{ width: `${cell.pct}%` }} />
                           </div>
                         </td>
                       );
                     })}
-                    <td className="px-3 py-3 text-center bg-[#003366]/5">
-                      <div className="text-sm font-bold text-[#003366]">{totalDiretor}</div>
+                    <td className="px-3 py-3 text-center bg-[#1A4731]/5">
+                      <div className="text-sm font-bold text-[#1A4731]">{totalDiretor}</div>
                       <div className="text-xs font-medium text-[#E87722]">{totalDiretor ? Math.round((concDiretor / totalDiretor) * 100) : 0}%</div>
                     </td>
                   </tr>
@@ -98,19 +98,19 @@ export default function MetasResumoView({ items }) {
               })}
             </tbody>
             <tfoot>
-              <tr className="bg-[#003366]/5 border-t border-gray-200">
-                <td className="px-4 py-3 font-bold text-sm text-[#003366]">Total</td>
+              <tr className="bg-[#1A4731]/5 border-t border-gray-200">
+                <td className="px-4 py-3 font-bold text-sm text-[#1A4731]">Total</td>
                 {temasComDados.map(tema => {
                   const g = items.filter(i => i.tema === tema);
                   const c = g.filter(i => i.status === "Concluído").length;
                   return (
                     <td key={tema} className="px-3 py-3 text-center">
-                      <div className="text-sm font-bold text-[#003366]">{g.length}</div>
+                      <div className="text-sm font-bold text-[#1A4731]">{g.length}</div>
                       <div className="text-xs text-[#E87722] font-medium">{g.length ? Math.round((c / g.length) * 100) : 0}%</div>
                     </td>
                   );
                 })}
-                <td className="px-3 py-3 text-center font-bold text-[#003366]">
+                <td className="px-3 py-3 text-center font-bold text-[#1A4731]">
                   <div className="text-sm">{total}</div>
                   <div className="text-xs text-[#E87722]">{total ? Math.round((concluidas / total) * 100) : 0}%</div>
                 </td>
@@ -131,7 +131,7 @@ export default function MetasResumoView({ items }) {
               <div key={status} className="flex items-center gap-3">
                 <span className={`w-32 text-xs font-medium px-2 py-1 rounded-full border text-center ${sc.bg} ${sc.text} ${sc.border}`}>{sc.label}</span>
                 <div className="flex-1 bg-gray-100 rounded-full h-2">
-                  <div className={`h-2 rounded-full ${status === "Concluído" ? "bg-green-500" : status === "Em Andamento" ? "bg-blue-400" : status === "Atrasado" ? "bg-red-400" : status === "Aguardando" ? "bg-yellow-400" : "bg-gray-300"}`} style={{ width: `${pct}%` }} />
+                  <div className={`h-2 rounded-full ${status === "Concluído" ? "bg-green-500" : status === "Em Andamento" ? "bg-[#1A4731]" : status === "Atrasado" ? "bg-red-400" : status === "Aguardando" ? "bg-yellow-400" : "bg-gray-300"}`} style={{ width: `${pct}%` }} />
                 </div>
                 <span className="text-sm font-semibold text-gray-700 w-12 text-right">{count} ({pct}%)</span>
               </div>

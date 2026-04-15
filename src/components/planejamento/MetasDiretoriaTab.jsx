@@ -123,7 +123,7 @@ export default function MetasDiretoriaTab() {
             const Icon = v.icon;
             return (
               <button key={v.id} onClick={() => setView(v.id)} title={v.label}
-                className={`p-2 rounded-lg border transition-colors ${view === v.id ? "bg-[#003366] text-white border-[#003366]" : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"}`}>
+                className={`p-2 rounded-lg border transition-colors ${view === v.id ? "bg-[#1A4731] text-white border-[#1A4731]" : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"}`}>
                 <Icon className="w-4 h-4" />
               </button>
             );

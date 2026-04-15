@@ -20,11 +20,11 @@ export default function PlanejamentoEstrategico() {
       `}</style>
       <div className="pe-root">
         {/* Header */}
-        <div className="bg-[#003366] px-6 py-5 shadow-lg">
+        <div className="bg-[#1A4731] px-6 py-5 shadow-lg">
           <div className="max-w-screen-2xl mx-auto flex items-center justify-between">
             <div>
               <h1 className="text-white text-2xl font-bold tracking-tight">Planejamento Estratégico 2026</h1>
-              <p className="text-blue-200 text-sm mt-0.5">Gestão de KPIs, Iniciativas e Metas da Diretoria</p>
+              <p className="text-white/60 text-sm mt-0.5">Gestão de KPIs, Iniciativas e Metas da Diretoria</p>
             </div>
             <div className="w-2 h-10 rounded-full bg-[#E87722]" />
           </div>
@@ -40,7 +40,7 @@ export default function PlanejamentoEstrategico() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`px-6 py-4 text-sm font-semibold border-b-2 transition-all ${
                     activeTab === tab.id
-                      ? "border-[#E87722] text-[#003366]"
+                      ? "border-[#E87722] text-[#1A4731]"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
                 >

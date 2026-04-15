@@ -31,7 +31,7 @@ export default function IniciativasTab() {
 
   const load = async () => {
     setLoading(true);
-    const data = await base44.entities.Iniciativa2026.list("-created_date", 200);
+    const data = await base44.entities.Iniciativa2026.filter({}, "-created_date", 200);
     if (data.length === 0 && !seeded) {
       // Seed inicial
       setSeeded(true);

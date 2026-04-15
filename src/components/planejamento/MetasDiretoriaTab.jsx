@@ -34,7 +34,7 @@ export default function MetasDiretoriaTab() {
 
   const load = async () => {
     setLoading(true);
-    const data = await base44.entities.MetaDiretoria2026.list("-created_date", 300);
+    const data = await base44.entities.MetaDiretoria2026.filter({}, "-created_date", 300);
     if (data.length === 0 && !seeded) {
       setSeeded(true);
       const criados = await Promise.all(METAS_SEED.map(s => base44.entities.MetaDiretoria2026.create(s)));

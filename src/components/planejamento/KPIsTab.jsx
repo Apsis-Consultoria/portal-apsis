@@ -31,7 +31,7 @@ export default function KPIsTab() {
 
   const load = async () => {
     setLoading(true);
-    const data = await base44.entities.KPI2026.list("-created_date", 200);
+    const data = await base44.entities.KPI2026.filter({}, "-created_date", 200);
     if (data.length === 0 && !seeded) {
       setSeeded(true);
       const criados = await Promise.all(KPIS_SEED.map(s => base44.entities.KPI2026.create(s)));

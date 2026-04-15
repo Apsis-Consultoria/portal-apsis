@@ -141,6 +141,7 @@ const navItems = [
       { label: "APSIS CUBUS", page: "AppCubus", icon: Sparkles },
     ]
   },
+  { label: "Planejamento Estratégico", page: "PlanejamentoEstrategico", icon: Target },
   { label: "Dashboard Qualidade", page: "DashboardQualidade", icon: BarChart3 },
   { label: "Configurações", page: "Configuracoes", icon: Settings },
 ];

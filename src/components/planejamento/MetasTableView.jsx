@@ -1,0 +1,149 @@
+import { useState, useRef } from "react";
+import { Trash2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { STATUS_INICIATIVA, STATUS_CONFIG } from "./peUtils";
+
+const DIRETORES = ["Bruno Bottino", "Caio Favero", "Marcelo Nascimento", "Angela Magalhães", "Miguel Monteiro", "Outro"];
+const TEMAS = ["Comercial", "Inovação", "Qualidade Técnica", "Cultura e Pessoas", "Eficiência Operacional"];
+
+const DIRETOR_COLORS = {
+  "Bruno Bottino": "bg-blue-100 text-blue-800",
+  "Caio Favero": "bg-orange-100 text-orange-800",
+  "Marcelo Nascimento": "bg-purple-100 text-purple-800",
+  "Angela Magalhães": "bg-pink-100 text-pink-800",
+  "Miguel Monteiro": "bg-green-100 text-green-800",
+  "Outro": "bg-gray-100 text-gray-800",
+};
+
+function InlineInput({ value, onChange, type = "text", className = "", multiline = false }) {
+  const [editing, setEditing] = useState(false);
+  const [local, setLocal] = useState(value ?? "");
+  const timer = useRef(null);
+
+  const commit = () => {
+    clearTimeout(timer.current);
+    if (local !== (value ?? "")) onChange(local);
+    setEditing(false);
+  };
+
+  const handleChange = (v) => {
+    setLocal(v);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => onChange(v), 2000);
+  };
+
+  if (!editing) return (
+    <span onClick={() => { setLocal(value ?? ""); setEditing(true); }}
+      className={`block w-full cursor-pointer hover:bg-blue-50 rounded px-1 py-0.5 min-h-[1.5rem] text-sm ${!value ? "text-gray-300 italic" : "text-gray-800"} ${className}`}>
+      {value || "—"}
+    </span>
+  );
+
+  if (multiline) return (
+    <textarea autoFocus value={local} onChange={e => handleChange(e.target.value)} onBlur={commit}
+      rows={2} className={`w-full text-sm border border-blue-300 rounded px-1.5 py-0.5 outline-none ring-1 ring-blue-400 bg-white resize-none ${className}`} />
+  );
+
+  return (
+    <input autoFocus type={type} value={local} onChange={e => handleChange(e.target.value)}
+      onBlur={commit} onKeyDown={e => e.key === "Enter" && commit()}
+      className={`w-full text-sm border border-blue-300 rounded px-1.5 py-0.5 outline-none ring-1 ring-blue-400 bg-white ${className}`} />
+  );
+}
+
+export default function MetasTableView({ items, onUpdate, onDelete }) {
+  // Group by diretor
+  const diretores = [...new Set(items.map(i => i.diretor))];
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-[#003366] text-white text-xs font-semibold">
+              <th className="px-3 py-3 text-left w-36">Diretor</th>
+              <th className="px-3 py-3 text-left w-36">Tema</th>
+              <th className="px-3 py-3 text-left min-w-[240px]">Iniciativa / Ação</th>
+              <th className="px-3 py-3 text-center w-24">Prazo</th>
+              <th className="px-3 py-3 text-left w-36">Responsável</th>
+              <th className="px-3 py-3 text-left w-36">KPI de Sucesso</th>
+              <th className="px-3 py-3 text-center w-32">Status</th>
+              <th className="px-3 py-3 text-left w-36">Observações</th>
+              <th className="px-3 py-3 w-8"></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {items.length === 0 && (
+              <tr><td colSpan={9} className="text-center py-10 text-gray-400">Nenhuma meta encontrada</td></tr>
+            )}
+            {diretores.map(diretor => {
+              const grupo = items.filter(i => i.diretor === diretor);
+              return grupo.map((item, idx) => {
+                const sc = STATUS_CONFIG[item.status || "Não Iniciado"];
+                const hoje = new Date();
+                const atrasada = item.prazo && new Date(item.prazo + "T12:00:00") < hoje && item.status !== "Concluído";
+                const dc = DIRETOR_COLORS[item.diretor] || "bg-gray-100 text-gray-800";
+                return (
+                  <tr key={item.id} className={`hover:bg-gray-50 transition-colors ${idx % 2 === 0 ? "" : "bg-gray-50/30"}`}>
+                    <td className="px-3 py-2">
+                      {idx === 0 ? (
+                        <Select value={item.diretor || ""} onValueChange={v => onUpdate(item.id, "diretor", v)}>
+                          <SelectTrigger className="h-7 text-xs border-0 bg-transparent hover:bg-blue-50 focus:ring-1 focus:ring-blue-300 px-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>{DIRETORES.map(d => <SelectItem key={d} value={d} className="text-xs">{d}</SelectItem>)}</SelectContent>
+                        </Select>
+                      ) : (
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${dc}`}>{item.diretor}</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2">
+                      <Select value={item.tema || ""} onValueChange={v => onUpdate(item.id, "tema", v)}>
+                        <SelectTrigger className="h-7 text-xs border-0 bg-transparent hover:bg-blue-50 focus:ring-1 focus:ring-blue-300 px-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>{TEMAS.map(t => <SelectItem key={t} value={t} className="text-xs">{t}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </td>
+                    <td className="px-3 py-2">
+                      <InlineInput value={item.iniciativa} onChange={v => onUpdate(item.id, "iniciativa", v)} multiline />
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <InlineInput value={item.prazo} onChange={v => onUpdate(item.id, "prazo", v)} type="date" className={atrasada ? "text-red-600 font-semibold" : ""} />
+                    </td>
+                    <td className="px-3 py-2">
+                      <InlineInput value={item.responsavel_execucao} onChange={v => onUpdate(item.id, "responsavel_execucao", v)} />
+                    </td>
+                    <td className="px-3 py-2">
+                      <InlineInput value={item.kpi_sucesso} onChange={v => onUpdate(item.id, "kpi_sucesso", v)} />
+                    </td>
+                    <td className="px-3 py-2">
+                      <Select value={item.status || "Não Iniciado"} onValueChange={v => onUpdate(item.id, "status", v)}>
+                        <SelectTrigger className="h-7 text-xs border-0 bg-transparent hover:bg-blue-50 focus:ring-1 focus:ring-blue-300 px-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>{STATUS_INICIATIVA.map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}</SelectContent>
+                      </Select>
+                      <span className={`inline-flex text-xs px-2 py-0.5 rounded-full border font-medium ${sc.bg} ${sc.text} ${sc.border}`}>{sc.label}</span>
+                    </td>
+                    <td className="px-3 py-2">
+                      <InlineInput value={item.observacoes} onChange={v => onUpdate(item.id, "observacoes", v)} multiline />
+                    </td>
+                    <td className="px-3 py-2">
+                      <button onClick={() => onDelete(item.id)} className="text-gray-300 hover:text-red-500 transition-colors">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              });
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div className="px-4 py-2 bg-gray-50 border-t border-gray-100 text-xs text-gray-400">
+        {items.length} meta(s) · Clique para editar inline · Autosave após 2s
+      </div>
+    </div>
+  );
+}

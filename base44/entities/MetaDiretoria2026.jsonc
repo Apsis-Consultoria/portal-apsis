@@ -1,0 +1,59 @@
+{
+  "name": "MetaDiretoria2026",
+  "type": "object",
+  "properties": {
+    "diretor": {
+      "type": "string",
+      "enum": [
+        "Bruno Bottino",
+        "Caio Favero",
+        "Marcelo Nascimento",
+        "Angela Magalh\u00e3es",
+        "Miguel Monteiro",
+        "Outro"
+      ]
+    },
+    "tema": {
+      "type": "string",
+      "enum": [
+        "Comercial",
+        "Inova\u00e7\u00e3o",
+        "Qualidade T\u00e9cnica",
+        "Cultura e Pessoas",
+        "Efici\u00eancia Operacional"
+      ]
+    },
+    "iniciativa": {
+      "type": "string"
+    },
+    "prazo": {
+      "type": "string",
+      "format": "date"
+    },
+    "responsavel_execucao": {
+      "type": "string"
+    },
+    "kpi_sucesso": {
+      "type": "string"
+    },
+    "observacoes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Conclu\u00eddo",
+        "Em Andamento",
+        "Aguardando",
+        "Atrasado",
+        "N\u00e3o Iniciado"
+      ],
+      "default": "N\u00e3o Iniciado"
+    }
+  },
+  "required": [
+    "diretor",
+    "tema",
+    "iniciativa"
+  ]
+}

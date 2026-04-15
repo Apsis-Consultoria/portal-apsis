@@ -1,0 +1,55 @@
+{
+  "name": "Iniciativa2026",
+  "type": "object",
+  "properties": {
+    "perspectiva": {
+      "type": "string",
+      "enum": [
+        "FINANCEIRO",
+        "MERCADO/CLIENTES",
+        "PROCESSOS INTERNOS",
+        "APRENDIZADO/CRESCIMENTO"
+      ]
+    },
+    "objetivo_estrategico": {
+      "type": "string"
+    },
+    "numero": {
+      "type": "string"
+    },
+    "iniciativa": {
+      "type": "string"
+    },
+    "responsavel": {
+      "type": "string"
+    },
+    "envolvidos": {
+      "type": "string"
+    },
+    "deadline": {
+      "type": "string",
+      "format": "date"
+    },
+    "custo_estimado": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Conclu\u00eddo",
+        "Em Andamento",
+        "Aguardando",
+        "Atrasado",
+        "N\u00e3o Iniciado"
+      ],
+      "default": "N\u00e3o Iniciado"
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "perspectiva",
+    "iniciativa"
+  ]
+}

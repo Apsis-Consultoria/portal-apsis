@@ -1,0 +1,66 @@
+{
+  "name": "KPI2026",
+  "type": "object",
+  "properties": {
+    "perspectiva": {
+      "type": "string",
+      "enum": [
+        "FINANCEIRO",
+        "MERCADO/CLIENTES",
+        "PROCESSOS INTERNOS",
+        "APRENDIZADO/CRESCIMENTO"
+      ]
+    },
+    "objetivo_estrategico": {
+      "type": "string"
+    },
+    "numero": {
+      "type": "string"
+    },
+    "nome": {
+      "type": "string"
+    },
+    "fonte_dados": {
+      "type": "string"
+    },
+    "responsavel": {
+      "type": "string"
+    },
+    "unidade": {
+      "type": "string",
+      "enum": [
+        "%",
+        "R$",
+        "Quantidade"
+      ]
+    },
+    "periodicidade": {
+      "type": "string",
+      "enum": [
+        "Mensal",
+        "Trimestral",
+        "Semestral",
+        "Anual"
+      ]
+    },
+    "meta_anual": {
+      "type": "number"
+    },
+    "resultado_t1": {
+      "type": "number"
+    },
+    "resultado_t2": {
+      "type": "number"
+    },
+    "resultado_t3": {
+      "type": "number"
+    },
+    "resultado_t4": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "perspectiva",
+    "nome"
+  ]
+}

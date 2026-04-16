@@ -167,14 +167,15 @@ export default function IniciativasTableView({ items, onUpdate, onDelete }) {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <AvatarList names={item.envolvidos} />
+                    <div className="flex flex-col gap-1">
+                      <AvatarList names={item.envolvidos} />
+                      <InlineInput value={item.envolvidos} onChange={v => onUpdate(item.id, "envolvidos", v)} className="text-xs" />
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <div onClick={() => {}} className="cursor-pointer">
+                    <div className="flex flex-col items-center gap-1">
                       <DeadlineChip deadline={item.deadline} status={item.status} />
-                      <div className="mt-1">
-                        <InlineInput value={item.deadline} onChange={v => onUpdate(item.id, "deadline", v)} type="date" className="text-xs text-center opacity-0 group-hover:opacity-100 h-0 overflow-hidden group-hover:h-auto" />
-                      </div>
+                      <InlineInput value={item.deadline} onChange={v => onUpdate(item.id, "deadline", v)} type="date" className="text-xs text-center" />
                     </div>
                   </td>
                   <td className="px-4 py-3 text-center">

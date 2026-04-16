@@ -15,15 +15,13 @@ function fmtMoney(val) {
   return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
 }
 
-export default function GraficoVendas({ data, areaFiltro }) {
-  const filtered = areaFiltro ? data.filter(d => d.area === areaFiltro) : data;
-
+export default function GraficoVendas({ data }) {
   // Agrupar vendas por ano e grupo_de_servico
   const { chartData, grupos } = useMemo(() => {
     const gruposSet = new Set();
     const byAno = {};
 
-    filtered.forEach(d => {
+    data.forEach(d => {
       if (!d.vendas) return;
       const ano = String(d.ano);
       if (!byAno[ano]) byAno[ano] = { ano };
@@ -35,7 +33,7 @@ export default function GraficoVendas({ data, areaFiltro }) {
       chartData: Object.values(byAno).sort((a, b) => a.ano - b.ano),
       grupos: [...gruposSet].sort()
     };
-  }, [filtered]);
+  }, [data]);
 
   if (!data || data.length === 0) return null;
 

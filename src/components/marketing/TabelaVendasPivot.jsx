@@ -55,25 +55,20 @@ export default function TabelaVendasPivot({ data, areaFiltro, grupoFiltro }) {
   // - área sem grupo: 1 linha por grupo de serviço dessa área
   // - área + grupo: 1 linha com os dados daquele grupo
   const linhas = useMemo(() => {
-    if (!areaFiltro && !grupoFiltro) {
-      // Geral: soma tudo numa única linha
+    // Sem filtro OU apenas área selecionada (sem grupo) → 1 linha consolidada
+    if (!grupoFiltro) {
       const agg = agregar(data);
       const lookup = {};
       agg.forEach(r => { lookup[`${r.ano}||${r.trimestre}`] = r; });
-      return [{ label: 'Total Geral', lookup }];
+      const label = areaFiltro ? `Total ${areaFiltro}` : 'Total Geral';
+      return [{ label, lookup }];
     }
 
-    // Grupos a exibir
-    const gruposSet = new Set(data.map(d => d.grupo_de_servico));
-    const grupos = [...gruposSet].sort();
-
-    return grupos.map(grupo => {
-      const rowsDoGrupo = data.filter(d => d.grupo_de_servico === grupo);
-      const agg = agregar(rowsDoGrupo);
-      const lookup = {};
-      agg.forEach(r => { lookup[`${r.ano}||${r.trimestre}`] = r; });
-      return { label: grupo, lookup };
-    });
+    // Área + grupo selecionados → 1 linha com os dados daquele grupo
+    const agg = agregar(data);
+    const lookup = {};
+    agg.forEach(r => { lookup[`${r.ano}||${r.trimestre}`] = r; });
+    return [{ label: grupoFiltro, lookup }];
   }, [data, areaFiltro, grupoFiltro]);
 
   if (!data || data.length === 0) {

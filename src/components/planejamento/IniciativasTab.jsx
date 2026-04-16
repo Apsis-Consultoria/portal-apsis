@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Download, Search, Table2, LayoutGrid, CalendarDays } from "lucide-react";
+import { Plus, Download, Search, Table2, LayoutGrid, CalendarDays, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,6 +9,7 @@ import DeleteConfirmModal from "./DeleteConfirmModal";
 import IniciativasTableView from "./IniciativasTableView";
 import IniciativasKanban from "./IniciativasKanban";
 import IniciativasGantt from "./IniciativasGantt";
+import FullscreenTableModal from "./FullscreenTableModal";
 import { INICIATIVAS_SEED } from "./iniciativasSeed";
 
 const VIEWS = [
@@ -28,6 +29,7 @@ export default function IniciativasTab() {
   const [filterResponsavel, setFilterResponsavel] = useState("");
   const [filterPrazo, setFilterPrazo] = useState("todos");
   const [deleteId, setDeleteId] = useState(null);
+  const [fullscreen, setFullscreen] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -140,6 +142,12 @@ export default function IniciativasTab() {
           <Button variant="outline" size="sm" onClick={handleExport} className="gap-2 border-[#134635] text-[#134635] hover:bg-[#134635]/5 rounded-lg">
             <Download className="w-4 h-4" /> Excel
           </Button>
+          {view === "table" && (
+            <button onClick={() => setFullscreen(true)} title="Expandir para tela cheia"
+              className="p-1.5 rounded-md text-gray-400 hover:text-[#134635] hover:bg-[#134635]/5 transition-all border border-gray-200">
+              <Maximize2 className="w-4 h-4" />
+            </button>
+          )}
           <Button size="sm" onClick={handleAdd} className="gap-2 bg-[#F48126] hover:bg-[#e07420] text-white border-0 rounded-lg shadow-sm hover:shadow-md transition-shadow">
             <Plus className="w-4 h-4" /> Nova Iniciativa
           </Button>
@@ -155,6 +163,10 @@ export default function IniciativasTab() {
       ) : (
         <IniciativasGantt items={filtered} />
       )}
+
+      <FullscreenTableModal open={fullscreen} onClose={() => setFullscreen(false)} title="Iniciativas 2026 — Visão Planilha">
+        <IniciativasTableView items={filtered} onUpdate={handleUpdate} onDelete={id => setDeleteId(id)} />
+      </FullscreenTableModal>
 
       <DeleteConfirmModal
         open={!!deleteId}

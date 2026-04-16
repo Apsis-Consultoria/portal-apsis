@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Download, Search, BarChart2, LayoutGrid, BarChart } from "lucide-react";
+import { Plus, Download, Search, BarChart2, LayoutGrid, BarChart, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PERSPECTIVAS, PERSPECTIVA_COLORS, calcKpiStatus, KPI_STATUS_CONFIG, isSubItem, exportToExcel } from "./peUtils";
 import { KPIS_SEED } from "./kpisSeed";
 import DeleteConfirmModal from "./DeleteConfirmModal";
+import FullscreenTableModal from "./FullscreenTableModal";
 import KPITableView from "./KPITableView";
 import KPICardsView from "./KPICardsView";
 import KPIProgressView from "./KPIProgressView";
@@ -28,6 +29,7 @@ export default function KPIsTab() {
   const [filterStatus, setFilterStatus] = useState("todos");
   const [filterPeriodicidade, setFilterPeriodicidade] = useState("todas");
   const [deleteId, setDeleteId] = useState(null);
+  const [fullscreen, setFullscreen] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -133,6 +135,12 @@ export default function KPIsTab() {
           <Button variant="outline" size="sm" onClick={handleExport} className="gap-2 border-[#134635] text-[#134635] hover:bg-[#134635]/5 rounded-lg">
             <Download className="w-4 h-4" /> Excel
           </Button>
+          {view === "table" && (
+            <button onClick={() => setFullscreen(true)} title="Expandir para tela cheia"
+              className="p-1.5 rounded-md text-gray-400 hover:text-[#134635] hover:bg-[#134635]/5 transition-all border border-gray-200">
+              <Maximize2 className="w-4 h-4" />
+            </button>
+          )}
           <Button size="sm" onClick={handleAdd} className="gap-2 bg-[#F48126] hover:bg-[#e07420] text-white border-0 rounded-lg shadow-sm hover:shadow-md transition-shadow">
             <Plus className="w-4 h-4" /> Novo KPI
           </Button>
@@ -148,6 +156,10 @@ export default function KPIsTab() {
       ) : (
         <KPIProgressView kpis={filtered} />
       )}
+
+      <FullscreenTableModal open={fullscreen} onClose={() => setFullscreen(false)} title="KPIs 2026 — Visão Planilha">
+        <KPITableView kpis={filtered} onUpdate={handleUpdate} onDelete={id => setDeleteId(id)} />
+      </FullscreenTableModal>
 
       <DeleteConfirmModal
         open={!!deleteId}

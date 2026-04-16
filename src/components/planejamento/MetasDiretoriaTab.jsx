@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Download, Search, Table2, LayoutGrid, BarChart2 } from "lucide-react";
+import { Plus, Download, Search, Table2, LayoutGrid, BarChart2, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { STATUS_INICIATIVA, STATUS_CONFIG, exportToExcel } from "./peUtils";
 import DeleteConfirmModal from "./DeleteConfirmModal";
+import FullscreenTableModal from "./FullscreenTableModal";
 import MetasTableView from "./MetasTableView";
 import MetasCardsView from "./MetasCardsView";
 import MetasResumoView from "./MetasResumoView";
@@ -31,6 +32,7 @@ export default function MetasDiretoriaTab() {
   const [filterStatus, setFilterStatus] = useState("todos");
   const [filterResponsavel, setFilterResponsavel] = useState("");
   const [deleteId, setDeleteId] = useState(null);
+  const [fullscreen, setFullscreen] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -133,6 +135,12 @@ export default function MetasDiretoriaTab() {
           <Button variant="outline" size="sm" onClick={handleExport} className="gap-2 border-[#134635] text-[#134635] hover:bg-[#134635]/5 rounded-lg">
             <Download className="w-4 h-4" /> Excel
           </Button>
+          {view === "table" && (
+            <button onClick={() => setFullscreen(true)} title="Expandir para tela cheia"
+              className="p-1.5 rounded-md text-gray-400 hover:text-[#134635] hover:bg-[#134635]/5 transition-all border border-gray-200">
+              <Maximize2 className="w-4 h-4" />
+            </button>
+          )}
           <Button size="sm" onClick={handleAdd} className="gap-2 bg-[#F48126] hover:bg-[#e07420] text-white border-0 rounded-lg shadow-sm hover:shadow-md transition-shadow">
             <Plus className="w-4 h-4" /> Nova Meta
           </Button>
@@ -148,6 +156,10 @@ export default function MetasDiretoriaTab() {
       ) : (
         <MetasResumoView items={filtered} />
       )}
+
+      <FullscreenTableModal open={fullscreen} onClose={() => setFullscreen(false)} title="Metas Diretoria 2026 — Visão Planilha">
+        <MetasTableView items={filtered} onUpdate={handleUpdate} onDelete={id => setDeleteId(id)} />
+      </FullscreenTableModal>
 
       <DeleteConfirmModal
         open={!!deleteId}

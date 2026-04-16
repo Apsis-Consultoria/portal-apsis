@@ -318,6 +318,18 @@ export default function Layout({ children, currentPageName }) {
 
 
 
+      if (externalUrl) {
+        return (
+          <a key={label} href={externalUrl} target="_blank" rel="noopener noreferrer"
+            className="nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer">
+            <Icon size={18} className="text-white/50" />
+            {!collapsed && (
+              <span className="text-sm font-medium text-white/60">{label}</span>
+            )}
+          </a>
+        );
+      }
+
       return (
         <Link key={page} to={createPageUrl(page)} onClick={onLinkClick}
           className={`nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer ${isActive ? "active" : ""}`}>

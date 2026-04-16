@@ -1,9 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useMsal } from '@azure/msal-react';
 import { base44 } from '@/api/base44Client';
 import TabelaVendasPivot from '@/components/marketing/TabelaVendasPivot';
 import GraficoVendas from '@/components/marketing/GraficoVendas';
 
 export default function MarketingIndicadores() {
+  const { instance, accounts } = useMsal();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,11 +13,26 @@ export default function MarketingIndicadores() {
   const [grupoFiltro, setGrupoFiltro] = useState('');
 
   useEffect(() => {
-    base44.functions.invoke('getMarketingData', {})
-      .then(res => setData(res.data?.data || []))
-      .catch(err => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
+    const fetchData = async () => {
+      try {
+        let azureToken = null;
+        if (accounts.length > 0) {
+          const tokenResponse = await instance.acquireTokenSilent({
+            scopes: ['openid', 'profile', 'email'],
+            account: accounts[0],
+          });
+          azureToken = tokenResponse.idToken;
+        }
+        const res = await base44.functions.invoke('getMarketingData', { azureToken });
+        setData(res.data?.data || []);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [instance, accounts]);
 
   // Áreas únicas dos dados reais
   const areasDisponiveis = useMemo(() =>

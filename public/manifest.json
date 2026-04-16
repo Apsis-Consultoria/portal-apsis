@@ -1,0 +1,16 @@
+{
+  "name": "Portal Apsis",
+  "short_name": "Portal Apsis",
+  "description": "Portal interno da Apsis Consultoria",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "https://media.base44.com/images/public/69a1fc4b60b4c477ea324579/e863d9c03_q.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { Plus, Download, Search, Table2, LayoutGrid, CalendarDays, Maximize2 } from "lucide-react";
+import { isSubItem } from "./peUtils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -49,9 +50,27 @@ export default function IniciativasTab() {
 
   const handleAdd = async () => {
     const novo = await base44.entities.Iniciativa2026.create({
-      perspectiva: "FINANCEIRO", iniciativa: "Nova Iniciativa", status: "Não Iniciado"
+      perspectiva: "FINANCEIRO", iniciativa: "Nova Iniciativa", status: "Não Iniciado", numero: String(items.filter(i => !isSubItem(i.numero)).length + 1)
     });
-    setItems(prev => [novo, ...prev]);
+    setItems(prev => [...prev, novo]);
+  };
+
+  const handleAddSub = async (parent) => {
+    const parentNum = parent.numero || "1";
+    const siblings = items.filter(i => {
+      const p = (i.numero || "").split(".");
+      return p.length === 2 && p[0] === parentNum;
+    });
+    const subNum = `${parentNum}.${siblings.length + 1}`;
+    const novo = await base44.entities.Iniciativa2026.create({
+      perspectiva: parent.perspectiva,
+      iniciativa: "Nova sub-ação",
+      status: "Não Iniciado",
+      numero: subNum,
+      objetivo_estrategico: parent.objetivo_estrategico,
+      responsavel: parent.responsavel,
+    });
+    setItems(prev => [...prev, novo]);
   };
 
   const handleUpdate = useCallback(async (id, field, value) => {
@@ -163,7 +182,7 @@ export default function IniciativasTab() {
       {loading ? (
         <div className="text-center py-16 text-gray-400">Carregando iniciativas...</div>
       ) : view === "table" ? (
-        <IniciativasTableView items={filtered} onUpdate={handleUpdate} onDelete={id => setDeleteId(id)} />
+        <IniciativasTableView items={filtered} onUpdate={handleUpdate} onDelete={id => setDeleteId(id)} onAddSub={handleAddSub} />
       ) : view === "kanban" ? (
         <IniciativasKanban items={filtered} onUpdate={handleUpdate} />
       ) : (
@@ -171,7 +190,7 @@ export default function IniciativasTab() {
       )}
 
       <FullscreenTableModal open={fullscreen} onClose={() => setFullscreen(false)} title="Iniciativas 2026 — Visão Planilha">
-        <IniciativasTableView items={filtered} onUpdate={handleUpdate} onDelete={id => setDeleteId(id)} />
+        <IniciativasTableView items={filtered} onUpdate={handleUpdate} onDelete={id => setDeleteId(id)} onAddSub={handleAddSub} />
       </FullscreenTableModal>
 
       <DeleteConfirmModal

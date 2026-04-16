@@ -17,7 +17,7 @@ import {
   LayoutDashboard, DollarSign, BarChart3, FileText, ChevronLeft,
   ChevronRight, Bell, User, Menu, X, Megaphone, TrendingUp, PieChart, Settings, Sparkles, Users, Grid3x3, Home,
   Search, Calendar, Split, ArrowRightLeft, Package, Cpu,
-  Server, Landmark, Star, GitMerge, Calculator, BookOpen, Award, Target, Leaf, ShoppingCart, Briefcase, Building2
+  Server, Landmark, Star, GitMerge, Calculator, BookOpen, Award, Target, Leaf, ShoppingCart, Briefcase, Building2, Lightbulb
 } from "lucide-react";
 import { Clock } from "lucide-react";
 import AssistantWidget from "@/components/AssistantWidget";
@@ -132,7 +132,7 @@ const navItems = [
   { label: "Perícias", page: "Pericias", icon: Search },
   { label: "Comercial", page: "Comercial", icon: ShoppingCart },
   { label: "Diretoria Técnica", page: "DiretoriaTecnica", icon: Award },
-  { label: "Consultoria Estratégica", page: "ConsultoriaEstrategica", icon: Target },
+  { label: "Consultoria Estratégica", page: "ConsultoriaEstrategica", icon: Lightbulb },
   { label: "Sustentabilidade", page: "Sustentabilidade", icon: Leaf },
 
   {

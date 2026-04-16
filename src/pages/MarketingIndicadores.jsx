@@ -115,7 +115,7 @@ export default function MarketingIndicadores() {
             <h2 className="text-base font-semibold text-slate-700 mb-3">
               {tituloContexto} — Detalhamento por Grupo de Serviço
             </h2>
-            <TabelaVendasPivot data={dadosFiltrados} />
+            <TabelaVendasPivot data={dadosFiltrados} areaFiltro={areaFiltro} grupoFiltro={grupoFiltro} />
           </div>
         </>
       )}

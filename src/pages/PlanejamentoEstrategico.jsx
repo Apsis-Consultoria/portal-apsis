@@ -1,16 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
 import KPIsTab from "@/components/planejamento/KPIsTab";
 import IniciativasTab from "@/components/planejamento/IniciativasTab";
 import MetasDiretoriaTab from "@/components/planejamento/MetasDiretoriaTab";
+import IndicadorGeralTab from "@/components/planejamento/IndicadorGeralTab";
 
 const TABS = [
-  { id: "kpis", label: "KPIs 2026", emoji: "📊" },
+  { id: "indicador", label: "Indicador Geral", emoji: "📈" },
+  { id: "kpis",      label: "KPIs 2026",        emoji: "📊" },
   { id: "iniciativas", label: "Iniciativas 2026", emoji: "🚀" },
-  { id: "metas", label: "Metas Diretoria", emoji: "🎯" },
+  { id: "metas",    label: "Metas Diretoria",   emoji: "🎯" },
 ];
 
 export default function PlanejamentoEstrategico() {
-  const [activeTab, setActiveTab] = useState("kpis");
+  const [activeTab, setActiveTab] = useState("indicador");
+
+  // Dados para o Indicador Geral
+  const [kpis, setKpis] = useState([]);
+  const [iniciativas, setIniciativas] = useState([]);
+  const [metas, setMetas] = useState([]);
+  const [loadingGeral, setLoadingGeral] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      base44.entities.KPI2026.filter({}, "-created_date", 300),
+      base44.entities.Iniciativa2026.filter({}, "-created_date", 300),
+      base44.entities.MetaDiretoria2026.filter({}, "-created_date", 300),
+    ]).then(([k, i, m]) => {
+      setKpis(k);
+      setIniciativas(i);
+      setMetas(m);
+      setLoadingGeral(false);
+    });
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F5F6F8]">
@@ -58,6 +80,11 @@ export default function PlanejamentoEstrategico() {
 
         {/* Content */}
         <div className="max-w-screen-2xl mx-auto px-6 py-6">
+          {activeTab === "indicador" && (
+            loadingGeral
+              ? <div className="text-center py-20 text-gray-400">Carregando indicadores...</div>
+              : <IndicadorGeralTab kpis={kpis} iniciativas={iniciativas} metas={metas} />
+          )}
           {activeTab === "kpis" && <KPIsTab />}
           {activeTab === "iniciativas" && <IniciativasTab />}
           {activeTab === "metas" && <MetasDiretoriaTab />}

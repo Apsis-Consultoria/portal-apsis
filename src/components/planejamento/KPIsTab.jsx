@@ -64,7 +64,14 @@ export default function KPIsTab() {
     setDeleteId(null);
   };
 
-  const filtered = kpis.filter(k => {
+  const sorted = [...kpis].sort((a, b) => {
+    const na = a.numero || "";
+    const nb = b.numero || "";
+    // natural sort: "1.1" < "1.2" < "2" etc.
+    return na.localeCompare(nb, undefined, { numeric: true, sensitivity: "base" });
+  });
+
+  const filtered = sorted.filter(k => {
     if (filterPerspectiva !== "todas" && k.perspectiva !== filterPerspectiva) return false;
     if (filterResponsavel && !k.responsavel?.toLowerCase().includes(filterResponsavel.toLowerCase())) return false;
     if (filterStatus !== "todos" && calcKpiStatus(k) !== filterStatus) return false;

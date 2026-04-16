@@ -68,7 +68,13 @@ export default function IniciativasTab() {
   const hoje = new Date();
   const em30 = new Date(hoje); em30.setDate(hoje.getDate() + 30);
 
-  const filtered = items.filter(item => {
+  const sorted = [...items].sort((a, b) => {
+    const na = a.numero || "";
+    const nb = b.numero || "";
+    return na.localeCompare(nb, undefined, { numeric: true, sensitivity: "base" });
+  });
+
+  const filtered = sorted.filter(item => {
     if (filterPerspectiva !== "todas" && item.perspectiva !== filterPerspectiva) return false;
     if (filterStatus !== "todos" && item.status !== filterStatus) return false;
     if (filterResponsavel && !item.responsavel?.toLowerCase().includes(filterResponsavel.toLowerCase())) return false;

@@ -41,10 +41,6 @@ export default function TabelaVendasPivot({ data, areaFiltro }) {
     return map;
   }, [filtered]);
 
-  if (!data || data.length === 0) {
-    return <div className="text-slate-500 text-sm p-4">Carregando dados...</div>;
-  }
-
   const metrics = [
     { label: 'Vendas', field: 'vendas', type: 'currency' },
     { label: 'Clientes', field: 'clientes', type: 'number' },
@@ -85,7 +81,6 @@ export default function TabelaVendasPivot({ data, areaFiltro }) {
           {grupos.map((grupo, gi) =>
             metrics.map((metric, mi) => {
               const isFirst = mi === 0;
-              const isLastMetric = mi === metrics.length - 1;
               const bgRow = gi % 2 === 0
                 ? (isFirst ? 'bg-[#e8f0e9]' : 'bg-white')
                 : (isFirst ? 'bg-[#d4e4d6]' : 'bg-slate-50');

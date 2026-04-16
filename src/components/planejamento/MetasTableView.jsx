@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, CheckCircle2, Clock, AlertTriangle, XCircle, MinusCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { STATUS_INICIATIVA, STATUS_CONFIG } from "./peUtils";
 
@@ -72,6 +72,31 @@ function DeadlineChip({ prazo, status }) {
   return <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-500">{formatted}</span>;
 }
 
+const QUICK_ACTIONS = [
+  { status: "Concluído",    icon: CheckCircle2, color: "text-[#134635] hover:bg-[#134635]/10", title: "Concluído" },
+  { status: "Em Andamento", icon: Clock,         color: "text-[#F48126] hover:bg-[#F48126]/10", title: "Em Andamento" },
+  { status: "Atrasado",     icon: AlertTriangle, color: "text-red-500 hover:bg-red-50",         title: "Atrasado" },
+  { status: "Aguardando",   icon: MinusCircle,   color: "text-amber-500 hover:bg-amber-50",     title: "Aguardando" },
+  { status: "Não Iniciado", icon: XCircle,       color: "text-gray-400 hover:bg-gray-100",      title: "Não Iniciado" },
+];
+
+function QuickActions({ status, onUpdate }) {
+  return (
+    <div className="flex items-center gap-1">
+      {QUICK_ACTIONS.map(({ status: s, icon: Icon, color, title }) => (
+        <button
+          key={s}
+          title={title}
+          onClick={() => onUpdate(s)}
+          className={`p-1 rounded-md transition-colors ${color} ${status === s ? "ring-1 ring-current" : "opacity-40 hover:opacity-100"}`}
+        >
+          <Icon className="w-3.5 h-3.5" />
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function MetasTableView({ items, onUpdate, onDelete }) {
   const diretores = [...new Set(items.map(i => i.diretor))];
 
@@ -84,17 +109,18 @@ export default function MetasTableView({ items, onUpdate, onDelete }) {
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-36">Diretor</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-36">Tema</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[240px]">Iniciativa / Ação</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">Prazo</th>
+              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Prazo</th>
+              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider w-36">Ação Rápida</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-36">Responsável</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-36">KPI de Sucesso</th>
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Status</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-36">Observações</th>
-              <th className="px-4 py-3 w-8"></th>
+              <th className="px-4 py-3 w-8" />
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {items.length === 0 && (
-              <tr><td colSpan={9} className="text-center py-14 text-gray-400 text-sm">Nenhuma meta encontrada</td></tr>
+              <tr><td colSpan={11} className="text-center py-14 text-gray-400 text-sm">Nenhuma meta encontrada</td></tr>
             )}
             {diretores.map(diretor => {
               const grupo = items.filter(i => i.diretor === diretor);
@@ -127,7 +153,13 @@ export default function MetasTableView({ items, onUpdate, onDelete }) {
                       <InlineInput value={item.iniciativa} onChange={v => onUpdate(item.id, "iniciativa", v)} multiline />
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <DeadlineChip prazo={item.prazo} status={item.status} />
+                      <div className="flex flex-col items-center gap-1">
+                        <DeadlineChip prazo={item.prazo} status={item.status} />
+                        <InlineInput value={item.prazo} onChange={v => onUpdate(item.id, "prazo", v)} type="date" className="text-xs text-center" />
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <QuickActions status={item.status} onUpdate={v => onUpdate(item.id, "status", v)} />
                     </td>
                     <td className="px-4 py-3">
                       <InlineInput value={item.responsavel_execucao} onChange={v => onUpdate(item.id, "responsavel_execucao", v)} />

@@ -88,24 +88,40 @@ export default function IndicadorGeralTab({ kpis, iniciativas, metas }) {
 
   // ── Metas Diretoria stats ──
   const metaStats = useMemo(() => {
+    const hoje = new Date();
     const total = metas.length;
     const concluidas = metas.filter(m => m.status === "Concluído").length;
-    const atrasadas = metas.filter(m => m.status === "Atrasado").length;
+    const atrasadas = metas.filter(m => m.status === "Atrasado" || (m.prazo && new Date(m.prazo + "T12:00:00") < hoje && m.status !== "Concluído")).length;
+    const emAndamento = metas.filter(m => m.status === "Em Andamento").length;
+    const naoIniciadas = metas.filter(m => m.status === "Não Iniciado").length;
+    const aguardando = metas.filter(m => m.status === "Aguardando").length;
     const pct = total ? Math.round((concluidas / total) * 100) : 0;
 
     const porDiretor = {};
     metas.forEach(m => {
-      if (!porDiretor[m.diretor]) porDiretor[m.diretor] = { concluidas: 0, total: 0 };
+      if (!porDiretor[m.diretor]) porDiretor[m.diretor] = { concluidas: 0, atrasadas: 0, emAndamento: 0, total: 0 };
       porDiretor[m.diretor].total++;
       if (m.status === "Concluído") porDiretor[m.diretor].concluidas++;
+      else if (m.status === "Atrasado" || (m.prazo && new Date(m.prazo + "T12:00:00") < hoje && m.status !== "Concluído")) porDiretor[m.diretor].atrasadas++;
+      else if (m.status === "Em Andamento") porDiretor[m.diretor].emAndamento++;
     });
     const diretorData = Object.entries(porDiretor).map(([d, v]) => ({
       name: d.split(" ")[0],
       Concluídas: v.concluidas,
-      Pendentes: v.total - v.concluidas,
+      "Em Andamento": v.emAndamento,
+      Atrasadas: v.atrasadas,
+      Pendentes: v.total - v.concluidas - v.emAndamento - v.atrasadas,
     }));
 
-    return { total, concluidas, atrasadas, pct, diretorData };
+    const pieData = [
+      { name: "Concluído",    value: concluidas,   fill: "#134635" },
+      { name: "Em Andamento", value: emAndamento,  fill: "#F48126" },
+      { name: "Atrasado",     value: atrasadas,    fill: "#ef4444" },
+      { name: "Aguardando",   value: aguardando,   fill: "#f59e0b" },
+      { name: "Não Iniciado", value: naoIniciadas, fill: "#d1d5db" },
+    ].filter(d => d.value > 0);
+
+    return { total, concluidas, atrasadas, emAndamento, naoIniciadas, pct, diretorData, pieData };
   }, [metas]);
 
   // ── Donut KPI ──
@@ -267,24 +283,107 @@ export default function IndicadorGeralTab({ kpis, iniciativas, metas }) {
 
       {/* ── Metas Diretoria ── */}
       <div>
-        <SectionTitle>Metas Diretoria</SectionTitle>
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-          <p className="text-sm font-semibold text-gray-700 mb-4">Concluídas vs. Pendentes por Diretor</p>
-          {metaStats.diretorData.length === 0 ? (
-            <div className="text-center py-10 text-gray-400 text-sm">Nenhuma meta cadastrada.</div>
-          ) : (
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={metaStats.diretorData} margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip content={<CUSTOM_TOOLTIP />} />
-                <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="Concluídas" fill="#134635" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Pendentes" fill="#F48126" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
+        <SectionTitle>Metas Diretoria 2026</SectionTitle>
+
+        {/* Cards resumo */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#134635]/10 flex items-center justify-center flex-shrink-0">
+              <CheckCircle2 className="w-5 h-5 text-[#134635]" />
+            </div>
+            <div>
+              <p className="text-xl font-bold text-gray-900">{metaStats.concluidas}</p>
+              <p className="text-xs text-gray-500">Concluídas</p>
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#F48126]/10 flex items-center justify-center flex-shrink-0">
+              <Clock className="w-5 h-5 text-[#F48126]" />
+            </div>
+            <div>
+              <p className="text-xl font-bold text-gray-900">{metaStats.emAndamento}</p>
+              <p className="text-xs text-gray-500">Em Andamento</p>
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+              <AlertTriangle className="w-5 h-5 text-red-500" />
+            </div>
+            <div>
+              <p className="text-xl font-bold text-gray-900">{metaStats.atrasadas}</p>
+              <p className="text-xs text-gray-500">Atrasadas / Fora do Prazo</p>
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+              <XCircle className="w-5 h-5 text-gray-400" />
+            </div>
+            <div>
+              <p className="text-xl font-bold text-gray-900">{metaStats.naoIniciadas}</p>
+              <p className="text-xs text-gray-500">Não Iniciadas</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Donut status metas */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+            <p className="text-sm font-semibold text-gray-700 mb-4">Distribuição por Status</p>
+            <div className="flex items-center gap-4">
+              <div className="w-40 h-40 flex-shrink-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={metaStats.pieData} cx="50%" cy="50%" innerRadius={42} outerRadius={62} paddingAngle={3} dataKey="value">
+                      {metaStats.pieData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
+                    </Pie>
+                    <Tooltip content={<CUSTOM_TOOLTIP />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex-1 space-y-2">
+                {metaStats.pieData.map((d, i) => (
+                  <div key={i} className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: d.fill }} />
+                      <span className="text-xs text-gray-600">{d.name}</span>
+                    </div>
+                    <span className="text-xs font-bold text-gray-800">{d.value}</span>
+                  </div>
+                ))}
+                <div className="pt-2 border-t border-gray-100 mt-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-400">Taxa de conclusão</span>
+                    <span className="font-bold text-[#134635]">{metaStats.pct}%</span>
+                  </div>
+                  <div className="mt-1 w-full bg-gray-100 rounded-full h-2">
+                    <div className="h-2 rounded-full bg-[#134635] transition-all" style={{ width: `${metaStats.pct}%` }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Barra por diretor */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+            <p className="text-sm font-semibold text-gray-700 mb-4">Status por Diretor</p>
+            {metaStats.diretorData.length === 0 ? (
+              <div className="text-center py-10 text-gray-400 text-sm">Nenhuma meta cadastrada.</div>
+            ) : (
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={metaStats.diretorData} margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <Tooltip content={<CUSTOM_TOOLTIP />} />
+                  <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
+                  <Bar dataKey="Concluídas" stackId="a" fill="#134635" radius={[0,0,0,0]} />
+                  <Bar dataKey="Em Andamento" stackId="a" fill="#F48126" />
+                  <Bar dataKey="Atrasadas" stackId="a" fill="#ef4444" />
+                  <Bar dataKey="Pendentes" stackId="a" fill="#e5e7eb" radius={[4,4,0,0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
         </div>
       </div>
 

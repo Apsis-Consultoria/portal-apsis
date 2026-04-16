@@ -1,7 +1,7 @@
 // Base44 SDK — functions habilitadas + entities com API real
 import { appParams } from '@/lib/app-params';
 
-const getAppId = () => appParams.appId || import.meta.env.VITE_BASE44_APP_ID;
+const getAppId = () => appParams.appId || import.meta.env.VITE_BASE44_APP_ID || '69a1fc4b60b4c477ea324579';
 const getToken = () => appParams.token || localStorage.getItem('base44_access_token');
 
 const apiRequest = async (method, path, body) => {

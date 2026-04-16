@@ -14,21 +14,21 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY')
     );
 
-    // List all tables via information_schema
-    const { data, error } = await supabase
-      .rpc('get_tables')
-      .select('*');
-
-    // Fallback: try querying mkt tables directly
-    const { data: mktData, error: mktError } = await supabase
+    // Try with count to check if table exists and has rows
+    const { count, error: countError } = await supabase
       .from('mkt_vendas_ticket_medio')
-      .select('*');
+      .select('*', { count: 'exact', head: true });
 
-    return Response.json({ 
-      tables_error: error?.message,
-      mkt_data: mktData,
-      mkt_error: mktError?.message
-    });
+    const { data, error } = await supabase
+      .from('mkt_vendas_ticket_medio')
+      .select('*')
+      .limit(3);
+
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    return Response.json({ count, countError: countError?.message, data, error: error?.message });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

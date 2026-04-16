@@ -4,10 +4,10 @@ import {
 } from 'recharts';
 
 const TRIMESTRE_COLORS = {
-  'T1': '#4A90D9',
-  'T2': '#E74C3C',
-  'T3': '#27AE60',
-  'T4': '#9B59B6',
+  'T1': '#1A4731',
+  'T2': '#F47920',
+  'T3': '#245E40',
+  'T4': '#F9A15A',
 };
 
 const TRIMESTRE_ORDER = ['1º Trimestre', '2º Trimestre', '3º Trimestre', '4º Trimestre'];

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 export default function AppAtivoFixo() {
   useEffect(() => {
-    window.open("https://apsis-ativo-fixo.app", "_blank");
+    window.open("https://invativos.apsis.com.br/", "_blank");
     window.history.back();
   }, []);
 

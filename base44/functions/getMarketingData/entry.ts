@@ -11,24 +11,24 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL'),
-      Deno.env.get('SUPABASE_ANON_KEY')
+      Deno.env.get('VITE_SUPABASE_SERVICE_KEY')
     );
-
-    // Try with count to check if table exists and has rows
-    const { count, error: countError } = await supabase
-      .from('mkt_vendas_ticket_medio')
-      .select('*', { count: 'exact', head: true });
 
     const { data, error } = await supabase
       .from('mkt_vendas_ticket_medio')
-      .select('*')
-      .limit(3);
+      .select('ref_id, ano, trimestre, area, grupo_de_servico, vendas, clientes, ticket_medio')
+      .order('ano', { ascending: true })
+      .order('trimestre', { ascending: true });
 
     if (error) {
       return Response.json({ error: error.message }, { status: 500 });
     }
 
-    return Response.json({ count, countError: countError?.message, data, error: error?.message });
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    return Response.json({ data });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

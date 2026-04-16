@@ -101,7 +101,7 @@ const navItems = [
   {
     label: "Ativos Fixos", page: "AtivosFixos", icon: Briefcase,
     children: [
-      { label: "APP Ativo Fixo", page: "AppAtivoFixo", icon: Briefcase },
+      { label: "APP Inventário", page: "AppAtivoFixo", icon: Briefcase },
       { label: "App Conciliação", page: "AppConciliacao", icon: BarChart3 },
       { label: "App Imóveis", page: "AppImoveis", icon: Home },
     ]

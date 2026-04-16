@@ -89,49 +89,51 @@ export default function MetasDiretoriaTab() {
   return (
     <div className="space-y-4">
       {/* Toolbar */}
-      <div className="flex flex-wrap gap-3 items-center justify-between bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+      <div className="flex flex-wrap gap-3 items-center justify-between bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
         <div className="flex flex-wrap gap-2 flex-1 min-w-0">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input className="pl-9 w-48" placeholder="Buscar meta..." value={search} onChange={e => setSearch(e.target.value)} />
+            <Input className="pl-9 w-48 rounded-lg border-gray-200" placeholder="Buscar meta..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
           <Select value={filterDiretor} onValueChange={setFilterDiretor}>
-            <SelectTrigger className="w-48"><SelectValue placeholder="Diretor" /></SelectTrigger>
+            <SelectTrigger className="w-48 rounded-lg border-gray-200"><SelectValue placeholder="Diretor" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="todos">Todos os diretores</SelectItem>
               {DIRETORES.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={filterTema} onValueChange={setFilterTema}>
-            <SelectTrigger className="w-44"><SelectValue placeholder="Tema" /></SelectTrigger>
+            <SelectTrigger className="w-44 rounded-lg border-gray-200"><SelectValue placeholder="Tema" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="todos">Todos os temas</SelectItem>
               {TEMAS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-40"><SelectValue placeholder="Status" /></SelectTrigger>
+            <SelectTrigger className="w-40 rounded-lg border-gray-200"><SelectValue placeholder="Status" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="todos">Todos os status</SelectItem>
               {STATUS_INICIATIVA.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
             </SelectContent>
           </Select>
-          <Input className="w-36" placeholder="Responsável..." value={filterResponsavel} onChange={e => setFilterResponsavel(e.target.value)} />
+          <Input className="w-36 rounded-lg border-gray-200" placeholder="Responsável..." value={filterResponsavel} onChange={e => setFilterResponsavel(e.target.value)} />
         </div>
-        <div className="flex gap-2 flex-shrink-0">
-          {VIEWS.map(v => {
-            const Icon = v.icon;
-            return (
-              <button key={v.id} onClick={() => setView(v.id)} title={v.label}
-                className={`p-2 rounded-lg border transition-colors ${view === v.id ? "bg-[#1A4731] text-white border-[#1A4731]" : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"}`}>
-                <Icon className="w-4 h-4" />
-              </button>
-            );
-          })}
-          <Button variant="outline" size="sm" onClick={handleExport} className="gap-2 border-gray-300">
+        <div className="flex gap-2 flex-shrink-0 items-center">
+          <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+            {VIEWS.map(v => {
+              const Icon = v.icon;
+              return (
+                <button key={v.id} onClick={() => setView(v.id)} title={v.label}
+                  className={`p-1.5 rounded-md transition-all ${view === v.id ? "bg-[#134635] text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}>
+                  <Icon className="w-4 h-4" />
+                </button>
+              );
+            })}
+          </div>
+          <Button variant="outline" size="sm" onClick={handleExport} className="gap-2 border-[#134635] text-[#134635] hover:bg-[#134635]/5 rounded-lg">
             <Download className="w-4 h-4" /> Excel
           </Button>
-          <Button size="sm" onClick={handleAdd} className="gap-2 bg-[#E87722] hover:bg-[#d06618] text-white border-0">
+          <Button size="sm" onClick={handleAdd} className="gap-2 bg-[#F48126] hover:bg-[#e07420] text-white border-0 rounded-lg shadow-sm hover:shadow-md transition-shadow">
             <Plus className="w-4 h-4" /> Nova Meta
           </Button>
         </div>

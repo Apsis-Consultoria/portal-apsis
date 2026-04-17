@@ -59,15 +59,6 @@ export default function Editoracao() {
 
       {/* Main Content - Preview */}
       <div className="flex-1 flex flex-col bg-white">
-        {/* Header */}
-        <div className="bg-green-700 text-white px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold">APSIS</span>
-            <span className="text-orange-400 font-semibold text-sm">Consultoria</span>
-            <span className="text-gray-300 text-sm ml-2">Editoração de Laudos</span>
-          </div>
-        </div>
-
         {/* Preview Area */}
         <div className="flex-1 flex flex-col p-6">
           <div className="flex items-center justify-between mb-6">

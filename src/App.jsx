@@ -42,6 +42,7 @@ import OnboardingInterno from '@/pages/OnboardingInterno';
 import OnboardingPublico from '@/pages/OnboardingPublico';
 import Configuracoes from '@/pages/Configuracoes';
 import PlanejamentoEstrategico from '@/pages/PlanejamentoEstrategico';
+import RateioCaju from '@/pages/RateioCaju';
 
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -108,6 +109,7 @@ function App() {
               <Route path="/OnboardingPublico" element={<OnboardingPublico />} />
               <Route path="/Configuracoes" element={<LayoutWrapper currentPageName="Configuracoes"><Configuracoes /></LayoutWrapper>} />
               <Route path="/PlanejamentoEstrategico" element={<LayoutWrapper currentPageName="PlanejamentoEstrategico"><PlanejamentoEstrategico /></LayoutWrapper>} />
+              <Route path="/RateioCaju" element={<LayoutWrapper currentPageName="RateioCaju"><RateioCaju /></LayoutWrapper>} />
 
 
 

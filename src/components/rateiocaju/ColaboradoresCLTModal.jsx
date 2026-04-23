@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 
 const UNIDADES = ["Carbon", "REDD", "RJ", "SP"];
 
-const emptyNovo = { nome: "", unidade: "RJ", area: "" };
+const emptyNovo = { nome: "", unidade: "RJ", area: "", tipo_contrato: "CLT" };
 const BADGE_CLS = {
   RJ: "bg-green-100 text-green-800",
   SP: "bg-blue-100 text-blue-800",
@@ -46,7 +46,7 @@ export default function ColaboradoresCLTModal({ open, onClose }) {
 
   const handleEdit = (c) => {
     setEditingId(c.id);
-    setEditData({ nome: c.nome, unidade: c.unidade || "SP", area: c.area || "" });
+    setEditData({ nome: c.nome, unidade: c.unidade || "SP", area: c.area || "", tipo_contrato: c.tipo_contrato || "CLT" });
   };
 
   const handleSaveEdit = async (id) => {
@@ -94,6 +94,16 @@ export default function ColaboradoresCLTModal({ open, onClose }) {
               <label className="text-xs text-gray-500 mb-1 block">Área</label>
               <Input value={novoData.area} onChange={e => setNovoData({ ...novoData, area: e.target.value })} placeholder="Ex: Contábil, RH" className="h-8 text-sm" />
             </div>
+            <div className="w-32">
+              <label className="text-xs text-gray-500 mb-1 block">Tipo</label>
+              <Select value={novoData.tipo_contrato} onValueChange={v => setNovoData({ ...novoData, tipo_contrato: v })}>
+                <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="CLT">CLT</SelectItem>
+                  <SelectItem value="Estagiário">Estagiário</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Button size="sm" onClick={handleSaveNovo} className="bg-green-600 hover:bg-green-700 h-8"><Check size={14} /></Button>
             <Button size="sm" variant="outline" onClick={() => { setNovoForm(false); setNovoData(emptyNovo); }} className="h-8"><X size={14} /></Button>
           </div>
@@ -119,7 +129,14 @@ export default function ColaboradoresCLTModal({ open, onClose }) {
                             {UNIDADES.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
                           </SelectContent>
                         </Select>
-                        <Input value={editData.area} onChange={e => setEditData({ ...editData, area: e.target.value })} placeholder="Área" className="h-7 text-sm w-32" />
+                        <Input value={editData.area} onChange={e => setEditData({ ...editData, area: e.target.value })} placeholder="Área" className="h-7 text-sm w-24" />
+                        <Select value={editData.tipo_contrato || "CLT"} onValueChange={v => setEditData({ ...editData, tipo_contrato: v })}>
+                          <SelectTrigger className="h-7 text-sm w-28"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="CLT">CLT</SelectItem>
+                            <SelectItem value="Estagiário">Estagiário</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <Button size="sm" onClick={() => handleSaveEdit(c.id)} className="h-7 bg-green-600 hover:bg-green-700"><Check size={12} /></Button>
                         <Button size="sm" variant="outline" onClick={() => setEditingId(null)} className="h-7"><X size={12} /></Button>
                       </>
@@ -127,6 +144,9 @@ export default function ColaboradoresCLTModal({ open, onClose }) {
                       <>
                         <span className="flex-1 text-sm text-gray-800">{c.nome}</span>
                         {c.area && <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{c.area}</span>}
+                        <span className={`text-xs px-2 py-0.5 rounded font-medium ${c.tipo_contrato === "Estagiário" ? "bg-yellow-100 text-yellow-700" : "bg-blue-50 text-blue-700"}`}>
+                          {c.tipo_contrato || "CLT"}
+                        </span>
                         <Button size="sm" variant="ghost" onClick={() => handleEdit(c)} className="h-7 w-7 p-0"><Pencil size={12} /></Button>
                         <Button size="sm" variant="ghost" onClick={() => handleDelete(c.id)} className="h-7 w-7 p-0 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
                       </>

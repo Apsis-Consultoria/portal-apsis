@@ -20,6 +20,15 @@
       "type": "string",
       "description": "\u00c1rea do colaborador (ex: Cont\u00e1bil, RH)"
     },
+    "tipo_contrato": {
+      "type": "string",
+      "enum": [
+        "CLT",
+        "Estagi\u00e1rio"
+      ],
+      "default": "CLT",
+      "description": "Tipo de contrato do colaborador"
+    },
     "valor_vr_diario": {
       "type": "number",
       "default": 0,

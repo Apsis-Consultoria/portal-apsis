@@ -1,0 +1,53 @@
+{
+  "name": "RateioCaju",
+  "type": "object",
+  "properties": {
+    "mes_referencia": {
+      "type": "string",
+      "description": "M\u00eas de refer\u00eancia no formato YYYY-MM"
+    },
+    "mes_label": {
+      "type": "string",
+      "description": "Label leg\u00edvel do m\u00eas (ex: Abril/2026)"
+    },
+    "dias_uteis_sp": {
+      "type": "number",
+      "default": 0
+    },
+    "dias_uteis_rj": {
+      "type": "number",
+      "default": 0
+    },
+    "colaboradores_sp": {
+      "type": "string",
+      "description": "JSON array com colaboradores SP e valores"
+    },
+    "colaboradores_rj": {
+      "type": "string",
+      "description": "JSON array com colaboradores RJ e valores"
+    },
+    "total_sp": {
+      "type": "number",
+      "default": 0
+    },
+    "total_rj": {
+      "type": "number",
+      "default": 0
+    },
+    "total_geral": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Rascunho",
+        "Finalizado"
+      ],
+      "default": "Rascunho"
+    }
+  },
+  "required": [
+    "mes_referencia"
+  ]
+}

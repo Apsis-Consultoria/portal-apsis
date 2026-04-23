@@ -1,0 +1,32 @@
+{
+  "name": "ColaboradorCLT",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome do colaborador"
+    },
+    "unidade": {
+      "type": "string",
+      "enum": [
+        "SP",
+        "RJ"
+      ],
+      "description": "Unidade do colaborador"
+    },
+    "valor_vr_diario": {
+      "type": "number",
+      "default": 0,
+      "description": "Valor do VR por dia \u00fatil"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "nome",
+    "unidade",
+    "valor_vr_diario"
+  ]
+}

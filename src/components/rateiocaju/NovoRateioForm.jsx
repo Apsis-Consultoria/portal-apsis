@@ -193,7 +193,7 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
   );
 }
 
-export default function NovoRateioForm({ onCancel, onSaved }) {
+export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = {} }) {
   const [mesRef, setMesRef] = useState(() => {
     const today = new Date();
     return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
@@ -207,8 +207,8 @@ export default function NovoRateioForm({ onCancel, onSaved }) {
   const [editingVr, setEditingVr] = useState(null);
   const [vrTemp, setVrTemp] = useState("");
 
-  // ferias: { [colaboradorId]: [{inicio: "YYYY-MM-DD", fim: "YYYY-MM-DD"}] }
-  const [ferias, setFerias] = useState({});
+  // ferias: pré-populado com férias programadas, editável inline
+  const [ferias, setFerias] = useState(feriasProgramadas);
 
   const [ano, mes] = mesRef.split("-").map(Number);
   const diasUteisSP = getDiasUteisParaMes(ano, mes, "SP");

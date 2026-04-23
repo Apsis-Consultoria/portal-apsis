@@ -7,6 +7,7 @@ import { Users, Plus, Settings, TrendingUp, MapPin, CalendarDays, ChevronRight }
 import ColaboradoresCLTModal from "@/components/rateiocaju/ColaboradoresCLTModal";
 import NovoRateioForm from "@/components/rateiocaju/NovoRateioForm";
 import FeriadosModal from "@/components/rateiocaju/FeriadosModal";
+import FeriasProgramadasModal, { loadFeriasProgramadas } from "@/components/rateiocaju/FeriasProgramadasModal";
 import { formatMes } from "@/components/rateiocaju/feriadosUtils";
 
 const fmt = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -17,6 +18,7 @@ export default function RateioCaju() {
   const [loading, setLoading] = useState(true);
   const [showCLTModal, setShowCLTModal] = useState(false);
   const [showFeriados, setShowFeriados] = useState(false);
+  const [showFerias, setShowFerias] = useState(false);
   const [criandoRateio, setCriandoRateio] = useState(false);
 
   const fetchData = async () => {
@@ -49,6 +51,7 @@ export default function RateioCaju() {
       <NovoRateioForm
         onCancel={() => setCriandoRateio(false)}
         onSaved={() => { setCriandoRateio(false); fetchData(); }}
+        feriasProgramadas={loadFeriasProgramadas()}
       />
     );
   }
@@ -62,6 +65,10 @@ export default function RateioCaju() {
           <p className="text-sm text-gray-500 mt-0.5">Distribuição de VR por unidade e mês de referência</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowFerias(true)} className="gap-2 text-sm">
+            <CalendarDays size={15} />
+            Férias Programadas
+          </Button>
           <Button variant="outline" onClick={() => setShowFeriados(true)} className="gap-2 text-sm">
             <CalendarDays size={15} />
             Feriados SP/RJ
@@ -190,6 +197,7 @@ export default function RateioCaju() {
       {/* Modais */}
       <ColaboradoresCLTModal open={showCLTModal} onClose={() => setShowCLTModal(false)} />
       <FeriadosModal open={showFeriados} onClose={() => setShowFeriados(false)} />
+      <FeriasProgramadasModal open={showFerias} onClose={() => setShowFerias(false)} />
     </div>
   );
 }

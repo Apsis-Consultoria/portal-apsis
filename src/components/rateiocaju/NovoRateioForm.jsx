@@ -100,39 +100,6 @@ export default function NovoRateioForm({ onCancel, onSaved }) {
         <div className="text-base font-semibold text-gray-700 mt-4">{formatMes(mesRef)}</div>
       </div>
 
-      {/* SP */}
-      <div className="bg-white border border-blue-200 rounded-xl p-5">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Badge className="bg-blue-100 text-blue-800 text-sm font-bold px-3">SP</Badge>
-            <span className="text-sm text-gray-600 font-medium">São Paulo</span>
-          </div>
-          <div className="flex items-center gap-1 text-xs text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
-            <CalendarDays size={12} />
-            <span>{diasUteisSP} dias úteis</span>
-          </div>
-        </div>
-        <div className="space-y-1 mb-4">
-          {colSP.length === 0 && <p className="text-xs text-gray-400 text-center py-4">Nenhum colaborador cadastrado</p>}
-          {colSP.map(c => (
-            <label key={c.id} className="flex items-center gap-3 cursor-pointer p-2.5 rounded-lg hover:bg-blue-50 transition">
-              <input
-                type="checkbox"
-                checked={selecionadosSP.includes(c.id)}
-                onChange={() => toggleSP(c.id)}
-                className="accent-blue-600 w-4 h-4"
-              />
-              <span className="text-sm flex-1 text-gray-800">{c.nome}</span>
-              <span className="text-sm font-medium text-gray-600">{fmt(c.valor_vr_diario * diasUteisSP)}</span>
-            </label>
-          ))}
-        </div>
-        <div className="border-t border-blue-100 pt-3 flex justify-between items-center">
-          <span className="text-xs text-gray-500">{selecionadosSP.length} de {colSP.length} colaboradores selecionados</span>
-          <span className="text-base font-bold text-blue-700">{fmt(totalSP)}</span>
-        </div>
-      </div>
-
       {/* RJ */}
       <div className="bg-white border border-green-200 rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
@@ -163,6 +130,39 @@ export default function NovoRateioForm({ onCancel, onSaved }) {
         <div className="border-t border-green-100 pt-3 flex justify-between items-center">
           <span className="text-xs text-gray-500">{selecionadosRJ.length} de {colRJ.length} colaboradores selecionados</span>
           <span className="text-base font-bold text-green-700">{fmt(totalRJ)}</span>
+        </div>
+      </div>
+
+      {/* SP */}
+      <div className="bg-white border border-blue-200 rounded-xl p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Badge className="bg-blue-100 text-blue-800 text-sm font-bold px-3">SP</Badge>
+            <span className="text-sm text-gray-600 font-medium">São Paulo</span>
+          </div>
+          <div className="flex items-center gap-1 text-xs text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
+            <CalendarDays size={12} />
+            <span>{diasUteisSP} dias úteis</span>
+          </div>
+        </div>
+        <div className="space-y-1 mb-4">
+          {colSP.length === 0 && <p className="text-xs text-gray-400 text-center py-4">Nenhum colaborador cadastrado</p>}
+          {colSP.map(c => (
+            <label key={c.id} className="flex items-center gap-3 cursor-pointer p-2.5 rounded-lg hover:bg-blue-50 transition">
+              <input
+                type="checkbox"
+                checked={selecionadosSP.includes(c.id)}
+                onChange={() => toggleSP(c.id)}
+                className="accent-blue-600 w-4 h-4"
+              />
+              <span className="text-sm flex-1 text-gray-800">{c.nome}</span>
+              <span className="text-sm font-medium text-gray-600">{fmt(c.valor_vr_diario * diasUteisSP)}</span>
+            </label>
+          ))}
+        </div>
+        <div className="border-t border-blue-100 pt-3 flex justify-between items-center">
+          <span className="text-xs text-gray-500">{selecionadosSP.length} de {colSP.length} colaboradores selecionados</span>
+          <span className="text-base font-bold text-blue-700">{fmt(totalSP)}</span>
         </div>
       </div>
 

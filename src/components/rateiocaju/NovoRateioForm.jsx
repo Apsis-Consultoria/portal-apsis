@@ -9,8 +9,10 @@ import FeriasColaboradorModal from "./FeriasColaboradorModal";
 
 const fmt = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-// Valor VR diário padrão por unidade
+// Valor VR diário padrão por unidade (CLT)
 const VR_DIARIO_DEFAULT = { RJ: 29.0, SP: 31.5, Carbon: 29.0, REDD: 29.0 };
+// Valor VR diário padrão para estagiários (apenas RJ e SP)
+const VR_ESTAGIARIO_DEFAULT = { RJ: 20.0, SP: 20.0 };
 
 // Unidades que usam dias úteis de RJ
 const USA_DIAS_RJ = ["RJ", "Carbon", "REDD"];
@@ -124,18 +126,11 @@ function ColaboradorRow({ c, cfg, selecionado, onToggle, diasFerias, diasEfetivo
   );
 }
 
-function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUteis, vrDiario, ferias, onFeriasChange, ano, mes }) {
-  const cfg = UNIDADE_CONFIG[unidade];
-  const estado = unidade === "SP" ? "SP" : "RJ";
-
+function SubgrupoColabs({ titulo, cor, colaboradores, selecionados, onToggle, diasUteis, vrDiario, ferias, onFeriasChange, estado, ano, mes, cfg }) {
   const getDiasEfetivos = (id) => {
     const diasFerias = calcDiasFeriasMes(id, ferias, ano, mes, estado);
     return Math.max(0, diasUteis - diasFerias);
   };
-
-  const total = colaboradores
-    .filter(c => selecionados.includes(c.id))
-    .reduce((acc, c) => acc + vrDiario * getDiasEfetivos(c.id), 0);
 
   const handleAddFerias = (id, periodo) => {
     const atual = ferias[id] || [];
@@ -147,21 +142,24 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
     onFeriasChange(id, atual.filter((_, i) => i !== idx));
   };
 
+  const total = colaboradores
+    .filter(c => selecionados.includes(c.id))
+    .reduce((acc, c) => acc + vrDiario * getDiasEfetivos(c.id), 0);
+
+  const selCount = colaboradores.filter(c => selecionados.includes(c.id)).length;
+
   return (
-    <div className={`bg-white border ${cfg.borderCls} rounded-xl p-5`}>
-      <div className="flex items-center justify-between mb-4">
+    <div className={`rounded-lg border ${cor.borderCls} p-3`}>
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <Badge className={`${cfg.badgeCls} text-sm font-bold px-3`}>{unidade}</Badge>
-          <span className="text-xs text-gray-400 ml-1">{fmt(vrDiario)}/dia</span>
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cor.badgeCls}`}>{titulo}</span>
+          <span className="text-xs text-gray-400">{fmt(vrDiario)}/dia</span>
         </div>
-        <div className={`flex items-center gap-1 text-xs px-3 py-1 rounded-full ${cfg.infoCls}`}>
-          <CalendarDays size={12} />
-          <span>{diasUteis} dias úteis</span>
-        </div>
+        <span className={`text-xs font-medium ${cfg.totalCls}`}>{fmt(total)}</span>
       </div>
-      <div className="space-y-1 mb-4">
+      <div className="space-y-1">
         {colaboradores.length === 0 && (
-          <p className="text-xs text-gray-400 text-center py-4">Nenhum colaborador cadastrado</p>
+          <p className="text-xs text-gray-400 text-center py-2">Nenhum cadastrado</p>
         )}
         {colaboradores.map(c => {
           const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
@@ -183,6 +181,116 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
           );
         })}
       </div>
+      <p className="text-xs text-gray-400 mt-2">{selCount} de {colaboradores.length} selecionados</p>
+    </div>
+  );
+}
+
+function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUteis, vrDiario, vrEstagiario, ferias, onFeriasChange, ano, mes }) {
+  const cfg = UNIDADE_CONFIG[unidade];
+  const estado = unidade === "SP" ? "SP" : "RJ";
+  const temEstagiarios = unidade === "RJ" || unidade === "SP";
+
+  const clts = temEstagiarios ? colaboradores.filter(c => (c.tipo_contrato || "CLT") === "CLT") : colaboradores;
+  const estagiarios = temEstagiarios ? colaboradores.filter(c => c.tipo_contrato === "Estagiário") : [];
+
+  const getDiasEfetivos = (id) => {
+    const diasFerias = calcDiasFeriasMes(id, ferias, ano, mes, estado);
+    return Math.max(0, diasUteis - diasFerias);
+  };
+
+  const totalCLT = clts
+    .filter(c => selecionados.includes(c.id))
+    .reduce((acc, c) => acc + vrDiario * getDiasEfetivos(c.id), 0);
+
+  const totalEst = estagiarios
+    .filter(c => selecionados.includes(c.id))
+    .reduce((acc, c) => acc + (vrEstagiario || vrDiario) * getDiasEfetivos(c.id), 0);
+
+  const total = totalCLT + totalEst;
+
+  const handleAddFerias = (id, periodo) => {
+    const atual = ferias[id] || [];
+    onFeriasChange(id, [...atual, periodo]);
+  };
+
+  const handleRemoveFerias = (id, idx) => {
+    const atual = ferias[id] || [];
+    onFeriasChange(id, atual.filter((_, i) => i !== idx));
+  };
+
+  return (
+    <div className={`bg-white border ${cfg.borderCls} rounded-xl p-5`}>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Badge className={`${cfg.badgeCls} text-sm font-bold px-3`}>{unidade}</Badge>
+        </div>
+        <div className={`flex items-center gap-1 text-xs px-3 py-1 rounded-full ${cfg.infoCls}`}>
+          <CalendarDays size={12} />
+          <span>{diasUteis} dias úteis</span>
+        </div>
+      </div>
+
+      {temEstagiarios ? (
+        <div className="space-y-3 mb-4">
+          <SubgrupoColabs
+            titulo="CLT"
+            cor={{ borderCls: cfg.borderCls, badgeCls: cfg.badgeCls }}
+            colaboradores={clts}
+            selecionados={selecionados}
+            onToggle={onToggle}
+            diasUteis={diasUteis}
+            vrDiario={vrDiario}
+            ferias={ferias}
+            onFeriasChange={onFeriasChange}
+            estado={estado}
+            ano={ano}
+            mes={mes}
+            cfg={cfg}
+          />
+          <SubgrupoColabs
+            titulo="Estagiários"
+            cor={{ borderCls: "border-yellow-200", badgeCls: "bg-yellow-100 text-yellow-800" }}
+            colaboradores={estagiarios}
+            selecionados={selecionados}
+            onToggle={onToggle}
+            diasUteis={diasUteis}
+            vrDiario={vrEstagiario || vrDiario}
+            ferias={ferias}
+            onFeriasChange={onFeriasChange}
+            estado={estado}
+            ano={ano}
+            mes={mes}
+            cfg={cfg}
+          />
+        </div>
+      ) : (
+        <div className="space-y-1 mb-4">
+          {colaboradores.length === 0 && (
+            <p className="text-xs text-gray-400 text-center py-4">Nenhum colaborador cadastrado</p>
+          )}
+          {colaboradores.map(c => {
+            const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
+            const diasEfetivos = getDiasEfetivos(c.id);
+            return (
+              <ColaboradorRow
+                key={c.id}
+                c={c}
+                cfg={cfg}
+                selecionado={selecionados.includes(c.id)}
+                onToggle={onToggle}
+                diasFerias={diasFerias}
+                diasEfetivos={diasEfetivos}
+                valor={vrDiario * diasEfetivos}
+                periodos={ferias[c.id] || []}
+                onAddFerias={handleAddFerias}
+                onRemoveFerias={handleRemoveFerias}
+              />
+            );
+          })}
+        </div>
+      )}
+
       <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
         <span className="text-xs text-gray-500">
           {selecionados.length} de {colaboradores.length} selecionados
@@ -204,7 +312,8 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
   const [showFeriasModal, setShowFeriasModal] = useState(false);
 
   const [vrDiario, setVrDiario] = useState({ ...VR_DIARIO_DEFAULT });
-  const [editingVr, setEditingVr] = useState(null);
+  const [vrEstagiario, setVrEstagiario] = useState({ ...VR_ESTAGIARIO_DEFAULT });
+  const [editingVr, setEditingVr] = useState(null); // "RJ" | "SP" | "RJ_est" | "SP_est" | ...
   const [vrTemp, setVrTemp] = useState("");
 
   // ferias: pré-populado com férias programadas, editável inline
@@ -217,10 +326,16 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
   const getDias = (unidade) => USA_DIAS_RJ.includes(unidade) ? diasUteisRJ : diasUteisSP;
   const getEstado = (unidade) => unidade === "SP" ? "SP" : "RJ";
 
-  const startEditVr = (u) => { setEditingVr(u); setVrTemp(String(vrDiario[u])); };
-  const confirmEditVr = (u) => {
+  const startEditVr = (key) => { setEditingVr(key); setVrTemp(String(key.endsWith("_est") ? vrEstagiario[key.replace("_est", "")] : vrDiario[key])); };
+  const confirmEditVr = (key) => {
     const val = parseFloat(vrTemp.replace(",", "."));
-    if (!isNaN(val) && val >= 0) setVrDiario(prev => ({ ...prev, [u]: val }));
+    if (!isNaN(val) && val >= 0) {
+      if (key.endsWith("_est")) {
+        setVrEstagiario(prev => ({ ...prev, [key.replace("_est", "")]: val }));
+      } else {
+        setVrDiario(prev => ({ ...prev, [key]: val }));
+      }
+    }
     setEditingVr(null);
   };
 
@@ -251,6 +366,13 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
     setFerias(prev => ({ ...prev, [colaboradorId]: periodos }));
   };
 
+  const getVrColaborador = (unidade, c) => {
+    if ((unidade === "RJ" || unidade === "SP") && c.tipo_contrato === "Estagiário") {
+      return vrEstagiario[unidade] || vrDiario[unidade];
+    }
+    return vrDiario[unidade];
+  };
+
   const calcTotal = (unidade) => {
     const dias = getDias(unidade);
     const estado = getEstado(unidade);
@@ -259,7 +381,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
       .reduce((acc, c) => {
         const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
         const diasEfetivos = Math.max(0, dias - diasFerias);
-        return acc + vrDiario[unidade] * diasEfetivos;
+        return acc + getVrColaborador(unidade, c) * diasEfetivos;
       }, 0);
   };
 
@@ -277,13 +399,15 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
         .map(c => {
           const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
           const diasEfetivos = Math.max(0, dias - diasFerias);
+          const vr = getVrColaborador(u, c);
           return {
             id: c.id,
             nome: c.nome,
-            valor_diario: vrDiario[u],
+            tipo_contrato: c.tipo_contrato || "CLT",
+            valor_diario: vr,
             dias_ferias: diasFerias,
             dias_efetivos: diasEfetivos,
-            total: vrDiario[u] * diasEfetivos,
+            total: vr * diasEfetivos,
           };
         });
     });
@@ -354,27 +478,59 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
             {UNIDADES.map(u => {
               const cfg = UNIDADE_CONFIG[u];
               const dias = getDias(u);
+              const temEst = u === "RJ" || u === "SP";
               return (
-                <div key={u} className={`flex flex-col items-center px-4 py-2 rounded-xl border ${cfg.borderCls} bg-white min-w-[90px] cursor-pointer group`}
-                  onClick={() => editingVr !== u && startEditVr(u)}
-                  title="Clique para editar o valor diário"
-                >
-                  <Badge className={`${cfg.badgeCls} text-xs font-bold mb-1`}>{u}</Badge>
-                  {editingVr === u ? (
-                    <input
-                      autoFocus
-                      className="w-20 text-center text-base font-bold border border-gray-300 rounded px-1 py-0.5 focus:outline-none focus:border-[#1A4731]"
-                      value={vrTemp}
-                      onChange={e => setVrTemp(e.target.value)}
-                      onBlur={() => confirmEditVr(u)}
-                      onKeyDown={e => { if (e.key === "Enter") confirmEditVr(u); if (e.key === "Escape") setEditingVr(null); }}
-                      onClick={e => e.stopPropagation()}
-                    />
-                  ) : (
-                    <span className="text-base font-bold text-gray-800 group-hover:text-[#1A4731] transition-colors">{fmt(vrDiario[u])}</span>
+                <div key={u} className="flex flex-col gap-1">
+                  {/* Card CLT */}
+                  <div className={`flex flex-col items-center px-4 py-2 rounded-xl border ${cfg.borderCls} bg-white min-w-[90px] cursor-pointer group`}
+                    onClick={() => editingVr !== u && startEditVr(u)}
+                    title="Clique para editar o valor diário CLT"
+                  >
+                    <div className="flex items-center gap-1 mb-1">
+                      <Badge className={`${cfg.badgeCls} text-xs font-bold`}>{u}</Badge>
+                      {temEst && <span className="text-xs text-gray-400">CLT</span>}
+                    </div>
+                    {editingVr === u ? (
+                      <input autoFocus
+                        className="w-20 text-center text-base font-bold border border-gray-300 rounded px-1 py-0.5 focus:outline-none focus:border-[#1A4731]"
+                        value={vrTemp}
+                        onChange={e => setVrTemp(e.target.value)}
+                        onBlur={() => confirmEditVr(u)}
+                        onKeyDown={e => { if (e.key === "Enter") confirmEditVr(u); if (e.key === "Escape") setEditingVr(null); }}
+                        onClick={e => e.stopPropagation()}
+                      />
+                    ) : (
+                      <span className="text-base font-bold text-gray-800 group-hover:text-[#1A4731] transition-colors">{fmt(vrDiario[u])}</span>
+                    )}
+                    <span className="text-xs text-gray-400">por dia</span>
+                    <span className={`text-xs mt-1 font-medium ${cfg.totalCls}`}>{dias} dias úteis</span>
+                  </div>
+                  {/* Card Estagiário — só RJ e SP */}
+                  {temEst && (
+                    <div className="flex flex-col items-center px-4 py-2 rounded-xl border border-yellow-200 bg-yellow-50 min-w-[90px] cursor-pointer group"
+                      onClick={() => editingVr !== `${u}_est` && startEditVr(`${u}_est`)}
+                      title="Clique para editar o valor diário Estagiário"
+                    >
+                      <div className="flex items-center gap-1 mb-1">
+                        <Badge className="bg-yellow-100 text-yellow-800 text-xs font-bold">{u}</Badge>
+                        <span className="text-xs text-yellow-700">Est.</span>
+                      </div>
+                      {editingVr === `${u}_est` ? (
+                        <input autoFocus
+                          className="w-20 text-center text-base font-bold border border-yellow-300 rounded px-1 py-0.5 focus:outline-none focus:border-yellow-500"
+                          value={vrTemp}
+                          onChange={e => setVrTemp(e.target.value)}
+                          onBlur={() => confirmEditVr(`${u}_est`)}
+                          onKeyDown={e => { if (e.key === "Enter") confirmEditVr(`${u}_est`); if (e.key === "Escape") setEditingVr(null); }}
+                          onClick={e => e.stopPropagation()}
+                        />
+                      ) : (
+                        <span className="text-base font-bold text-yellow-800 group-hover:text-yellow-900 transition-colors">{fmt(vrEstagiario[u])}</span>
+                      )}
+                      <span className="text-xs text-yellow-600">por dia</span>
+                      <span className="text-xs mt-1 font-medium text-yellow-700">{dias} dias úteis</span>
+                    </div>
                   )}
-                  <span className="text-xs text-gray-400">por dia</span>
-                  <span className={`text-xs mt-1 font-medium ${cfg.totalCls}`}>{dias} dias úteis</span>
                 </div>
               );
             })}
@@ -392,6 +548,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
           onToggle={(id) => toggleUnidade(u, id)}
           diasUteis={getDias(u)}
           vrDiario={vrDiario[u]}
+          vrEstagiario={vrEstagiario[u]}
           ferias={ferias}
           onFeriasChange={handleFeriasChange}
           ano={ano}

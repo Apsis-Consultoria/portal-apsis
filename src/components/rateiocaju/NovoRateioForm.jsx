@@ -245,22 +245,9 @@ export default function NovoRateioForm({ onCancel, onSaved }) {
       ))}
 
       {/* Total geral */}
-      <div className="bg-[#1A4731]/5 border border-[#1A4731]/20 rounded-xl p-5">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-semibold text-[#1A4731]">Total Geral</span>
-          <span className="text-xl font-bold text-[#1A4731]">{fmt(totalGeral)}</span>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {UNIDADES.map(u => {
-            const cfg = UNIDADE_CONFIG[u];
-            return (
-              <div key={u} className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-gray-100">
-                <Badge className={`${cfg.badgeCls} text-xs`}>{u}</Badge>
-                <span className={`text-sm font-bold ${cfg.totalCls}`}>{fmt(totais[u])}</span>
-              </div>
-            );
-          })}
-        </div>
+      <div className="bg-[#1A4731]/5 border border-[#1A4731]/20 rounded-xl p-4 flex items-center justify-end">
+        <span className="text-sm font-semibold text-[#1A4731] mr-4">Total Geral</span>
+        <span className="text-xl font-bold text-[#1A4731]">{fmt(totalGeral)}</span>
       </div>
 
       {/* Botões rodapé */}

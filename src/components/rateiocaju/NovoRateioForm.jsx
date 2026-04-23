@@ -24,11 +24,17 @@ const UNIDADE_CONFIG = {
 
 const UNIDADES = ["RJ", "SP", "Carbon", "REDD"];
 
-function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUteis, vrDiario }) {
+function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUteis, vrDiario, ferias, onFeriasChange }) {
   const cfg = UNIDADE_CONFIG[unidade];
+
+  const getDiasColaborador = (id) => {
+    const f = ferias[id] || 0;
+    return Math.max(0, diasUteis - f);
+  };
+
   const total = colaboradores
     .filter(c => selecionados.includes(c.id))
-    .reduce((acc, c) => acc + (vrDiario * diasUteis), 0);
+    .reduce((acc, c) => acc + vrDiario * getDiasColaborador(c.id), 0);
 
   return (
     <div className={`bg-white border ${cfg.borderCls} rounded-xl p-5`}>
@@ -46,19 +52,46 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
         {colaboradores.length === 0 && (
           <p className="text-xs text-gray-400 text-center py-4">Nenhum colaborador cadastrado</p>
         )}
-        {colaboradores.map(c => (
-          <label key={c.id} className={`flex items-center gap-3 cursor-pointer p-2.5 rounded-lg ${cfg.hoverCls} transition`}>
-            <input
-              type="checkbox"
-              checked={selecionados.includes(c.id)}
-              onChange={() => onToggle(c.id)}
-              className="w-4 h-4"
-            />
-            <span className="text-sm flex-1 text-gray-800">{c.nome}</span>
-            {c.area && <span className="text-xs text-gray-400">{c.area}</span>}
-            <span className="text-sm font-medium text-gray-600">{fmt(vrDiario * diasUteis)}</span>
-          </label>
-        ))}
+        {colaboradores.map(c => {
+          const diasFerias = ferias[c.id] || 0;
+          const diasEfetivos = getDiasColaborador(c.id);
+          const valor = vrDiario * diasEfetivos;
+          const selecionado = selecionados.includes(c.id);
+          return (
+            <div key={c.id} className={`flex items-center gap-3 p-2.5 rounded-lg ${cfg.hoverCls} transition`}>
+              <input
+                type="checkbox"
+                checked={selecionado}
+                onChange={() => onToggle(c.id)}
+                className="w-4 h-4 cursor-pointer flex-shrink-0"
+              />
+              <span className="text-sm flex-1 text-gray-800 cursor-pointer" onClick={() => onToggle(c.id)}>{c.nome}</span>
+              {c.area && <span className="text-xs text-gray-400">{c.area}</span>}
+              {/* Campo de dias de férias */}
+              <div className="flex items-center gap-1" title="Dias de férias no mês">
+                <span className="text-xs text-gray-400">Férias:</span>
+                <input
+                  type="number"
+                  min="0"
+                  max={diasUteis}
+                  value={diasFerias || ""}
+                  placeholder="0"
+                  onClick={e => e.stopPropagation()}
+                  onChange={e => {
+                    const v = parseInt(e.target.value) || 0;
+                    onFeriasChange(c.id, Math.min(v, diasUteis));
+                  }}
+                  className="w-12 text-center text-xs border border-gray-200 rounded px-1 py-0.5 focus:outline-none focus:border-orange-400"
+                />
+                <span className="text-xs text-gray-400">dias</span>
+              </div>
+              {diasFerias > 0 && (
+                <span className="text-xs text-orange-500">{diasEfetivos}d</span>
+              )}
+              <span className="text-sm font-medium text-gray-600 w-20 text-right">{fmt(valor)}</span>
+            </div>
+          );
+        })}
       </div>
       <div className={`border-t pt-3 flex justify-between items-center`} style={{ borderColor: "inherit" }}>
         <span className="text-xs text-gray-500">
@@ -82,6 +115,11 @@ export default function NovoRateioForm({ onCancel, onSaved }) {
   const [vrDiario, setVrDiario] = useState({ ...VR_DIARIO_DEFAULT });
   const [editingVr, setEditingVr] = useState(null); // unidade sendo editada
   const [vrTemp, setVrTemp] = useState("");
+  const [ferias, setFerias] = useState({}); // { colaboradorId: diasFerias }
+
+  const handleFeriasChange = (id, dias) => {
+    setFerias(prev => ({ ...prev, [id]: dias }));
+  };
 
   const [ano, mes] = mesRef.split("-").map(Number);
   const diasUteisSP = getDiasUteisParaMes(ano, mes, "SP");
@@ -124,7 +162,11 @@ export default function NovoRateioForm({ onCancel, onSaved }) {
     const dias = getDias(unidade);
     return getColabs(unidade)
       .filter(c => selecionados[unidade].includes(c.id))
-      .reduce((acc) => acc + vrDiario * dias, 0);
+      .reduce((acc, c) => {
+        const diasFerias = ferias[c.id] || 0;
+        const diasEfetivos = Math.max(0, dias - diasFerias);
+        return acc + vrDiario[unidade] * diasEfetivos;
+      }, 0);
   };
 
   const totais = Object.fromEntries(UNIDADES.map(u => [u, calcTotal(u)]));
@@ -137,7 +179,11 @@ export default function NovoRateioForm({ onCancel, onSaved }) {
       const dias = getDias(u);
       colabData[u] = getColabs(u)
         .filter(c => selecionados[u].includes(c.id))
-        .map(c => ({ id: c.id, nome: c.nome, valor_diario: vrDiario, total: vrDiario * dias }));
+        .map(c => {
+          const diasFerias = ferias[c.id] || 0;
+          const diasEfetivos = Math.max(0, dias - diasFerias);
+          return { id: c.id, nome: c.nome, valor_diario: vrDiario[u], dias_ferias: diasFerias, dias_efetivos: diasEfetivos, total: vrDiario[u] * diasEfetivos };
+        });
     });
 
     await base44.entities.RateioCaju.create({
@@ -240,6 +286,8 @@ export default function NovoRateioForm({ onCancel, onSaved }) {
           onToggle={(id) => toggleUnidade(u, id)}
           diasUteis={getDias(u)}
           vrDiario={vrDiario[u]}
+          ferias={ferias}
+          onFeriasChange={handleFeriasChange}
         />
       ))}
 

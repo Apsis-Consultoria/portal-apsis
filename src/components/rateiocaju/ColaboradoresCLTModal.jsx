@@ -13,7 +13,7 @@ export default function ColaboradoresCLTModal({ open, onClose }) {
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({});
   const [novoForm, setNovoForm] = useState(false);
-  const [novoData, setNovoData] = useState({ nome: "", unidade: "SP", valor_vr_diario: "" });
+  const [novoData, setNovoData] = useState({ nome: "", unidade: "SP" });
 
   useEffect(() => {
     if (open) fetchColaboradores();
@@ -27,26 +27,20 @@ export default function ColaboradoresCLTModal({ open, onClose }) {
   };
 
   const handleSaveNovo = async () => {
-    if (!novoData.nome || !novoData.unidade || !novoData.valor_vr_diario) return;
-    await base44.entities.ColaboradorCLT.create({
-      ...novoData,
-      valor_vr_diario: parseFloat(novoData.valor_vr_diario),
-    });
+    if (!novoData.nome || !novoData.unidade) return;
+    await base44.entities.ColaboradorCLT.create({ ...novoData });
     setNovoForm(false);
-    setNovoData({ nome: "", unidade: "SP", valor_vr_diario: "" });
+    setNovoData({ nome: "", unidade: "SP" });
     fetchColaboradores();
   };
 
   const handleEdit = (c) => {
     setEditingId(c.id);
-    setEditData({ nome: c.nome, unidade: c.unidade, valor_vr_diario: c.valor_vr_diario });
+    setEditData({ nome: c.nome, unidade: c.unidade });
   };
 
   const handleSaveEdit = async (id) => {
-    await base44.entities.ColaboradorCLT.update(id, {
-      ...editData,
-      valor_vr_diario: parseFloat(editData.valor_vr_diario),
-    });
+    await base44.entities.ColaboradorCLT.update(id, { ...editData });
     setEditingId(null);
     fetchColaboradores();
   };
@@ -79,7 +73,7 @@ export default function ColaboradoresCLTModal({ open, onClose }) {
               <Input value={novoData.nome} onChange={e => setNovoData({ ...novoData, nome: e.target.value })} placeholder="Nome completo" className="h-8 text-sm" />
             </div>
             <div className="w-24">
-              <label className="text-xs text-gray-500 mb-1 block">Unidade</label>
+              <label className="text-xs text-gray-500 mb-1 block">Área</label>
               <Select value={novoData.unidade} onValueChange={v => setNovoData({ ...novoData, unidade: v })}>
                 <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -87,10 +81,6 @@ export default function ColaboradoresCLTModal({ open, onClose }) {
                   <SelectItem value="RJ">RJ</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div className="w-32">
-              <label className="text-xs text-gray-500 mb-1 block">VR/dia (R$)</label>
-              <Input type="number" value={novoData.valor_vr_diario} onChange={e => setNovoData({ ...novoData, valor_vr_diario: e.target.value })} placeholder="0,00" className="h-8 text-sm" />
             </div>
             <Button size="sm" onClick={handleSaveNovo} className="bg-green-600 hover:bg-green-700 h-8"><Check size={14} /></Button>
             <Button size="sm" variant="outline" onClick={() => setNovoForm(false)} className="h-8"><X size={14} /></Button>
@@ -109,14 +99,12 @@ export default function ColaboradoresCLTModal({ open, onClose }) {
                   {editingId === c.id ? (
                     <>
                       <Input value={editData.nome} onChange={e => setEditData({ ...editData, nome: e.target.value })} className="h-7 text-sm flex-1" />
-                      <Input type="number" value={editData.valor_vr_diario} onChange={e => setEditData({ ...editData, valor_vr_diario: e.target.value })} className="h-7 text-sm w-28" />
                       <Button size="sm" onClick={() => handleSaveEdit(c.id)} className="h-7 bg-green-600 hover:bg-green-700"><Check size={12} /></Button>
                       <Button size="sm" variant="outline" onClick={() => setEditingId(null)} className="h-7"><X size={12} /></Button>
                     </>
                   ) : (
                     <>
                       <span className="flex-1 text-sm text-gray-800">{c.nome}</span>
-                      <span className="text-sm text-gray-500 w-28 text-right">R$ {Number(c.valor_vr_diario).toFixed(2)}/dia</span>
                       <Button size="sm" variant="ghost" onClick={() => handleEdit(c)} className="h-7 w-7 p-0"><Pencil size={12} /></Button>
                       <Button size="sm" variant="ghost" onClick={() => handleDelete(c.id)} className="h-7 w-7 p-0 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
                     </>

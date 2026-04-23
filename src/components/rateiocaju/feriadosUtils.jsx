@@ -96,6 +96,41 @@ export function calcularDiasUteis(ano, mes, estado) {
   return diasUteis;
 }
 
+/**
+ * Calcula quantos dias úteis de um intervalo (início-fim) caem dentro de um mês específico
+ * @param {string} inicio - "YYYY-MM-DD"
+ * @param {string} fim - "YYYY-MM-DD"
+ * @param {number} ano
+ * @param {number} mes - 1 a 12
+ * @param {"SP"|"RJ"} estado
+ */
+export function getDiasUteisNoIntervalo(inicio, fim, ano, mes, estado = "RJ") {
+  if (!inicio || !fim) return 0;
+  const feriadosFixos = estado === "SP" ? FERIADOS_SP : FERIADOS_RJ;
+  const feriadosMoveis = getFeriadosMoveis(ano).map(toMMDD);
+  const todosFeriados = new Set([...feriadosFixos, ...feriadosMoveis]);
+
+  const dataInicio = new Date(inicio + "T00:00:00");
+  const dataFim = new Date(fim + "T00:00:00");
+  const primeiroDia = new Date(ano, mes - 1, 1);
+  const ultimoDia = new Date(ano, mes, 0);
+
+  const start = dataInicio < primeiroDia ? primeiroDia : dataInicio;
+  const end = dataFim > ultimoDia ? ultimoDia : dataFim;
+
+  let count = 0;
+  const cur = new Date(start);
+  while (cur <= end) {
+    const diaSemana = cur.getDay();
+    if (diaSemana !== 0 && diaSemana !== 6) {
+      const mmdd = toMMDD(cur);
+      if (!todosFeriados.has(mmdd)) count++;
+    }
+    cur.setDate(cur.getDate() + 1);
+  }
+  return count;
+}
+
 export function formatMes(mesRef) {
   if (!mesRef) return "";
   const [ano, mes] = mesRef.split("-");

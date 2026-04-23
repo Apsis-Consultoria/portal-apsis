@@ -34,6 +34,8 @@ export default function RateioCaju() {
 
   const totalSP = colaboradores.filter(c => c.unidade === "SP").length;
   const totalRJ = colaboradores.filter(c => c.unidade === "RJ").length;
+  const totalCarbon = colaboradores.filter(c => c.unidade === "Carbon").length;
+  const totalREDD = colaboradores.filter(c => c.unidade === "REDD").length;
   const totalCLT = colaboradores.length;
   const valoresMensais = rateios.map(r => r.total_geral || 0);
   const mediaMensal = valoresMensais.length > 0 ? valoresMensais.reduce((a, b) => a + b, 0) / valoresMensais.length : 0;
@@ -117,7 +119,7 @@ export default function RateioCaju() {
             </div>
             <span className="text-xs text-gray-500 font-medium">Por Unidade</span>
           </div>
-          <div className="flex gap-3 mt-1">
+          <div className="flex gap-3 mt-1 flex-wrap">
             <div>
               <p className="text-lg font-bold text-blue-700">{totalSP}</p>
               <p className="text-xs text-gray-400">SP</p>
@@ -126,6 +128,16 @@ export default function RateioCaju() {
             <div>
               <p className="text-lg font-bold text-green-700">{totalRJ}</p>
               <p className="text-xs text-gray-400">RJ</p>
+            </div>
+            <div className="w-px bg-gray-200" />
+            <div>
+              <p className="text-lg font-bold text-emerald-700">{totalCarbon}</p>
+              <p className="text-xs text-gray-400">Carbon</p>
+            </div>
+            <div className="w-px bg-gray-200" />
+            <div>
+              <p className="text-lg font-bold text-purple-700">{totalREDD}</p>
+              <p className="text-xs text-gray-400">REDD</p>
             </div>
           </div>
         </div>

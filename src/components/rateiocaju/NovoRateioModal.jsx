@@ -3,7 +3,8 @@ import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { calcularDiasUteis, formatMes } from "./feriadosUtils";
+import { formatMes } from "./feriadosUtils";
+import { getDiasUteisParaMes } from "./FeriadosModal";
 import { CalendarDays, Users, Check } from "lucide-react";
 
 export default function NovoRateioModal({ open, onClose, onSaved }) {
@@ -17,8 +18,8 @@ export default function NovoRateioModal({ open, onClose, onSaved }) {
   const [saving, setSaving] = useState(false);
 
   const [ano, mes] = mesRef.split("-").map(Number);
-  const diasUteisSP = calcularDiasUteis(ano, mes, "SP");
-  const diasUteisRJ = calcularDiasUteis(ano, mes, "RJ");
+  const diasUteisSP = getDiasUteisParaMes(ano, mes, "SP");
+  const diasUteisRJ = getDiasUteisParaMes(ano, mes, "RJ");
 
   useEffect(() => {
     if (open) {

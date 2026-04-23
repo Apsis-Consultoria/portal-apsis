@@ -8,15 +8,15 @@
     },
     "unidade": {
       "type": "string",
-      "description": "Unidade/departamento do colaborador (ex: Cont\u00e1bil, RH)"
-    },
-    "estado": {
-      "type": "string",
       "enum": [
         "SP",
         "RJ"
       ],
-      "description": "Estado/filial do colaborador"
+      "description": "Unidade do colaborador (SP ou RJ)"
+    },
+    "area": {
+      "type": "string",
+      "description": "\u00c1rea do colaborador (ex: Cont\u00e1bil, RH)"
     },
     "valor_vr_diario": {
       "type": "number",
@@ -30,6 +30,6 @@
   },
   "required": [
     "nome",
-    "estado"
+    "unidade"
   ]
 }

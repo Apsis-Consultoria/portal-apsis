@@ -213,6 +213,13 @@ export default function FeriadosModal({ open, onClose }) {
         <p className="text-xs text-amber-600 mt-1">
           ⚠ Linhas em amarelo indicam meses com quantidade diferente. Valores editados ficam com borda colorida.
         </p>
+
+        <div className="flex justify-end gap-2 mt-2">
+          <Button variant="outline" onClick={onClose}>Fechar sem salvar</Button>
+          <Button onClick={() => { saveOverrides(overrides); onClose(); }} className="bg-[#1A4731] hover:bg-[#1A4731]/90">
+            Salvar alterações
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

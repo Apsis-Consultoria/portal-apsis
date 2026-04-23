@@ -27,6 +27,7 @@ const FERIADOS_SP = [
 const FERIADOS_RJ = [
   ...FERIADOS_NACIONAIS,
   "01-20", // São Sebastião (padroeiro do RJ)
+  "04-23", // São Jorge (feriado municipal RJ)
   "11-20", // Consciência Negra (feriado municipal RJ)
 ];
 

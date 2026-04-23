@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Users, Plus, Settings, TrendingUp, MapPin, CalendarDays, ChevronRight } from "lucide-react";
 
 import ColaboradoresCLTModal from "@/components/rateiocaju/ColaboradoresCLTModal";
-import NovoRateioModal from "@/components/rateiocaju/NovoRateioModal";
+import NovoRateioForm from "@/components/rateiocaju/NovoRateioForm";
 import FeriadosModal from "@/components/rateiocaju/FeriadosModal";
 import { formatMes } from "@/components/rateiocaju/feriadosUtils";
 
@@ -16,8 +16,8 @@ export default function RateioCaju() {
   const [colaboradores, setColaboradores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCLTModal, setShowCLTModal] = useState(false);
-  const [showNovoRateio, setShowNovoRateio] = useState(false);
   const [showFeriados, setShowFeriados] = useState(false);
+  const [criandoRateio, setCriandoRateio] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -32,19 +32,24 @@ export default function RateioCaju() {
 
   useEffect(() => { fetchData(); }, []);
 
-  // Métricas do dashboard
   const totalSP = colaboradores.filter(c => c.unidade === "SP").length;
   const totalRJ = colaboradores.filter(c => c.unidade === "RJ").length;
   const totalCLT = colaboradores.length;
-
   const valoresMensais = rateios.map(r => r.total_geral || 0);
   const mediaMensal = valoresMensais.length > 0 ? valoresMensais.reduce((a, b) => a + b, 0) / valoresMensais.length : 0;
-
   const vrPorPessoa = colaboradores.length > 0
     ? colaboradores.reduce((acc, c) => acc + (c.valor_vr_diario || 0), 0) / colaboradores.length
     : 0;
 
-  const ultimoRateio = rateios[0];
+  // Tela de criação de rateio (inline, substitui o conteúdo da página)
+  if (criandoRateio) {
+    return (
+      <NovoRateioForm
+        onCancel={() => setCriandoRateio(false)}
+        onSaved={() => { setCriandoRateio(false); fetchData(); }}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -63,7 +68,7 @@ export default function RateioCaju() {
             <Settings size={15} />
             Gerenciar Colaboradores CLT
           </Button>
-          <Button onClick={() => setShowNovoRateio(true)} className="bg-[#1A4731] hover:bg-[#1A4731]/90 gap-2 text-sm">
+          <Button onClick={() => setCriandoRateio(true)} className="bg-[#1A4731] hover:bg-[#1A4731]/90 gap-2 text-sm">
             <Plus size={15} />
             Novo Rateio
           </Button>
@@ -172,7 +177,6 @@ export default function RateioCaju() {
 
       {/* Modais */}
       <ColaboradoresCLTModal open={showCLTModal} onClose={() => setShowCLTModal(false)} />
-      <NovoRateioModal open={showNovoRateio} onClose={() => setShowNovoRateio(false)} onSaved={fetchData} />
       <FeriadosModal open={showFeriados} onClose={() => setShowFeriados(false)} />
     </div>
   );

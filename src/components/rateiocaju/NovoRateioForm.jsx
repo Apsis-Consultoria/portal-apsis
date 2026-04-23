@@ -68,31 +68,42 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
           const periodos = ferias[c.id] || [];
 
           return (
-            <div key={c.id} className={`flex items-center gap-3 p-2.5 rounded-lg ${cfg.hoverCls} transition`}>
-              <input
-                type="checkbox"
-                checked={selecionado}
-                onChange={() => onToggle(c.id)}
-                className="w-4 h-4 cursor-pointer flex-shrink-0"
-              />
-              <span className="text-sm flex-1 text-gray-800 cursor-pointer" onClick={() => onToggle(c.id)}>
-                {c.nome}
-              </span>
-              {/* Indicador de férias (se houver) */}
-              {diasFerias > 0 && (
-                <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 border border-orange-100 rounded-full px-2 py-0.5">
-                  <CalendarDays size={11} />
-                  {diasFerias}d férias → {diasEfetivos}d úteis
+            <div key={c.id} className={`p-2.5 rounded-lg ${cfg.hoverCls} transition`}>
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={selecionado}
+                  onChange={() => onToggle(c.id)}
+                  className="w-4 h-4 cursor-pointer flex-shrink-0"
+                />
+                <span className="text-sm flex-1 text-gray-800 cursor-pointer" onClick={() => onToggle(c.id)}>
+                  {c.nome}
                 </span>
+                {c.area && <span className="text-xs text-gray-400">{c.area}</span>}
+                {diasFerias > 0 && (
+                  <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 border border-orange-100 rounded-full px-2 py-0.5">
+                    <CalendarDays size={11} />
+                    {diasFerias}d férias → {diasEfetivos}d úteis
+                  </span>
+                )}
+                <span className="text-sm font-medium text-gray-700 w-20 text-right">{fmt(valor)}</span>
+              </div>
+              {/* Períodos de férias abaixo do nome */}
+              {periodos.length > 0 && (
+                <div className="ml-7 mt-1.5 flex flex-wrap gap-1.5">
+                  {periodos.map((p, idx) => (
+                    <span key={idx} className="flex items-center gap-1 text-xs text-orange-600 bg-orange-50 border border-orange-100 rounded-md px-2 py-0.5">
+                      <CalendarDays size={10} />
+                      {p.inicio} → {p.fim}
+                    </span>
+                  ))}
+                </div>
               )}
-              {/* Área à direita */}
-              {c.area && <span className="text-xs text-gray-400">{c.area}</span>}
-              <span className="text-sm font-medium text-gray-700 w-20 text-right">{fmt(valor)}</span>
             </div>
           );
         })}
       </div>
-      <div className="border-t pt-3 flex justify-between items-center">
+      <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
         <span className="text-xs text-gray-500">
           {selecionados.length} de {colaboradores.length} selecionados
         </span>

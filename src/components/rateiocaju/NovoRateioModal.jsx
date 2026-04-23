@@ -24,8 +24,8 @@ export default function NovoRateioModal({ open, onClose, onSaved }) {
     if (open) {
       base44.entities.ColaboradorCLT.list().then(data => {
         setColaboradores(data.filter(c => c.ativo !== false));
-        setSelecionadosSP(data.filter(c => c.unidade === "SP").map(c => c.id));
-        setSelecionadosRJ(data.filter(c => c.unidade === "RJ").map(c => c.id));
+        setSelecionadosSP(data.filter(c => (c.estado || c.unidade) === "SP").map(c => c.id));
+        setSelecionadosRJ(data.filter(c => (c.estado || c.unidade) === "RJ").map(c => c.id));
       });
     }
   }, [open]);
@@ -33,8 +33,8 @@ export default function NovoRateioModal({ open, onClose, onSaved }) {
   const toggleSP = (id) => setSelecionadosSP(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   const toggleRJ = (id) => setSelecionadosRJ(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
-  const colSP = colaboradores.filter(c => c.unidade === "SP");
-  const colRJ = colaboradores.filter(c => c.unidade === "RJ");
+  const colSP = colaboradores.filter(c => (c.estado || c.unidade) === "SP");
+  const colRJ = colaboradores.filter(c => (c.estado || c.unidade) === "RJ");
 
   const totalSP = colSP.filter(c => selecionadosSP.includes(c.id)).reduce((acc, c) => acc + (c.valor_vr_diario * diasUteisSP), 0);
   const totalRJ = colRJ.filter(c => selecionadosRJ.includes(c.id)).reduce((acc, c) => acc + (c.valor_vr_diario * diasUteisRJ), 0);

@@ -3,8 +3,10 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Users, Plus, Settings, TrendingUp, MapPin, CalendarDays, ChevronRight } from "lucide-react";
+
 import ColaboradoresCLTModal from "@/components/rateiocaju/ColaboradoresCLTModal";
 import NovoRateioModal from "@/components/rateiocaju/NovoRateioModal";
+import FeriadosModal from "@/components/rateiocaju/FeriadosModal";
 import { formatMes } from "@/components/rateiocaju/feriadosUtils";
 
 const fmt = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -15,6 +17,7 @@ export default function RateioCaju() {
   const [loading, setLoading] = useState(true);
   const [showCLTModal, setShowCLTModal] = useState(false);
   const [showNovoRateio, setShowNovoRateio] = useState(false);
+  const [showFeriados, setShowFeriados] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -52,6 +55,10 @@ export default function RateioCaju() {
           <p className="text-sm text-gray-500 mt-0.5">Distribuição de VR por unidade e mês de referência</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowFeriados(true)} className="gap-2 text-sm">
+            <CalendarDays size={15} />
+            Feriados SP/RJ
+          </Button>
           <Button variant="outline" onClick={() => setShowCLTModal(true)} className="gap-2 text-sm">
             <Settings size={15} />
             Gerenciar Colaboradores CLT
@@ -166,6 +173,7 @@ export default function RateioCaju() {
       {/* Modais */}
       <ColaboradoresCLTModal open={showCLTModal} onClose={() => setShowCLTModal(false)} />
       <NovoRateioModal open={showNovoRateio} onClose={() => setShowNovoRateio(false)} onSaved={fetchData} />
+      <FeriadosModal open={showFeriados} onClose={() => setShowFeriados(false)} />
     </div>
   );
 }

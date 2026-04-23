@@ -480,7 +480,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
               const dias = getDias(u);
               const temEst = u === "RJ" || u === "SP";
               return (
-                <div key={u} className="flex flex-col gap-1">
+                <div key={u} className="flex flex-row gap-1">
                   {/* Card CLT */}
                   <div className={`flex flex-col items-center px-4 py-2 rounded-xl border ${cfg.borderCls} bg-white min-w-[90px] cursor-pointer group`}
                     onClick={() => editingVr !== u && startEditVr(u)}

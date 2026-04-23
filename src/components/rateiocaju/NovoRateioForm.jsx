@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,8 +8,8 @@ import { CalendarDays, ArrowLeft } from "lucide-react";
 
 const fmt = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-// Valor VR diário fixo por unidade
-const VR_DIARIO = { RJ: 29.0, SP: 31.5, Carbon: 29.0, REDD: 29.0 };
+// Valor VR diário padrão por unidade
+const VR_DIARIO_DEFAULT = { RJ: 29.0, SP: 31.5, Carbon: 29.0, REDD: 29.0 };
 
 // Unidades que usam dias úteis de RJ
 const USA_DIAS_RJ = ["RJ", "Carbon", "REDD"];
@@ -24,9 +24,8 @@ const UNIDADE_CONFIG = {
 
 const UNIDADES = ["RJ", "SP", "Carbon", "REDD"];
 
-function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUteis }) {
+function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUteis, vrDiario }) {
   const cfg = UNIDADE_CONFIG[unidade];
-  const vrDiario = VR_DIARIO[unidade];
   const total = colaboradores
     .filter(c => selecionados.includes(c.id))
     .reduce((acc, c) => acc + (vrDiario * diasUteis), 0);
@@ -81,11 +80,22 @@ export default function NovoRateioForm({ onCancel, onSaved }) {
   const [selecionados, setSelecionados] = useState({ RJ: [], SP: [], Carbon: [], REDD: [] });
   const [saving, setSaving] = useState(false);
 
+  const [vrDiario, setVrDiario] = useState({ ...VR_DIARIO_DEFAULT });
+  const [editingVr, setEditingVr] = useState(null); // unidade sendo editada
+  const [vrTemp, setVrTemp] = useState("");
+
   const [ano, mes] = mesRef.split("-").map(Number);
   const diasUteisSP = getDiasUteisParaMes(ano, mes, "SP");
   const diasUteisRJ = getDiasUteisParaMes(ano, mes, "RJ");
 
   const getDias = (unidade) => USA_DIAS_RJ.includes(unidade) ? diasUteisRJ : diasUteisSP;
+
+  const startEditVr = (u) => { setEditingVr(u); setVrTemp(String(vrDiario[u])); };
+  const confirmEditVr = (u) => {
+    const val = parseFloat(vrTemp.replace(",", "."));
+    if (!isNaN(val) && val >= 0) setVrDiario(prev => ({ ...prev, [u]: val }));
+    setEditingVr(null);
+  };
 
   useEffect(() => {
     base44.entities.ColaboradorCLT.list().then(data => {
@@ -112,7 +122,6 @@ export default function NovoRateioForm({ onCancel, onSaved }) {
   const getColabs = (unidade) => colaboradores.filter(c => c.unidade === unidade);
 
   const calcTotal = (unidade) => {
-    const vrDiario = VR_DIARIO[unidade];
     const dias = getDias(unidade);
     return getColabs(unidade)
       .filter(c => selecionados[unidade].includes(c.id))
@@ -126,7 +135,6 @@ export default function NovoRateioForm({ onCancel, onSaved }) {
     setSaving(true);
     const colabData = {};
     UNIDADES.forEach(u => {
-      const vrDiario = VR_DIARIO[u];
       const dias = getDias(u);
       colabData[u] = getColabs(u)
         .filter(c => selecionados[u].includes(c.id))
@@ -196,9 +204,24 @@ export default function NovoRateioForm({ onCancel, onSaved }) {
               const cfg = UNIDADE_CONFIG[u];
               const dias = getDias(u);
               return (
-                <div key={u} className={`flex flex-col items-center px-4 py-2 rounded-xl border ${cfg.borderCls} bg-white min-w-[90px]`}>
+                <div key={u} className={`flex flex-col items-center px-4 py-2 rounded-xl border ${cfg.borderCls} bg-white min-w-[90px] cursor-pointer group`}
+                  onClick={() => editingVr !== u && startEditVr(u)}
+                  title="Clique para editar o valor diário"
+                >
                   <Badge className={`${cfg.badgeCls} text-xs font-bold mb-1`}>{u}</Badge>
-                  <span className="text-base font-bold text-gray-800">{fmt(VR_DIARIO[u])}</span>
+                  {editingVr === u ? (
+                    <input
+                      autoFocus
+                      className="w-20 text-center text-base font-bold border border-gray-300 rounded px-1 py-0.5 focus:outline-none focus:border-[#1A4731]"
+                      value={vrTemp}
+                      onChange={e => setVrTemp(e.target.value)}
+                      onBlur={() => confirmEditVr(u)}
+                      onKeyDown={e => { if (e.key === "Enter") confirmEditVr(u); if (e.key === "Escape") setEditingVr(null); }}
+                      onClick={e => e.stopPropagation()}
+                    />
+                  ) : (
+                    <span className="text-base font-bold text-gray-800 group-hover:text-[#1A4731] transition-colors">{fmt(vrDiario[u])}</span>
+                  )}
                   <span className="text-xs text-gray-400">por dia</span>
                   <span className={`text-xs mt-1 font-medium ${cfg.totalCls}`}>{dias} dias úteis</span>
                 </div>
@@ -217,6 +240,7 @@ export default function NovoRateioForm({ onCancel, onSaved }) {
           selecionados={selecionados[u]}
           onToggle={(id) => toggleUnidade(u, id)}
           diasUteis={getDias(u)}
+          vrDiario={vrDiario[u]}
         />
       ))}
 

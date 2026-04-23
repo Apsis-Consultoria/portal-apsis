@@ -7,9 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Trash2, Plus, Pencil, Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-const emptyNovo = { nome: "", unidade: "RJ", area: "" };
-
 const UNIDADES = ["Carbon", "REDD", "RJ", "SP"];
+
+const emptyNovo = { nome: "", unidade: "RJ", area: "" };
 const BADGE_CLS = {
   RJ: "bg-green-100 text-green-800",
   SP: "bg-blue-100 text-blue-800",

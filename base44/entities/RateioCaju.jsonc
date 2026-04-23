@@ -18,19 +18,35 @@
       "type": "number",
       "default": 0
     },
+    "colaboradores_rj": {
+      "type": "string",
+      "description": "JSON array com colaboradores RJ e valores"
+    },
     "colaboradores_sp": {
       "type": "string",
       "description": "JSON array com colaboradores SP e valores"
     },
-    "colaboradores_rj": {
+    "colaboradores_carbon": {
       "type": "string",
-      "description": "JSON array com colaboradores RJ e valores"
+      "description": "JSON array com colaboradores Carbon e valores"
+    },
+    "colaboradores_redd": {
+      "type": "string",
+      "description": "JSON array com colaboradores REDD e valores"
+    },
+    "total_rj": {
+      "type": "number",
+      "default": 0
     },
     "total_sp": {
       "type": "number",
       "default": 0
     },
-    "total_rj": {
+    "total_carbon": {
+      "type": "number",
+      "default": 0
+    },
+    "total_redd": {
       "type": "number",
       "default": 0
     },

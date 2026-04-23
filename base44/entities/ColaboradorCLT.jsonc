@@ -9,10 +9,12 @@
     "unidade": {
       "type": "string",
       "enum": [
-        "SP",
-        "RJ"
+        "Carbon",
+        "REDD",
+        "RJ",
+        "SP"
       ],
-      "description": "Unidade do colaborador (SP ou RJ)"
+      "description": "Unidade do colaborador"
     },
     "area": {
       "type": "string",
@@ -21,7 +23,7 @@
     "valor_vr_diario": {
       "type": "number",
       "default": 0,
-      "description": "Valor do VR por dia \u00fatil"
+      "description": "Valor do VR por dia \u00fatil (refer\u00eancia legacy, valor real \u00e9 fixo por unidade)"
     },
     "ativo": {
       "type": "boolean",

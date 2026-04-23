@@ -7,7 +7,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Trash2, Plus, Pencil, Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-const emptyNovo = { nome: "", unidade: "SP", area: "" };
+const emptyNovo = { nome: "", unidade: "RJ", area: "" };
+
+const UNIDADES = ["Carbon", "REDD", "RJ", "SP"];
+const BADGE_CLS = {
+  RJ: "bg-green-100 text-green-800",
+  SP: "bg-blue-100 text-blue-800",
+  Carbon: "bg-teal-100 text-teal-800",
+  REDD: "bg-purple-100 text-purple-800",
+};
 
 export default function ColaboradoresCLTModal({ open, onClose }) {
   const [colaboradores, setColaboradores] = useState([]);
@@ -52,8 +60,7 @@ export default function ColaboradoresCLTModal({ open, onClose }) {
     fetchColaboradores();
   };
 
-  const colSP = colaboradores.filter(c => c.unidade === "SP");
-  const colRJ = colaboradores.filter(c => c.unidade === "RJ");
+  const getColabs = (u) => colaboradores.filter(c => c.unidade === u);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -79,8 +86,7 @@ export default function ColaboradoresCLTModal({ open, onClose }) {
               <Select value={novoData.unidade} onValueChange={v => setNovoData({ ...novoData, unidade: v })}>
                 <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="SP">SP</SelectItem>
-                  <SelectItem value="RJ">RJ</SelectItem>
+                  {UNIDADES.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -93,12 +99,12 @@ export default function ColaboradoresCLTModal({ open, onClose }) {
           </div>
         )}
 
-        {["SP", "RJ"].map(unidade => {
-          const lista = unidade === "SP" ? colSP : colRJ;
+        {UNIDADES.map(unidade => {
+          const lista = getColabs(unidade);
           return (
             <div key={unidade} className="mb-6">
               <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                <Badge className={unidade === "SP" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"}>{unidade}</Badge>
+                <Badge className={BADGE_CLS[unidade]}>{unidade}</Badge>
                 {lista.length} colaboradores
               </h4>
               <div className="space-y-2">
@@ -108,10 +114,9 @@ export default function ColaboradoresCLTModal({ open, onClose }) {
                       <>
                         <Input value={editData.nome} onChange={e => setEditData({ ...editData, nome: e.target.value })} placeholder="Nome" className="h-7 text-sm flex-1" />
                         <Select value={editData.unidade} onValueChange={v => setEditData({ ...editData, unidade: v })}>
-                          <SelectTrigger className="h-7 text-sm w-20"><SelectValue /></SelectTrigger>
+                          <SelectTrigger className="h-7 text-sm w-28"><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="SP">SP</SelectItem>
-                            <SelectItem value="RJ">RJ</SelectItem>
+                            {UNIDADES.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
                           </SelectContent>
                         </Select>
                         <Input value={editData.area} onChange={e => setEditData({ ...editData, area: e.target.value })} placeholder="Área" className="h-7 text-sm w-32" />

@@ -31,7 +31,100 @@ function calcDiasFeriasMes(colaboradorId, ferias, ano, mes, estado) {
   return periodos.reduce((acc, p) => acc + getDiasUteisNoIntervalo(p.inicio, p.fim, ano, mes, estado), 0);
 }
 
-function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUteis, vrDiario, ferias, ano, mes }) {
+function ColaboradorRow({ c, cfg, selecionado, onToggle, diasFerias, diasEfetivos, valor, periodos, onAddFerias, onRemoveFerias }) {
+  const [novoInicio, setNovoInicio] = useState("");
+  const [novoFim, setNovoFim] = useState("");
+  const [adicionando, setAdicionando] = useState(false);
+
+  const handleAdd = () => {
+    if (!novoInicio || !novoFim || novoFim < novoInicio) return;
+    onAddFerias(c.id, { inicio: novoInicio, fim: novoFim });
+    setNovoInicio("");
+    setNovoFim("");
+    setAdicionando(false);
+  };
+
+  return (
+    <div className={`p-2.5 rounded-lg ${cfg.hoverCls} transition`}>
+      {/* Linha principal */}
+      <div className="flex items-center gap-3">
+        <input
+          type="checkbox"
+          checked={selecionado}
+          onChange={() => onToggle(c.id)}
+          className="w-4 h-4 cursor-pointer flex-shrink-0"
+        />
+        <span className="text-sm flex-1 text-gray-800 cursor-pointer font-medium" onClick={() => onToggle(c.id)}>
+          {c.nome}
+        </span>
+        {c.area && <span className="text-xs text-gray-400">{c.area}</span>}
+        {/* Botão para adicionar férias */}
+        <button
+          onClick={() => setAdicionando(a => !a)}
+          className="flex items-center gap-1 text-xs text-gray-400 hover:text-orange-500 transition px-1.5 py-0.5 rounded hover:bg-orange-50"
+          title="Adicionar período de férias"
+        >
+          <CalendarDays size={12} />
+          <span>férias</span>
+        </button>
+        {diasFerias > 0 && (
+          <span className="text-xs text-orange-500 font-medium">
+            -{diasFerias}d → {diasEfetivos}d úteis
+          </span>
+        )}
+        <span className="text-sm font-medium text-gray-700 w-20 text-right">{fmt(valor)}</span>
+      </div>
+
+      {/* Períodos de férias existentes */}
+      {periodos.length > 0 && (
+        <div className="ml-7 mt-1.5 flex flex-wrap gap-1.5">
+          {periodos.map((p, idx) => (
+            <span key={idx} className="flex items-center gap-1.5 text-xs text-orange-600 bg-orange-50 border border-orange-100 rounded-md px-2 py-0.5">
+              <CalendarDays size={10} />
+              {p.inicio} → {p.fim}
+              <button onClick={() => onRemoveFerias(c.id, idx)} className="ml-0.5 text-red-400 hover:text-red-600 leading-none">×</button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Formulário inline para adicionar período */}
+      {adicionando && (
+        <div className="ml-7 mt-2 flex items-center gap-2 flex-wrap">
+          <input
+            type="date"
+            value={novoInicio}
+            onChange={e => setNovoInicio(e.target.value)}
+            className="border border-orange-200 rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-orange-400"
+          />
+          <span className="text-xs text-gray-400">até</span>
+          <input
+            type="date"
+            value={novoFim}
+            min={novoInicio}
+            onChange={e => setNovoFim(e.target.value)}
+            className="border border-orange-200 rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-orange-400"
+          />
+          <button
+            onClick={handleAdd}
+            disabled={!novoInicio || !novoFim}
+            className="text-xs bg-orange-500 hover:bg-orange-600 text-white px-2.5 py-1 rounded-lg disabled:opacity-40 transition"
+          >
+            Adicionar
+          </button>
+          <button
+            onClick={() => { setAdicionando(false); setNovoInicio(""); setNovoFim(""); }}
+            className="text-xs text-gray-400 hover:text-gray-600"
+          >
+            Cancelar
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUteis, vrDiario, ferias, onFeriasChange, ano, mes }) {
   const cfg = UNIDADE_CONFIG[unidade];
   const estado = unidade === "SP" ? "SP" : "RJ";
 
@@ -43,6 +136,16 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
   const total = colaboradores
     .filter(c => selecionados.includes(c.id))
     .reduce((acc, c) => acc + vrDiario * getDiasEfetivos(c.id), 0);
+
+  const handleAddFerias = (id, periodo) => {
+    const atual = ferias[id] || [];
+    onFeriasChange(id, [...atual, periodo]);
+  };
+
+  const handleRemoveFerias = (id, idx) => {
+    const atual = ferias[id] || [];
+    onFeriasChange(id, atual.filter((_, i) => i !== idx));
+  };
 
   return (
     <div className={`bg-white border ${cfg.borderCls} rounded-xl p-5`}>
@@ -61,45 +164,22 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
           <p className="text-xs text-gray-400 text-center py-4">Nenhum colaborador cadastrado</p>
         )}
         {colaboradores.map(c => {
-          const selecionado = selecionados.includes(c.id);
           const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
           const diasEfetivos = getDiasEfetivos(c.id);
-          const valor = vrDiario * diasEfetivos;
-          const periodos = ferias[c.id] || [];
-
           return (
-            <div key={c.id} className={`p-2.5 rounded-lg ${cfg.hoverCls} transition`}>
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  checked={selecionado}
-                  onChange={() => onToggle(c.id)}
-                  className="w-4 h-4 cursor-pointer flex-shrink-0"
-                />
-                <span className="text-sm flex-1 text-gray-800 cursor-pointer" onClick={() => onToggle(c.id)}>
-                  {c.nome}
-                </span>
-                {c.area && <span className="text-xs text-gray-400">{c.area}</span>}
-                {diasFerias > 0 && (
-                  <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 border border-orange-100 rounded-full px-2 py-0.5">
-                    <CalendarDays size={11} />
-                    {diasFerias}d férias → {diasEfetivos}d úteis
-                  </span>
-                )}
-                <span className="text-sm font-medium text-gray-700 w-20 text-right">{fmt(valor)}</span>
-              </div>
-              {/* Períodos de férias abaixo do nome */}
-              {periodos.length > 0 && (
-                <div className="ml-7 mt-1.5 flex flex-wrap gap-1.5">
-                  {periodos.map((p, idx) => (
-                    <span key={idx} className="flex items-center gap-1 text-xs text-orange-600 bg-orange-50 border border-orange-100 rounded-md px-2 py-0.5">
-                      <CalendarDays size={10} />
-                      {p.inicio} → {p.fim}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
+            <ColaboradorRow
+              key={c.id}
+              c={c}
+              cfg={cfg}
+              selecionado={selecionados.includes(c.id)}
+              onToggle={onToggle}
+              diasFerias={diasFerias}
+              diasEfetivos={diasEfetivos}
+              valor={vrDiario * diasEfetivos}
+              periodos={ferias[c.id] || []}
+              onAddFerias={handleAddFerias}
+              onRemoveFerias={handleRemoveFerias}
+            />
           );
         })}
       </div>
@@ -313,6 +393,7 @@ export default function NovoRateioForm({ onCancel, onSaved }) {
           diasUteis={getDias(u)}
           vrDiario={vrDiario[u]}
           ferias={ferias}
+          onFeriasChange={handleFeriasChange}
           ano={ano}
           mes={mes}
         />

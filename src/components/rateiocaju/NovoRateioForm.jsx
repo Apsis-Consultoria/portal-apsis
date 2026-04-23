@@ -35,8 +35,7 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Badge className={`${cfg.badgeCls} text-sm font-bold px-3`}>{unidade}</Badge>
-          <span className="text-sm text-gray-600 font-medium">{cfg.label}</span>
-          <span className="text-xs text-gray-400 ml-1">— {fmt(vrDiario)}/dia</span>
+          <span className="text-xs text-gray-400 ml-1">{fmt(vrDiario)}/dia</span>
         </div>
         <div className={`flex items-center gap-1 text-xs px-3 py-1 rounded-full ${cfg.infoCls}`}>
           <CalendarDays size={12} />

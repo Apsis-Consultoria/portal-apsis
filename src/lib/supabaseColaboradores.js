@@ -1,26 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
-
-// Tenta carregar de forma fallback: primeiro VITE_, depois variáveis normais
-let supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-let supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-// Se não tiver VITE_, tenta as variáveis normais
-if (!supabaseUrl) {
-  supabaseUrl = import.meta.env.SUPABASE_URL;
-}
-if (!supabaseAnonKey) {
-  supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY;
-}
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Supabase config:', {
-    url: supabaseUrl ? 'OK' : 'MISSING',
-    key: supabaseAnonKey ? 'OK' : 'MISSING'
-  });
-  throw new Error('Supabase configuration missing. Verifique VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY nas variáveis de ambiente.');
-}
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase } from '@/lib/supabaseClient';
 
 export const colaboradoresService = {
   async list() {

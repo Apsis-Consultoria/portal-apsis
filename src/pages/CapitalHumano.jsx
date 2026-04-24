@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { colaboradoresService } from '@/lib/supabaseColaboradores';
-import { LayoutDashboard, Users, Calendar, Settings, Briefcase, ExternalLink, Search, Loader2, User, Plus, Edit2, Trash2 } from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, Settings, Briefcase, ExternalLink, Search, Loader2, User, Plus, Edit2, Trash2, Upload } from 'lucide-react';
 import ColaboradorFormModal from '@/components/capitalhumano/ColaboradorFormModal';
+import ImportarColaboradoresModal from '@/components/capitalhumano/ImportarColaboradoresModal';
 
 export default function CapitalHumano() {
   const urlTab = new URLSearchParams(window.location.search).get('tab');
@@ -12,6 +13,7 @@ export default function CapitalHumano() {
   const [search, setSearch] = useState('');
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingColab, setEditingColab] = useState(null);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   useEffect(() => {
     const tab = new URLSearchParams(window.location.search).get('tab');
@@ -145,7 +147,7 @@ export default function CapitalHumano() {
 
           {activeTab === 'colaboradores' && (
            <div className="space-y-4">
-             {/* Header com Busca e Botão Novo */}
+             {/* Header com Busca e Botões */}
              <div className="flex items-center justify-between gap-4">
                <div className="relative max-w-sm">
                  <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
@@ -156,13 +158,22 @@ export default function CapitalHumano() {
                    className="w-full pl-9 pr-3 py-2 text-sm border border-[var(--border)] rounded-xl focus:outline-none focus:border-[#F47920]"
                  />
                </div>
-               <button
-                 onClick={handleNovoColab}
-                 className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40] transition-colors"
-               >
-                 <Plus size={16} />
-                 Novo Colaborador
-               </button>
+               <div className="flex gap-2">
+                 <button
+                   onClick={() => setShowImportModal(true)}
+                   className="flex items-center gap-2 bg-white border border-[var(--border)] text-[var(--text-secondary)] px-4 py-2 rounded-xl text-sm font-medium hover:bg-[var(--surface-2)] transition-colors"
+                 >
+                   <Upload size={16} />
+                   Importar
+                 </button>
+                 <button
+                   onClick={handleNovoColab}
+                   className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40] transition-colors"
+                 >
+                   <Plus size={16} />
+                   Novo Colaborador
+                 </button>
+               </div>
              </div>
 
               {loadingColabs ? (
@@ -271,6 +282,12 @@ export default function CapitalHumano() {
         colaborador={editingColab}
         onClose={() => setShowFormModal(false)}
         onSaved={handleSaved}
+      />
+
+      <ImportarColaboradoresModal
+        open={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onSuccess={handleSaved}
       />
     </div>
   );

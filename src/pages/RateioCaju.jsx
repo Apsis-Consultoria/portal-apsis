@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Plus, Settings, TrendingUp, MapPin, CalendarDays, ChevronRight } from "lucide-react";
+import { Users, Plus, Settings, TrendingUp, MapPin, CalendarDays, ChevronRight, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 
 import ColaboradoresCLTModal from "@/components/rateiocaju/ColaboradoresCLTModal";
 import NovoRateioForm from "@/components/rateiocaju/NovoRateioForm";
@@ -45,6 +46,27 @@ export default function RateioCaju() {
     ? colaboradores.reduce((acc, c) => acc + (c.valor_vr_diario || 0), 0) / colaboradores.length
     : 0;
 
+  const handleExportarColaboradores = () => {
+    const unidades = ["SP", "RJ", "Carbon", "REDD"];
+    const workbook = XLSX.utils.book_new();
+
+    unidades.forEach(unidade => {
+      const colabsDaUnidade = colaboradores.filter(c => c.unidade === unidade);
+      const data = colabsDaUnidade.map(c => ({
+        Nome: c.nome || "",
+        Área: c.area || "",
+        "Tipo de Contrato": c.tipo_contrato || "CLT",
+        "VR Diário": c.valor_vr_diario || 0,
+        Ativo: c.ativo ? "Sim" : "Não",
+      }));
+      
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(workbook, worksheet, unidade);
+    });
+
+    XLSX.writeFile(workbook, `Colaboradores_Rateio_Caju_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   // Tela de criação de rateio (inline, substitui o conteúdo da página)
   if (criandoRateio) {
     return (
@@ -65,23 +87,27 @@ export default function RateioCaju() {
           <p className="text-sm text-gray-500 mt-0.5">Distribuição de VR por unidade e mês de referência</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowFerias(true)} className="gap-2 text-sm">
-            <CalendarDays size={15} />
-            Férias Programadas
-          </Button>
-          <Button variant="outline" onClick={() => setShowFeriados(true)} className="gap-2 text-sm">
-            <CalendarDays size={15} />
-            Feriados SP/RJ
-          </Button>
-          <Button variant="outline" onClick={() => setShowCLTModal(true)} className="gap-2 text-sm">
-            <Settings size={15} />
-            Gerenciar Colaboradores CLT
-          </Button>
-          <Button onClick={() => setCriandoRateio(true)} className="bg-[#1A4731] hover:bg-[#1A4731]/90 gap-2 text-sm">
-            <Plus size={15} />
-            Novo Rateio
-          </Button>
-        </div>
+           <Button variant="outline" onClick={handleExportarColaboradores} className="gap-2 text-sm">
+             <Download size={15} />
+             Exportar Colaboradores
+           </Button>
+           <Button variant="outline" onClick={() => setShowFerias(true)} className="gap-2 text-sm">
+             <CalendarDays size={15} />
+             Férias Programadas
+           </Button>
+           <Button variant="outline" onClick={() => setShowFeriados(true)} className="gap-2 text-sm">
+             <CalendarDays size={15} />
+             Feriados SP/RJ
+           </Button>
+           <Button variant="outline" onClick={() => setShowCLTModal(true)} className="gap-2 text-sm">
+             <Settings size={15} />
+             Gerenciar Colaboradores CLT
+           </Button>
+           <Button onClick={() => setCriandoRateio(true)} className="bg-[#1A4731] hover:bg-[#1A4731]/90 gap-2 text-sm">
+             <Plus size={15} />
+             Novo Rateio
+           </Button>
+         </div>
       </div>
 
       {/* KPI Cards */}

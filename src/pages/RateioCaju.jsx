@@ -46,25 +46,33 @@ export default function RateioCaju() {
     ? colaboradores.reduce((acc, c) => acc + (c.valor_vr_diario || 0), 0) / colaboradores.length
     : 0;
 
-  const handleExportarColaboradores = () => {
+  const handleExportarRateio = (rateio) => {
     const unidades = ["SP", "RJ", "Carbon", "REDD"];
     const workbook = XLSX.utils.book_new();
 
+    const mapColabs = {
+      SP: rateio.colaboradores_sp ? JSON.parse(rateio.colaboradores_sp) : [],
+      RJ: rateio.colaboradores_rj ? JSON.parse(rateio.colaboradores_rj) : [],
+      Carbon: rateio.colaboradores_carbon ? JSON.parse(rateio.colaboradores_carbon) : [],
+      REDD: rateio.colaboradores_redd ? JSON.parse(rateio.colaboradores_redd) : [],
+    };
+
     unidades.forEach(unidade => {
-      const colabsDaUnidade = colaboradores.filter(c => c.unidade === unidade);
-      const data = colabsDaUnidade.map(c => ({
+      const colabs = mapColabs[unidade];
+      const data = colabs.map(c => ({
         Nome: c.nome || "",
-        Área: c.area || "",
         "Tipo de Contrato": c.tipo_contrato || "CLT",
-        "VR Diário": c.valor_vr_diario || 0,
-        Ativo: c.ativo ? "Sim" : "Não",
+        "VR Diário": c.valor_diario || 0,
+        "Dias Férias": c.dias_ferias || 0,
+        "Dias Efetivos": c.dias_efetivos || 0,
+        Total: c.total || 0,
       }));
       
       const worksheet = XLSX.utils.json_to_sheet(data);
       XLSX.utils.book_append_sheet(workbook, worksheet, unidade);
     });
 
-    XLSX.writeFile(workbook, `Colaboradores_Rateio_Caju_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.writeFile(workbook, `Rateio_Caju_${rateio.mes_label || rateio.mes_referencia}.xlsx`);
   };
 
   // Tela de criação de rateio (inline, substitui o conteúdo da página)
@@ -87,10 +95,6 @@ export default function RateioCaju() {
           <p className="text-sm text-gray-500 mt-0.5">Distribuição de VR por unidade e mês de referência</p>
         </div>
         <div className="flex gap-2">
-           <Button variant="outline" onClick={handleExportarColaboradores} className="gap-2 text-sm">
-             <Download size={15} />
-             Exportar Colaboradores
-           </Button>
            <Button variant="outline" onClick={() => setShowFerias(true)} className="gap-2 text-sm">
              <CalendarDays size={15} />
              Férias Programadas
@@ -191,31 +195,35 @@ export default function RateioCaju() {
         ) : (
           <div className="divide-y divide-gray-100">
             {rateios.map(r => (
-              <div key={r.id} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition">
-                <div className="w-10 h-10 rounded-lg bg-[#1A4731]/10 flex items-center justify-center flex-shrink-0">
-                  <CalendarDays size={18} className="text-[#1A4731]" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">{r.mes_label || formatMes(r.mes_referencia)}</p>
-                  <div className="flex gap-3 mt-0.5 text-xs text-gray-500">
-                    <span className="text-blue-600">{r.dias_uteis_sp} dias úteis SP</span>
-                    <span>•</span>
-                    <span className="text-green-600">{r.dias_uteis_rj} dias úteis RJ</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex gap-4 text-xs text-gray-500 mb-1">
-                    <span>SP: {fmt(r.total_sp)}</span>
-                    <span>RJ: {fmt(r.total_rj)}</span>
-                  </div>
-                  <p className="text-sm font-bold text-[#1A4731]">{fmt(r.total_geral)}</p>
-                </div>
-                <Badge className={r.status === "Finalizado" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}>
-                  {r.status}
-                </Badge>
-                <ChevronRight size={16} className="text-gray-400" />
-              </div>
-            ))}
+               <div key={r.id} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition">
+                 <div className="w-10 h-10 rounded-lg bg-[#1A4731]/10 flex items-center justify-center flex-shrink-0">
+                   <CalendarDays size={18} className="text-[#1A4731]" />
+                 </div>
+                 <div className="flex-1">
+                   <p className="text-sm font-semibold text-gray-900">{r.mes_label || formatMes(r.mes_referencia)}</p>
+                   <div className="flex gap-3 mt-0.5 text-xs text-gray-500">
+                     <span className="text-blue-600">{r.dias_uteis_sp} dias úteis SP</span>
+                     <span>•</span>
+                     <span className="text-green-600">{r.dias_uteis_rj} dias úteis RJ</span>
+                   </div>
+                 </div>
+                 <div className="text-right">
+                   <div className="flex gap-4 text-xs text-gray-500 mb-1">
+                     <span>SP: {fmt(r.total_sp)}</span>
+                     <span>RJ: {fmt(r.total_rj)}</span>
+                   </div>
+                   <p className="text-sm font-bold text-[#1A4731]">{fmt(r.total_geral)}</p>
+                 </div>
+                 <Button variant="outline" size="sm" onClick={() => handleExportarRateio(r)} className="gap-2">
+                   <Download size={14} />
+                   Exportar
+                 </Button>
+                 <Badge className={r.status === "Finalizado" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}>
+                   {r.status}
+                 </Badge>
+                 <ChevronRight size={16} className="text-gray-400" />
+               </div>
+             ))}
           </div>
         )}
       </div>

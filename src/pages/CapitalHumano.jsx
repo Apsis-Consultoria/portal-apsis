@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { colaboradoresService } from '@/lib/supabaseColaboradores';
 import { LayoutDashboard, Users, Calendar, Settings, Briefcase, ExternalLink, Search, Loader2, User, Plus, Edit2, Trash2 } from 'lucide-react';
 import ColaboradorFormModal from '@/components/capitalhumano/ColaboradorFormModal';
 
@@ -26,7 +26,7 @@ export default function CapitalHumano() {
   const carregarColaboradores = async () => {
     setLoadingColabs(true);
     try {
-      const data = await base44.entities.Colaborador.list();
+      const data = await colaboradoresService.list();
       setColaboradores(data || []);
     } catch (error) {
       console.error('Erro ao carregar colaboradores:', error);
@@ -48,7 +48,7 @@ export default function CapitalHumano() {
   const handleDeleteColab = async (id) => {
     if (window.confirm('Tem certeza que deseja deletar este colaborador?')) {
       try {
-        await base44.entities.Colaborador.delete(id);
+        await colaboradoresService.delete(id);
         carregarColaboradores();
       } catch (error) {
         alert('Erro ao deletar colaborador');

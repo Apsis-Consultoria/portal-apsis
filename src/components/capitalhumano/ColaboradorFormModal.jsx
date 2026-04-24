@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { colaboradoresService } from '@/lib/supabaseColaboradores';
 import { X, Loader2 } from 'lucide-react';
 
 export default function ColaboradorFormModal({ open, colaborador, onClose, onSaved }) {
@@ -43,9 +43,9 @@ export default function ColaboradorFormModal({ open, colaborador, onClose, onSav
     setSaving(true);
     try {
       if (colaborador?.id) {
-        await base44.entities.Colaborador.update(colaborador.id, formData);
+        await colaboradoresService.update(colaborador.id, formData);
       } else {
-        await base44.entities.Colaborador.create(formData);
+        await colaboradoresService.create(formData);
       }
       onSaved();
       onClose();

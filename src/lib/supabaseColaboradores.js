@@ -12,7 +12,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export const colaboradoresService = {
   async list() {
     const { data, error } = await supabase
-      .from('colaboradores')
+      .from('ch_colaboradores')
       .select('*')
       .order('created_at', { ascending: false });
     
@@ -22,7 +22,7 @@ export const colaboradoresService = {
 
   async create(colaborador) {
     const { data, error } = await supabase
-      .from('colaboradores')
+      .from('ch_colaboradores')
       .insert([colaborador])
       .select();
     
@@ -32,7 +32,7 @@ export const colaboradoresService = {
 
   async update(id, colaborador) {
     const { data, error } = await supabase
-      .from('colaboradores')
+      .from('ch_colaboradores')
       .update(colaborador)
       .eq('id', id)
       .select();
@@ -43,7 +43,7 @@ export const colaboradoresService = {
 
   async delete(id) {
     const { error } = await supabase
-      .from('colaboradores')
+      .from('ch_colaboradores')
       .delete()
       .eq('id', id);
     

@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
 
     // Inserir no Supabase
     const { data, error } = await supabase
-      .from('colaboradores')
+      .from('ch_colaboradores')
       .insert(dadosFormatados)
       .select();
 

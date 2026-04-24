@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { LayoutDashboard, Users, Calendar, Settings, Briefcase, ExternalLink, Search, Loader2, User } from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, Settings, Briefcase, ExternalLink, Search, Loader2, User, Plus, Edit2, Trash2 } from 'lucide-react';
+import ColaboradorFormModal from '@/components/capitalhumano/ColaboradorFormModal';
 
 export default function CapitalHumano() {
   const urlTab = new URLSearchParams(window.location.search).get('tab');
@@ -9,6 +10,8 @@ export default function CapitalHumano() {
   const [colaboradores, setColaboradores] = useState([]);
   const [loadingColabs, setLoadingColabs] = useState(true);
   const [search, setSearch] = useState('');
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [editingColab, setEditingColab] = useState(null);
 
   useEffect(() => {
     const tab = new URLSearchParams(window.location.search).get('tab');
@@ -17,11 +20,45 @@ export default function CapitalHumano() {
 
   // Carrega colaboradores uma única vez ao montar a página
   useEffect(() => {
-    base44.entities.Colaborador.list().then(data => {
-      setColaboradores(data || []);
-      setLoadingColabs(false);
-    }).catch(() => setLoadingColabs(false));
+    carregarColaboradores();
   }, []);
+
+  const carregarColaboradores = async () => {
+    setLoadingColabs(true);
+    try {
+      const data = await base44.entities.Colaborador.list();
+      setColaboradores(data || []);
+    } catch (error) {
+      console.error('Erro ao carregar colaboradores:', error);
+    } finally {
+      setLoadingColabs(false);
+    }
+  };
+
+  const handleNovoColab = () => {
+    setEditingColab(null);
+    setShowFormModal(true);
+  };
+
+  const handleEditColab = (colab) => {
+    setEditingColab(colab);
+    setShowFormModal(true);
+  };
+
+  const handleDeleteColab = async (id) => {
+    if (window.confirm('Tem certeza que deseja deletar este colaborador?')) {
+      try {
+        await base44.entities.Colaborador.delete(id);
+        carregarColaboradores();
+      } catch (error) {
+        alert('Erro ao deletar colaborador');
+      }
+    }
+  };
+
+  const handleSaved = () => {
+    carregarColaboradores();
+  };
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -107,17 +144,26 @@ export default function CapitalHumano() {
           })()}
 
           {activeTab === 'colaboradores' && (
-            <div className="space-y-4">
-              {/* Busca */}
-              <div className="relative max-w-sm">
-                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
-                <input
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  placeholder="Buscar colaborador..."
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-[var(--border)] rounded-xl focus:outline-none focus:border-[#F47920]"
-                />
-              </div>
+           <div className="space-y-4">
+             {/* Header com Busca e Botão Novo */}
+             <div className="flex items-center justify-between gap-4">
+               <div className="relative max-w-sm">
+                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
+                 <input
+                   value={search}
+                   onChange={e => setSearch(e.target.value)}
+                   placeholder="Buscar colaborador..."
+                   className="w-full pl-9 pr-3 py-2 text-sm border border-[var(--border)] rounded-xl focus:outline-none focus:border-[#F47920]"
+                 />
+               </div>
+               <button
+                 onClick={handleNovoColab}
+                 className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40] transition-colors"
+               >
+                 <Plus size={16} />
+                 Novo Colaborador
+               </button>
+             </div>
 
               {loadingColabs ? (
                 <div className="flex justify-center py-12">
@@ -133,7 +179,7 @@ export default function CapitalHumano() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-[var(--surface-2)] border-b border-[var(--border)]">
-                        {['Nome', 'Cargo', 'Área', 'Departamento', 'E-mail', 'Cap. Horas/mês', 'Status'].map(h => (
+                        {['Nome', 'Cargo', 'Área', 'Departamento', 'E-mail', 'Cap. Horas/mês', 'Status', 'Ações'].map(h => (
                           <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider whitespace-nowrap">{h}</th>
                         ))}
                       </tr>
@@ -161,8 +207,24 @@ export default function CapitalHumano() {
                                 {c.ativo !== false ? 'Ativo' : 'Inativo'}
                               </span>
                             </td>
-                          </tr>
-                        ))}
+                            <td className="px-4 py-3 flex gap-2">
+                              <button
+                                onClick={() => handleEditColab(c)}
+                                className="p-1.5 hover:bg-[var(--surface-2)] rounded-lg transition-colors text-[#1A4731]"
+                                title="Editar"
+                              >
+                                <Edit2 size={14} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteColab(c.id)}
+                                className="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-red-600"
+                                title="Deletar"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </td>
+                            </tr>
+                            ))}
                     </tbody>
                   </table>
                 </div>
@@ -203,6 +265,13 @@ export default function CapitalHumano() {
           )}
         </div>
       </div>
+
+      <ColaboradorFormModal
+        open={showFormModal}
+        colaborador={editingColab}
+        onClose={() => setShowFormModal(false)}
+        onSaved={handleSaved}
+      />
     </div>
   );
 }

@@ -180,45 +180,124 @@ export default function CapitalHumano() {
         <div className="p-6">
           {activeTab === 'dashboard' && (() => {
             const ativos = colaboradores.filter(c => c.ativo !== false);
-            const total = ativos.length;
+            const inativos = colaboradores.filter(c => c.ativo === false);
+            const total = colaboradores.length;
+            const totalAtivos = ativos.length;
+            const capacidadeTotal = ativos.reduce((acc, c) => acc + (c.capacidade_horas_mensais ?? 160), 0);
+
+            // Por unidade
+            const porUnidade = ativos.reduce((acc, c) => {
+              const u = c.unidade || 'N/A';
+              acc[u] = (acc[u] || 0) + 1;
+              return acc;
+            }, {});
+
+            // Por departamento (top 8)
+            const porDept = ativos.reduce((acc, c) => {
+              const d = c.departamento || 'N/A';
+              acc[d] = (acc[d] || 0) + 1;
+              return acc;
+            }, {});
+            const deptSorted = Object.entries(porDept).sort((a, b) => b[1] - a[1]).slice(0, 8);
+            const maxDept = deptSorted[0]?.[1] || 1;
+
+            const UNIT_COLORS = { RJ: '#1A4731', SP: '#F47920', Carbon: '#3B82F6', REDD: '#8B5CF6', 'N/A': '#94A3B8' };
+
             return (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-[var(--surface-2)] p-6 rounded-lg border border-[var(--border)]">
-                  <p className="text-sm text-[var(--text-secondary)] mb-2">Total de Colaboradores</p>
-                  <p className="text-3xl font-bold text-[var(--apsis-green)]">{loadingColabs ? '...' : total}</p>
-                </div>
-                <div className="bg-[var(--surface-2)] p-6 rounded-lg border border-[var(--border)]">
-                  <p className="text-sm text-[var(--text-secondary)] mb-2">Alocados</p>
-                  <p className="text-3xl font-bold text-[var(--apsis-orange)]">—</p>
-                </div>
-                <div className="bg-[var(--surface-2)] p-6 rounded-lg border border-[var(--border)]">
-                  <p className="text-sm text-[var(--text-secondary)] mb-2">Disponíveis</p>
-                  <p className="text-3xl font-bold text-green-600">—</p>
-                </div>
-                <div className="bg-[var(--surface-2)] p-6 rounded-lg border border-[var(--border)]">
-                  <p className="text-sm text-[var(--text-secondary)] mb-2">Taxa de Ocupação</p>
-                  <p className="text-3xl font-bold text-blue-600">—</p>
-                </div>
+              <div className="space-y-6">
+                {loadingColabs ? (
+                  <div className="flex justify-center py-12"><Loader2 size={24} className="animate-spin text-[#F47920]" /></div>
+                ) : (
+                  <>
+                    {/* KPIs */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {[
+                        { label: 'Total de Colaboradores', value: total, color: 'text-[var(--apsis-green)]', bg: 'bg-[#1A4731]/5' },
+                        { label: 'Ativos', value: totalAtivos, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                        { label: 'Inativos', value: inativos.length, color: 'text-gray-500', bg: 'bg-gray-50' },
+                        { label: 'Cap. Total (h/mês)', value: capacidadeTotal.toLocaleString('pt-BR') + 'h', color: 'text-blue-600', bg: 'bg-blue-50' },
+                      ].map(kpi => (
+                        <div key={kpi.label} className={`${kpi.bg} p-5 rounded-xl border border-[var(--border)]`}>
+                          <p className="text-xs text-[var(--text-secondary)] mb-1">{kpi.label}</p>
+                          <p className={`text-3xl font-bold ${kpi.color}`}>{kpi.value}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Por Unidade */}
+                      <div className="bg-white border border-[var(--border)] rounded-xl p-5">
+                        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Colaboradores por Unidade</h3>
+                        <div className="space-y-3">
+                          {Object.entries(porUnidade).sort((a, b) => b[1] - a[1]).map(([unidade, count]) => (
+                            <div key={unidade} className="flex items-center gap-3">
+                              <span className="text-xs font-medium text-[var(--text-secondary)] w-16 shrink-0">{unidade}</span>
+                              <div className="flex-1 bg-[var(--surface-2)] rounded-full h-5 overflow-hidden">
+                                <div
+                                  className="h-full rounded-full flex items-center justify-end pr-2 transition-all"
+                                  style={{
+                                    width: `${(count / totalAtivos) * 100}%`,
+                                    backgroundColor: UNIT_COLORS[unidade] || '#94A3B8'
+                                  }}
+                                >
+                                  <span className="text-white text-[10px] font-bold">{count}</span>
+                                </div>
+                              </div>
+                              <span className="text-xs text-[var(--text-secondary)] w-10 text-right shrink-0">
+                                {((count / totalAtivos) * 100).toFixed(0)}%
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Por Departamento */}
+                      <div className="bg-white border border-[var(--border)] rounded-xl p-5">
+                        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Colaboradores por Departamento</h3>
+                        <div className="space-y-2">
+                          {deptSorted.map(([dept, count]) => (
+                            <div key={dept} className="flex items-center gap-3">
+                              <span className="text-xs text-[var(--text-secondary)] w-36 shrink-0 truncate" title={dept}>{dept}</span>
+                              <div className="flex-1 bg-[var(--surface-2)] rounded-full h-4 overflow-hidden">
+                                <div
+                                  className="h-full rounded-full bg-[#F47920] flex items-center justify-end pr-2 transition-all"
+                                  style={{ width: `${(count / maxDept) * 100}%` }}
+                                >
+                                  {count > 1 && <span className="text-white text-[10px] font-bold">{count}</span>}
+                                </div>
+                              </div>
+                              <span className="text-xs font-semibold text-[var(--text-primary)] w-4 text-right shrink-0">{count}</span>
+                            </div>
+                          ))}
+                          {Object.keys(porDept).length > 8 && (
+                            <p className="text-xs text-[var(--text-secondary)] pt-1 italic">+ {Object.keys(porDept).length - 8} departamentos</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Capacidade por Unidade */}
+                    <div className="bg-white border border-[var(--border)] rounded-xl p-5">
+                      <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Capacidade de Horas/mês por Unidade</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {Object.entries(
+                          ativos.reduce((acc, c) => {
+                            const u = c.unidade || 'N/A';
+                            acc[u] = (acc[u] || 0) + (c.capacidade_horas_mensais ?? 160);
+                            return acc;
+                          }, {})
+                        ).sort((a, b) => b[1] - a[1]).map(([unidade, horas]) => (
+                          <div key={unidade} className="rounded-xl p-4 text-center" style={{ backgroundColor: (UNIT_COLORS[unidade] || '#94A3B8') + '15', border: `1px solid ${(UNIT_COLORS[unidade] || '#94A3B8')}30` }}>
+                            <p className="text-xs text-[var(--text-secondary)] mb-1">{unidade}</p>
+                            <p className="text-2xl font-bold" style={{ color: UNIT_COLORS[unidade] || '#94A3B8' }}>{horas.toLocaleString('pt-BR')}h</p>
+                            <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">{porUnidade[unidade]} colaboradores</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
-              <div className="bg-[var(--surface-2)] p-6 rounded-lg border border-[var(--border)]">
-                <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Próximas Ações</h3>
-                <ul className="space-y-3 text-sm">
-                  <li className="flex items-center gap-3 text-[var(--text-secondary)]">
-                    <div className="w-2 h-2 rounded-full bg-[var(--apsis-orange)]" />
-                    Revisar alocações vencidas
-                  </li>
-                  <li className="flex items-center gap-3 text-[var(--text-secondary)]">
-                    <div className="w-2 h-2 rounded-full bg-[var(--apsis-orange)]" />
-                    Atualizar disponibilidade de 5 colaboradores
-                  </li>
-                  <li className="flex items-center gap-3 text-[var(--text-secondary)]">
-                    <div className="w-2 h-2 rounded-full bg-[var(--apsis-orange)]" />
-                    Planejar recrutamento para Q2
-                  </li>
-                </ul>
-              </div>
-            </div>
             );
           })()}
 

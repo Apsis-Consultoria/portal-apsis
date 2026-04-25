@@ -17,14 +17,11 @@ export default function CapitalHumano() {
   const [sortConfig, setSortConfig] = useState({ key: 'nome', dir: 'asc' });
   const [filters, setFilters] = useState({ departamento: '', cargo: '', area: '' });
   const [openFilter, setOpenFilter] = useState(null);
-  const filterRef = useRef(null);
 
   useEffect(() => {
-    const handleClick = (e) => {
-      if (filterRef.current && !filterRef.current.contains(e.target)) setOpenFilter(null);
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    const handleClick = () => setOpenFilter(null);
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
   }, []);
 
   useEffect(() => {
@@ -103,17 +100,21 @@ export default function CapitalHumano() {
   const FilterDropdown = ({ field, label }) => {
     const values = uniqueValues(field);
     const active = filters[field];
+    const isOpen = openFilter === field;
     return (
-      <div className="relative inline-block" ref={openFilter === field ? filterRef : null}>
+      <div className="relative inline-block">
         <button
-          onClick={() => setOpenFilter(openFilter === field ? null : field)}
+          onClick={(e) => { e.stopPropagation(); setOpenFilter(isOpen ? null : field); }}
           className={`ml-1 p-0.5 rounded transition-colors ${active ? 'text-[#F47920]' : 'text-[var(--text-secondary)] opacity-40 hover:opacity-80'}`}
           title={`Filtrar ${label}`}
         >
           <Filter size={11} />
         </button>
-        {openFilter === field && (
-          <div className="absolute left-0 top-6 z-50 bg-white border border-[var(--border)] rounded-xl shadow-lg py-1 min-w-[180px]">
+        {isOpen && (
+          <div
+            className="absolute left-0 top-6 z-50 bg-white border border-[var(--border)] rounded-xl shadow-lg py-1 min-w-[200px] max-h-64 overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => { setFilters(f => ({ ...f, [field]: '' })); setOpenFilter(null); }}
               className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--surface-2)] flex items-center gap-2"

@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { colaboradoresService } from '@/lib/supabaseColaboradores';
-import { LayoutDashboard, Users, Calendar, Settings, Briefcase, ExternalLink, Search, Loader2, User, Plus, Edit2, Trash2, Upload } from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, Settings, Briefcase, ExternalLink, Search, Loader2, User, Plus, Edit2, Trash2, Upload, ChevronUp, ChevronDown, ChevronsUpDown, Filter, X } from 'lucide-react';
 import ColaboradorFormModal from '@/components/capitalhumano/ColaboradorFormModal';
 import ImportarColaboradoresModal from '@/components/capitalhumano/ImportarColaboradoresModal';
 
@@ -14,6 +14,18 @@ export default function CapitalHumano() {
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingColab, setEditingColab] = useState(null);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: 'nome', dir: 'asc' });
+  const [filters, setFilters] = useState({ departamento: '', cargo: '', area: '' });
+  const [openFilter, setOpenFilter] = useState(null);
+  const filterRef = useRef(null);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (filterRef.current && !filterRef.current.contains(e.target)) setOpenFilter(null);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   useEffect(() => {
     const tab = new URLSearchParams(window.location.search).get('tab');
@@ -64,6 +76,66 @@ export default function CapitalHumano() {
 
   const handleSaved = () => {
     carregarColaboradores();
+  };
+
+  const handleSort = (key) => {
+    setSortConfig(prev => prev.key === key ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' });
+  };
+
+  const uniqueValues = (field) => [...new Set(colaboradores.map(c => c[field]).filter(Boolean))].sort();
+
+  const filteredAndSorted = colaboradores
+    .filter(c => !search || c.nome?.toLowerCase().includes(search.toLowerCase()) || c.email?.toLowerCase().includes(search.toLowerCase()))
+    .filter(c => !filters.departamento || c.departamento === filters.departamento)
+    .filter(c => !filters.cargo || c.cargo === filters.cargo)
+    .filter(c => !filters.area || c.area === filters.area)
+    .sort((a, b) => {
+      const va = a[sortConfig.key] ?? '';
+      const vb = b[sortConfig.key] ?? '';
+      return sortConfig.dir === 'asc' ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    });
+
+  const SortIcon = ({ field }) => {
+    if (sortConfig.key !== field) return <ChevronsUpDown size={12} className="text-[var(--text-secondary)] opacity-40" />;
+    return sortConfig.dir === 'asc' ? <ChevronUp size={12} className="text-[#F47920]" /> : <ChevronDown size={12} className="text-[#F47920]" />;
+  };
+
+  const FilterDropdown = ({ field, label }) => {
+    const values = uniqueValues(field);
+    const active = filters[field];
+    return (
+      <div className="relative inline-block" ref={openFilter === field ? filterRef : null}>
+        <button
+          onClick={() => setOpenFilter(openFilter === field ? null : field)}
+          className={`ml-1 p-0.5 rounded transition-colors ${active ? 'text-[#F47920]' : 'text-[var(--text-secondary)] opacity-40 hover:opacity-80'}`}
+          title={`Filtrar ${label}`}
+        >
+          <Filter size={11} />
+        </button>
+        {openFilter === field && (
+          <div className="absolute left-0 top-6 z-50 bg-white border border-[var(--border)] rounded-xl shadow-lg py-1 min-w-[180px]">
+            <button
+              onClick={() => { setFilters(f => ({ ...f, [field]: '' })); setOpenFilter(null); }}
+              className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--surface-2)] flex items-center gap-2"
+            >
+              <X size={11} /> Limpar filtro
+            </button>
+            <div className="border-t border-[var(--border)] my-1" />
+            {values.length === 0 ? (
+              <p className="px-3 py-2 text-xs text-[var(--text-secondary)] italic">Sem opções</p>
+            ) : values.map(v => (
+              <button
+                key={v}
+                onClick={() => { setFilters(f => ({ ...f, [field]: v })); setOpenFilter(null); }}
+                className={`w-full text-left px-3 py-2 text-xs hover:bg-[var(--surface-2)] ${active === v ? 'font-semibold text-[#F47920]' : 'text-[var(--text-primary)]'}`}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   const tabs = [
@@ -203,15 +275,32 @@ export default function CapitalHumano() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-[var(--surface-2)] border-b border-[var(--border)]">
-                        {['Nome', 'Cargo', 'Área', 'Departamento', 'E-mail', 'Cap. Horas/mês', 'Status', 'Ações'].map(h => (
-                          <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider whitespace-nowrap">{h}</th>
+                        {[
+                          { label: 'Nome', key: 'nome', sortable: true, filterable: false },
+                          { label: 'Cargo', key: 'cargo', sortable: true, filterable: true },
+                          { label: 'Área', key: 'area', sortable: true, filterable: true },
+                          { label: 'Departamento', key: 'departamento', sortable: true, filterable: true },
+                          { label: 'E-mail', key: 'email', sortable: true, filterable: false },
+                          { label: 'Cap. Horas/mês', key: 'capacidade_horas_mensais', sortable: true, filterable: false },
+                          { label: 'Status', key: 'ativo', sortable: false, filterable: false },
+                          { label: 'Ações', key: null, sortable: false, filterable: false },
+                        ].map(col => (
+                          <th key={col.label} className="text-left px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider whitespace-nowrap">
+                            <div className="flex items-center gap-1">
+                              {col.sortable ? (
+                                <button onClick={() => handleSort(col.key)} className="flex items-center gap-1 hover:text-[var(--text-primary)] transition-colors">
+                                  {col.label}
+                                  <SortIcon field={col.key} />
+                                </button>
+                              ) : col.label}
+                              {col.filterable && <FilterDropdown field={col.key} label={col.label} />}
+                            </div>
+                          </th>
                         ))}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--surface-2)]">
-                      {colaboradores
-                        .filter(c => !search || c.nome?.toLowerCase().includes(search.toLowerCase()) || c.email?.toLowerCase().includes(search.toLowerCase()))
-                        .map(c => (
+                      {filteredAndSorted.map(c => (
                           <tr key={c.id} className="hover:bg-[var(--surface-2)] transition-colors">
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">

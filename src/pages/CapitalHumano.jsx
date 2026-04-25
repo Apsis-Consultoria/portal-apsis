@@ -112,7 +112,7 @@ export default function CapitalHumano() {
         </button>
         {isOpen && (
           <div
-            className="absolute left-0 top-6 z-50 bg-white border border-[var(--border)] rounded-xl shadow-lg py-1 min-w-[200px] max-h-64 overflow-y-auto"
+            className="absolute left-0 top-6 z-50 bg-white border border-[var(--border)] rounded-xl shadow-lg py-1 min-w-[200px] max-h-64 overflow-y-auto flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <button

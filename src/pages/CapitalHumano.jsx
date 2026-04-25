@@ -25,13 +25,17 @@ export default function CapitalHumano() {
     carregarColaboradores();
   }, []);
 
+  const [erroCarregamento, setErroCarregamento] = useState(null);
+
   const carregarColaboradores = async () => {
     setLoadingColabs(true);
+    setErroCarregamento(null);
     try {
       const data = await colaboradoresService.list();
       setColaboradores(data || []);
     } catch (error) {
       console.error('Erro ao carregar colaboradores:', error);
+      setErroCarregamento(error?.message || 'Erro ao conectar com o Supabase');
     } finally {
       setLoadingColabs(false);
     }
@@ -179,6 +183,15 @@ export default function CapitalHumano() {
               {loadingColabs ? (
                 <div className="flex justify-center py-12">
                   <Loader2 size={24} className="animate-spin text-[#F47920]" />
+                </div>
+              ) : erroCarregamento ? (
+                <div className="text-center py-12">
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-6 max-w-lg mx-auto">
+                    <p className="text-red-700 font-semibold text-sm mb-1">Erro ao carregar dados</p>
+                    <p className="text-red-500 text-xs font-mono">{erroCarregamento}</p>
+                    <p className="text-red-400 text-xs mt-2">Verifique se a tabela <code className="bg-red-100 px-1 rounded">ch_colaboradores</code> existe no Supabase.</p>
+                    <button onClick={carregarColaboradores} className="mt-4 px-4 py-2 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700">Tentar novamente</button>
+                  </div>
                 </div>
               ) : colaboradores.length === 0 ? (
                 <div className="text-center py-12">

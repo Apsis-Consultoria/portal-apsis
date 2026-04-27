@@ -272,12 +272,27 @@ export default function Ferias() {
                           </div>
                         </div>
 
-                        {/* Badges de períodos */}
-                        <div className="flex items-center gap-2">
+                        {/* Períodos inline + botão adicionar */}
+                        <div className="flex items-center gap-2 flex-wrap">
                           {periodos.length > 0 ? (
-                            <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
-                              {periodos.length} período{periodos.length !== 1 ? "s" : ""}
-                            </span>
+                            periodos.map((p, idx) => {
+                              const status = getStatusPeriodo(p.inicio, p.fim);
+                              const StatusIcon = status.icon;
+                              const diasCorr = totalDiasCalendario(p.inicio, p.fim);
+                              return (
+                                <div key={idx} className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+                                  <CalendarDays size={11} className="text-slate-400 flex-shrink-0" />
+                                  <span className="text-xs text-slate-700">{formatDate(p.inicio)} → {formatDate(p.fim)}</span>
+                                  <span className="text-xs text-slate-400">{diasCorr}d</span>
+                                  <span className={`flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full ${status.cls}`}>
+                                    <StatusIcon size={8} />{status.label}
+                                  </span>
+                                  <button onClick={() => handleRemove(c.id, idx)} className="text-slate-300 hover:text-red-500 transition ml-1">
+                                    <Trash2 size={11} />
+                                  </button>
+                                </div>
+                              );
+                            })
                           ) : (
                             <span className="text-xs text-slate-300">Sem férias</span>
                           )}
@@ -287,7 +302,6 @@ export default function Ferias() {
                           >
                             <Plus size={12} /> Adicionar
                           </button>
-
                         </div>
                       </div>
 
@@ -330,35 +344,7 @@ export default function Ferias() {
                         </div>
                       )}
 
-                      {/* Períodos — sempre visíveis quando existem */}
-                      {periodos.length > 0 && (
-                        <div className="mt-2 space-y-1.5 pl-2">
-                          {periodos.map((p, idx) => {
-                            const status = getStatusPeriodo(p.inicio, p.fim);
-                            const StatusIcon = status.icon;
-                            const diasCorr = totalDiasCalendario(p.inicio, p.fim);
-                            return (
-                              <div key={idx} className="flex items-center gap-3 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
-                                <CalendarDays size={13} className="text-slate-400 flex-shrink-0" />
-                                <span className="text-xs font-medium text-slate-700">
-                                  {formatDate(p.inicio)} → {formatDate(p.fim)}
-                                </span>
-                                <span className="text-xs text-slate-400">{diasCorr} dias corridos</span>
-                                <span className={`flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full ${status.cls}`}>
-                                  <StatusIcon size={9} />
-                                  {status.label}
-                                </span>
-                                <button
-                                  onClick={() => handleRemove(c.id, idx)}
-                                  className="ml-auto text-slate-300 hover:text-red-500 transition"
-                                >
-                                  <Trash2 size={13} />
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
+
                     </div>
                   );
                 })}

@@ -44,6 +44,7 @@ import Configuracoes from '@/pages/Configuracoes';
 import PlanejamentoEstrategico from '@/pages/PlanejamentoEstrategico';
 import RateioCaju from '@/pages/RateioCaju';
 import Ferias from '@/pages/Ferias';
+import GerenciamentoAcessos from '@/pages/GerenciamentoAcessos';
 
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -112,6 +113,7 @@ function App() {
               <Route path="/PlanejamentoEstrategico" element={<LayoutWrapper currentPageName="PlanejamentoEstrategico"><PlanejamentoEstrategico /></LayoutWrapper>} />
               <Route path="/RateioCaju" element={<LayoutWrapper currentPageName="RateioCaju"><RateioCaju /></LayoutWrapper>} />
               <Route path="/Ferias" element={<LayoutWrapper currentPageName="Ferias"><Ferias /></LayoutWrapper>} />
+              <Route path="/GerenciamentoAcessos" element={<LayoutWrapper currentPageName="GerenciamentoAcessos"><GerenciamentoAcessos /></LayoutWrapper>} />
 
 
 

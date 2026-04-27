@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { colaboradoresService } from '@/lib/supabaseColaboradores';
-import { LayoutDashboard, Users, Calendar, Settings, Briefcase, ExternalLink, Search, Loader2, User, Plus, Edit2, Trash2, Upload, ChevronUp, ChevronDown, ChevronsUpDown, Filter, X } from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, Settings, Briefcase, ExternalLink, Search, Loader2, User, Plus, Edit2, Trash2, Upload, ChevronUp, ChevronDown, ChevronsUpDown, Filter, X, CalendarDays } from 'lucide-react';
 import ColaboradorFormModal from '@/components/capitalhumano/ColaboradorFormModal';
 import ImportarColaboradoresModal from '@/components/capitalhumano/ImportarColaboradoresModal';
 
@@ -315,21 +315,28 @@ export default function CapitalHumano() {
                  />
                </div>
                <div className="flex gap-2">
+                 <Link
+                    to="/Ferias"
+                    className="flex items-center gap-2 bg-orange-50 border border-orange-200 text-orange-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-orange-100 transition-colors"
+                  >
+                    <CalendarDays size={16} />
+                    Férias
+                  </Link>
                  <button
-                   onClick={() => setShowImportModal(true)}
-                   className="flex items-center gap-2 bg-white border border-[var(--border)] text-[var(--text-secondary)] px-4 py-2 rounded-xl text-sm font-medium hover:bg-[var(--surface-2)] transition-colors"
-                 >
-                   <Upload size={16} />
-                   Importar
-                 </button>
-                 <button
-                   onClick={handleNovoColab}
-                   className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40] transition-colors"
-                 >
-                   <Plus size={16} />
-                   Novo Colaborador
-                 </button>
-               </div>
+                    onClick={() => setShowImportModal(true)}
+                    className="flex items-center gap-2 bg-white border border-[var(--border)] text-[var(--text-secondary)] px-4 py-2 rounded-xl text-sm font-medium hover:bg-[var(--surface-2)] transition-colors"
+                  >
+                    <Upload size={16} />
+                    Importar
+                  </button>
+                  <button
+                    onClick={handleNovoColab}
+                    className="flex items-center gap-2 bg-[#1A4731] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#245E40] transition-colors"
+                  >
+                    <Plus size={16} />
+                    Novo Colaborador
+                  </button>
+                </div>
              </div>
 
               {loadingColabs ? (

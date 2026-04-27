@@ -287,14 +287,7 @@ export default function Ferias() {
                           >
                             <Plus size={12} /> Adicionar
                           </button>
-                          {periodos.length > 0 && (
-                            <button
-                              onClick={() => toggleExpand(c.id)}
-                              className="p-1 rounded-lg hover:bg-slate-100 transition text-slate-400"
-                            >
-                              {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                            </button>
-                          )}
+
                         </div>
                       </div>
 
@@ -337,8 +330,8 @@ export default function Ferias() {
                         </div>
                       )}
 
-                      {/* Períodos expandidos */}
-                      {isExpanded && periodos.length > 0 && (
+                      {/* Períodos — sempre visíveis quando existem */}
+                      {periodos.length > 0 && (
                         <div className="mt-2 space-y-1.5 pl-2">
                           {periodos.map((p, idx) => {
                             const status = getStatusPeriodo(p.inicio, p.fim);

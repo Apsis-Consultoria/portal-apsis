@@ -94,11 +94,15 @@ export default function ConfigurarCargos() {
     if (!emEdicao[cargo]) return;
     const key = `${departamentoSelecionado}_${cargo}`;
     const deptPerms = grupoPermissoes[departamentoSelecionado] || {};
-    const gruposAtivos = Object.keys(deptPerms).filter(g => deptPerms[g]);
+    
+    // Obter todas as telas dos grupos ativos
+    const todasAsTelas = MENU_GROUPS
+      .filter(g => deptPerms[g.group])
+      .flatMap(g => (g.telas || []).map(t => t.page));
 
     const newCargoAcessos = {
       ...cargoAcessos,
-      [key]: ativar ? gruposAtivos : []
+      [key]: ativar ? todasAsTelas : []
     };
     setCargoAcessos(newCargoAcessos);
   };
@@ -238,43 +242,60 @@ export default function ConfigurarCargos() {
                         </button>
                       </div>
 
-                      {/* Grid de grupos */}
-                      <div className="grid grid-cols-2 gap-2">
+                      {/* Grid de telas baseado nos grupos disponíveis */}
+                      <div className="space-y-3">
                         {gruposDisponiveis.map(grupo => {
-                          const temAcesso = acessosCargo.includes(grupo.group);
-                          return (
-                            <button
-                              key={grupo.group}
-                              onClick={() => toggleGrupoParaCargo(cargo, grupo.group)}
-                              disabled={!emEdicao[cargo]}
-                              className={`flex items-center gap-2 px-3 py-2.5 rounded-lg transition text-left text-sm border ${
-                                !emEdicao[cargo]
-                                  ? "opacity-60 cursor-not-allowed"
-                                  : temAcesso
-                                  ? "bg-white border-green-300 hover:bg-green-50 cursor-pointer"
-                                  : "bg-white border-slate-200 hover:bg-slate-50 cursor-pointer"
-                              }`}
-                            >
-                              {/* Toggle visual com check/x */}
-                              <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition ${
-                                temAcesso
-                                  ? "bg-green-500"
-                                  : "bg-red-500"
-                              }`}>
-                                {temAcesso ? (
-                                  <Check size={14} className="text-white" />
-                                ) : (
-                                  <X size={14} className="text-white" />
-                                )}
-                              </div>
+                          const temasDoGrupo = grupo.telas || [];
+                          const temAcessoGrupo = acessosCargo.includes(grupo.group);
 
-                              {/* Label */}
-                              <span className={`flex-1 font-medium text-xs ${
-                                temAcesso ? "text-green-700" : "text-slate-600"
-                              }`}>
-                                {grupo.label}
-                              </span>
-                            </button>
+                          return (
+                            <div key={grupo.group}>
+                              <p className="text-xs font-semibold text-slate-600 mb-2">{grupo.label}</p>
+                              <div className="grid grid-cols-2 gap-2 pl-2 border-l-2 border-slate-200">
+                                {temasDoGrupo.map(tela => {
+                                  const temAcesso = acessosCargo.includes(tela.page);
+                                  return (
+                                    <button
+                                      key={tela.page}
+                                      onClick={() => {
+                                        if (!emEdicao[cargo]) return;
+                                        const key = `${departamentoSelecionado}_${cargo}`;
+                                        const atual = cargoAcessos[key] || [];
+                                        const updated = atual.includes(tela.page)
+                                          ? atual.filter(p => p !== tela.page)
+                                          : [...atual, tela.page];
+                                        setCargoAcessos({ ...cargoAcessos, [key]: updated });
+                                      }}
+                                      disabled={!emEdicao[cargo]}
+                                      className={`flex items-center gap-2 px-3 py-2 rounded-lg transition text-left text-xs border ${
+                                        !emEdicao[cargo]
+                                          ? "opacity-60 cursor-not-allowed"
+                                          : temAcesso
+                                          ? "bg-white border-green-300 hover:bg-green-50 cursor-pointer"
+                                          : "bg-white border-slate-200 hover:bg-slate-50 cursor-pointer"
+                                      }`}
+                                    >
+                                      <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition ${
+                                        temAcesso
+                                          ? "bg-green-500"
+                                          : "bg-red-500"
+                                      }`}>
+                                        {temAcesso ? (
+                                          <Check size={12} className="text-white" />
+                                        ) : (
+                                          <X size={12} className="text-white" />
+                                        )}
+                                      </div>
+                                      <span className={`flex-1 font-medium ${
+                                        temAcesso ? "text-green-700" : "text-slate-600"
+                                      }`}>
+                                        {tela.label}
+                                      </span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
                           );
                         })}
                       </div>

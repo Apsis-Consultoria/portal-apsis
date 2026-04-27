@@ -127,7 +127,7 @@ function ColaboradorRow({ c, cfg, selecionado, onToggle, diasFerias, diasEfetivo
   );
 }
 
-function SubgrupoColabs({ titulo, cor, colaboradores, selecionados, onToggle, diasUteis, vrDiario, ferias, onFeriasChange, estado, ano, mes, cfg }) {
+function SubgrupoColabs({ titulo, cor, colaboradores, selecionados, onToggle, onSelectAll, onDeselectAll, diasUteis, vrDiario, ferias, onFeriasChange, estado, ano, mes, cfg }) {
   const getDiasEfetivos = (id) => {
     const diasFerias = calcDiasFeriasMes(id, ferias, ano, mes, estado);
     return Math.max(0, diasUteis - diasFerias);
@@ -156,7 +156,19 @@ function SubgrupoColabs({ titulo, cor, colaboradores, selecionados, onToggle, di
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cor.badgeCls}`}>{titulo}</span>
           <span className="text-xs text-gray-400">{fmt(vrDiario)}/dia</span>
         </div>
-        <span className={`text-xs font-medium ${cfg.totalCls}`}>{fmt(total)}</span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              const allSelected = colaboradores.every(c => selecionados.includes(String(c.id)));
+              if (allSelected) onDeselectAll(colaboradores);
+              else onSelectAll(colaboradores);
+            }}
+            className="text-[10px] text-slate-400 hover:text-slate-600 underline underline-offset-2 transition"
+          >
+            {colaboradores.every(c => selecionados.includes(String(c.id))) ? "Desmarcar todos" : "Selecionar todos"}
+          </button>
+          <span className={`text-xs font-medium ${cfg.totalCls}`}>{fmt(total)}</span>
+        </div>
       </div>
       <div className="space-y-1">
         {colaboradores.length === 0 && (
@@ -258,6 +270,8 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
                 colaboradores={clts}
                 selecionados={selecionados}
                 onToggle={onToggle}
+                onSelectAll={(list) => list.forEach(c => { if (!selecionados.includes(String(c.id))) onToggle(c.id); })}
+                onDeselectAll={(list) => list.forEach(c => { if (selecionados.includes(String(c.id))) onToggle(c.id); })}
                 diasUteis={diasUteis}
                 vrDiario={vrDiario}
                 ferias={ferias}
@@ -273,6 +287,8 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
                 colaboradores={estagiarios}
                 selecionados={selecionados}
                 onToggle={onToggle}
+                onSelectAll={(list) => list.forEach(c => { if (!selecionados.includes(String(c.id))) onToggle(c.id); })}
+                onDeselectAll={(list) => list.forEach(c => { if (selecionados.includes(String(c.id))) onToggle(c.id); })}
                 diasUteis={diasUteis}
                 vrDiario={vrEstagiario || vrDiario}
                 ferias={ferias}
@@ -311,9 +327,26 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
           )}
 
           <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
-            <span className="text-xs text-slate-400">
-              {selecionados.length} de {colaboradores.length} selecionados
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-slate-400">
+                {selecionados.length} de {colaboradores.length} selecionados
+              </span>
+              {!temEstagiarios && colaboradores.length > 0 && (
+                <button
+                  onClick={() => {
+                    const allSel = sorted.every(c => selecionados.includes(String(c.id)));
+                    sorted.forEach(c => {
+                      const sel = selecionados.includes(String(c.id));
+                      if (allSel && sel) onToggle(c.id);
+                      if (!allSel && !sel) onToggle(c.id);
+                    });
+                  }}
+                  className="text-[10px] text-slate-400 hover:text-slate-600 underline underline-offset-2 transition"
+                >
+                  {sorted.every(c => selecionados.includes(String(c.id))) ? "Desmarcar todos" : "Selecionar todos"}
+                </button>
+              )}
+            </div>
             <span className={`text-lg font-bold ${cfg.totalCls}`}>{fmt(total)}</span>
           </div>
         </div>

@@ -71,32 +71,11 @@ const DEFAULT_ROLE_PAGES = {
  * - externalUrl: link externo (opcional)
  */
 const navItems = [
-  { label: "Boas-Vindas", page: "BoasVindas", icon: Home },
+  { label: "Inova+", externalUrl: "https://inova.apsis.com.br/", icon: Sparkles },
   {
-    label: "Inovação e Tecnologia", page: "TecnologiaInicio", icon: Cpu,
+    label: "Apps APSIS", page: "AppsAPSIS", icon: Grid3x3,
     children: [
-      { label: "Estoque de Ativos", page: "EstoqueAtivos", icon: Package },
-      { label: "Alocação de Equipamentos", page: "AlocacaoEquipamentos", icon: Users },
-      { label: "Movimentações", page: "MovimentacoesEquipamentos", icon: TrendingUp },
-      { label: "Dashboard", page: "DashboardTI", icon: BarChart3 },
-      { label: "Painel de Solicitações IA", page: "SolicitacoesIAAdmin", icon: LayoutDashboard },
-    ]
-  },
-  { label: "Infraestrutura", page: "Infraestrutura", icon: Server },
-  {
-    label: "Business Valuation", page: "BusinessValuation", icon: Landmark,
-    children: [
-      { label: "Controle de Alocação de Horas", page: "BusinessValuation", icon: Clock },
-    ]
-  },
-  {
-    label: "Financeiro", page: "Financeiro", icon: DollarSign,
-    children: [
-      { label: "Contas a Pagar", page: "ContasAPagar", icon: DollarSign },
-      { label: "Contas a Receber", page: "ContasAReceber", icon: DollarSign },
-      { label: "Fluxo de Caixa", page: "FluxoCaixa", icon: ArrowRightLeft },
-      { label: "Estoque", page: "Estoque", icon: Package },
-      { label: "Rateio de Despesas", page: "RateioDespesas", icon: Split },
+      { label: "APSIS CUBUS", page: "AppCubus", icon: Sparkles },
     ]
   },
   {
@@ -107,17 +86,13 @@ const navItems = [
       { label: "App Imóveis", page: "AppImoveis", icon: Home },
     ]
   },
-  { label: "Projetos Especiais", page: "ProjetosEspeciais", icon: Star },
-  { label: "M&A", page: "MA", icon: GitMerge },
+  { label: "Boas-Vindas", page: "BoasVindas", icon: Home },
   {
-    label: "Marketing & Estratégia", page: "Marketing", icon: Megaphone,
+    label: "Business Valuation", page: "BusinessValuation", icon: Landmark,
     children: [
-      { label: "Indicadores Estratégicos", page: "MarketingIndicadores", icon: LayoutDashboard },
-      { label: "Comercial", page: "MarketingComercial", icon: TrendingUp },
-      { label: "Orçado vs Real", page: "MarketingOrcado", icon: PieChart },
+      { label: "Controle de Alocação de Horas", page: "BusinessValuation", icon: Clock },
     ]
   },
-  { label: "Consultoria Contábil & Tributária", page: "ConsultoriaContabil", icon: Calculator },
   {
     label: "Capital Humano", page: "CapitalHumano", icon: Users,
     children: [
@@ -131,23 +106,47 @@ const navItems = [
       { label: "Configurações", page: "CapitalHumano", icon: Settings, tabParam: "configuracoes" },
     ]
   },
-  { label: "Editoração", page: "Editoracao", icon: BookOpen },
-  { label: "Perícias", page: "Pericias", icon: Search },
   { label: "Comercial", page: "Comercial", icon: ShoppingCart },
-  { label: "Diretoria Técnica", page: "DiretoriaTecnica", icon: Award },
+  { label: "Configurações", page: "Configuracoes", icon: Settings },
+  { label: "Consultoria Contábil & Tributária", page: "ConsultoriaContabil", icon: Calculator },
   { label: "Consultoria Estratégica", page: "ConsultoriaEstrategica", icon: Lightbulb },
-  { label: "Sustentabilidade", page: "Sustentabilidade", icon: Leaf },
-
+  { label: "Dashboard Qualidade", externalUrl: "https://qualidade.apsis.com.br", icon: BarChart3 },
+  { label: "Diretoria Técnica", page: "DiretoriaTecnica", icon: Award },
+  { label: "Editoração", page: "Editoracao", icon: BookOpen },
   {
-    label: "Apps APSIS", page: "AppsAPSIS", icon: Grid3x3,
+    label: "Financeiro", page: "Financeiro", icon: DollarSign,
     children: [
-      { label: "APSIS CUBUS", page: "AppCubus", icon: Sparkles },
+      { label: "Contas a Pagar", page: "ContasAPagar", icon: DollarSign },
+      { label: "Contas a Receber", page: "ContasAReceber", icon: DollarSign },
+      { label: "Fluxo de Caixa", page: "FluxoCaixa", icon: ArrowRightLeft },
+      { label: "Estoque", page: "Estoque", icon: Package },
+      { label: "Rateio de Despesas", page: "RateioDespesas", icon: Split },
     ]
   },
+  { label: "Infraestrutura", page: "Infraestrutura", icon: Server },
+  {
+    label: "Inovação e Tecnologia", page: "TecnologiaInicio", icon: Cpu,
+    children: [
+      { label: "Estoque de Ativos", page: "EstoqueAtivos", icon: Package },
+      { label: "Alocação de Equipamentos", page: "AlocacaoEquipamentos", icon: Users },
+      { label: "Movimentações", page: "MovimentacoesEquipamentos", icon: TrendingUp },
+      { label: "Dashboard", page: "DashboardTI", icon: BarChart3 },
+      { label: "Painel de Solicitações IA", page: "SolicitacoesIAAdmin", icon: LayoutDashboard },
+    ]
+  },
+  { label: "M&A", page: "MA", icon: GitMerge },
+  {
+    label: "Marketing & Estratégia", page: "Marketing", icon: Megaphone,
+    children: [
+      { label: "Indicadores Estratégicos", page: "MarketingIndicadores", icon: LayoutDashboard },
+      { label: "Comercial", page: "MarketingComercial", icon: TrendingUp },
+      { label: "Orçado vs Real", page: "MarketingOrcado", icon: PieChart },
+    ]
+  },
+  { label: "Perícias", page: "Pericias", icon: Search },
   { label: "Planejamento Estratégico", page: "PlanejamentoEstrategico", icon: Target },
-  { label: "Inova+", externalUrl: "https://inova.apsis.com.br/", icon: Sparkles },
-  { label: "Dashboard Qualidade", externalUrl: "https://qualidade.apsis.com.br", icon: BarChart3 },
-  { label: "Configurações", page: "Configuracoes", icon: Settings },
+  { label: "Projetos Especiais", page: "ProjetosEspeciais", icon: Star },
+  { label: "Sustentabilidade", page: "Sustentabilidade", icon: Leaf },
   { label: "Gerenciamento de Acessos", page: "GerenciamentoAcessos", icon: Lock },
 ];
 

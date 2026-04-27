@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Plus, Settings, TrendingUp, MapPin, CalendarDays, Download, Wallet } from "lucide-react";
+import { Plus, Settings, TrendingUp, MapPin, CalendarDays, Download, Wallet, Trash2 } from "lucide-react";
 import * as XLSX from "xlsx";
 
 import ColaboradoresCLTModal from "@/components/rateiocaju/ColaboradoresCLTModal";
@@ -61,6 +61,13 @@ export default function RateioCaju() {
   const vrPorPessoa = colaboradores.length > 0
     ? colaboradores.reduce((acc, c) => acc + (c.valor_vr_diario || 0), 0) / colaboradores.length
     : 0;
+
+  const handleDeletarRateio = async (e, id) => {
+    e.stopPropagation();
+    if (!window.confirm("Tem certeza que deseja excluir este rascunho?")) return;
+    await base44.entities.RateioCaju.delete(id);
+    fetchData();
+  };
 
   const handleExportarRateio = (rateio) => {
     const workbook = XLSX.utils.book_new();
@@ -280,6 +287,18 @@ export default function RateioCaju() {
                   >
                     <Download size={13} /> Exportar
                   </Button>
+
+                  {/* Excluir — apenas para Rascunho */}
+                  {(r.status === "Rascunho" || !r.status) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={e => handleDeletarRateio(e, r.id)}
+                      className="gap-1.5 text-xs opacity-0 group-hover:opacity-100 transition border-red-200 text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 size={13} /> Excluir
+                    </Button>
+                  )}
                 </div>
               );
             })}

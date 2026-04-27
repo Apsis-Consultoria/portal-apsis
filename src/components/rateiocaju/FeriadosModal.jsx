@@ -30,6 +30,11 @@ export default function FeriadosModal({ open, onClose }) {
   const [anoSel, setAnoSel] = useState(new Date().getFullYear());
   const [overrides, setOverrides] = useState(loadOverrides);
 
+  // Ao abrir o modal, recarrega do localStorage para descartar edições não salvas
+  useEffect(() => {
+    if (open) setOverrides(loadOverrides());
+  }, [open]);
+
   const anos = useMemo(() => Array.from({ length: 2050 - 2024 + 1 }, (_, i) => 2024 + i), []);
 
   // Recalcula valores base quando muda o ano
@@ -61,18 +66,16 @@ export default function FeriadosModal({ open, onClose }) {
       newOverrides[key] = num;
     }
     setOverrides(newOverrides);
-    saveOverrides(newOverrides);
+    // NÃO salva no localStorage — apenas atualiza estado local
   };
 
-  const handleReset = (key, baseValue) => {
+  const handleReset = (key) => {
     const newOverrides = { ...overrides };
     delete newOverrides[key];
     setOverrides(newOverrides);
-    saveOverrides(newOverrides);
   };
 
   const handleResetAll = () => {
-    // Remove apenas os overrides do ano selecionado
     const newOverrides = { ...overrides };
     MESES.forEach((_, idx) => {
       const mes = idx + 1;
@@ -82,13 +85,17 @@ export default function FeriadosModal({ open, onClose }) {
       delete newOverrides[keyRJ];
     });
     setOverrides(newOverrides);
-    saveOverrides(newOverrides);
+  };
+
+  const handleClose = () => {
+    setOverrides(loadOverrides()); // descarta alterações não salvas
+    onClose();
   };
 
   const temEdicoes = tabela.some(r => r.spEditado || r.rjEditado);
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -215,7 +222,7 @@ export default function FeriadosModal({ open, onClose }) {
         </p>
 
         <div className="flex justify-end gap-2 mt-2">
-          <Button variant="outline" onClick={onClose}>Fechar sem salvar</Button>
+          <Button variant="outline" onClick={handleClose}>Fechar sem salvar</Button>
           <Button onClick={() => { saveOverrides(overrides); onClose(); }} className="bg-[#1A4731] hover:bg-[#1A4731]/90">
             Salvar alterações
           </Button>

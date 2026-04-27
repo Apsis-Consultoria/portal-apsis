@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Plus, Settings, TrendingUp, MapPin, CalendarDays, Download, Wallet, ChevronRight } from "lucide-react";
+import { Plus, Settings, TrendingUp, MapPin, CalendarDays, Download, Wallet } from "lucide-react";
 import * as XLSX from "xlsx";
 
 import ColaboradoresCLTModal from "@/components/rateiocaju/ColaboradoresCLTModal";

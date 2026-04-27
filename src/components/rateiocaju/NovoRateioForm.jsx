@@ -306,8 +306,39 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
   );
 }
 
-export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = {} }) {
+// Extrai valores VR salvos de um rateio existente
+function extrairVrSalvo(rateio) {
+  const vrD = { ...VR_DIARIO_DEFAULT };
+  const vrE = { ...VR_ESTAGIARIO_DEFAULT };
+  const campos = { RJ: "colaboradores_rj", SP: "colaboradores_sp", Carbon: "colaboradores_carbon", REDD: "colaboradores_redd" };
+  UNIDADES.forEach(u => {
+    const raw = rateio[campos[u]];
+    if (!raw) return;
+    const list = JSON.parse(raw);
+    const clt  = list.find(c => (c.tipo_contrato || "CLT") === "CLT");
+    const est  = list.find(c => c.tipo_contrato === "Estagiário");
+    if (clt) vrD[u] = clt.valor_diario;
+    if (est && (u === "RJ" || u === "SP")) vrE[u] = est.valor_diario;
+  });
+  return { vrD, vrE };
+}
+
+// Extrai IDs dos colaboradores selecionados de um rateio existente
+function extrairSelecionados(rateio) {
+  const campos = { RJ: "colaboradores_rj", SP: "colaboradores_sp", Carbon: "colaboradores_carbon", REDD: "colaboradores_redd" };
+  const sel = { RJ: [], SP: [], Carbon: [], REDD: [] };
+  UNIDADES.forEach(u => {
+    const raw = rateio[campos[u]];
+    if (raw) sel[u] = JSON.parse(raw).map(c => c.id);
+  });
+  return sel;
+}
+
+export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = {}, rateioExistente = null }) {
+  const editando = Boolean(rateioExistente?.id);
+
   const [mesRef, setMesRef] = useState(() => {
+    if (rateioExistente?.mes_referencia) return rateioExistente.mes_referencia;
     const today = new Date();
     return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
   });
@@ -316,12 +347,12 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
   const [saving, setSaving] = useState(false);
   const [showFeriasModal, setShowFeriasModal] = useState(false);
 
-  const [vrDiario, setVrDiario] = useState({ ...VR_DIARIO_DEFAULT });
-  const [vrEstagiario, setVrEstagiario] = useState({ ...VR_ESTAGIARIO_DEFAULT });
-  const [editingVr, setEditingVr] = useState(null); // "RJ" | "SP" | "RJ_est" | "SP_est" | ...
+  const vrSalvo = editando ? extrairVrSalvo(rateioExistente) : null;
+  const [vrDiario, setVrDiario] = useState(vrSalvo ? vrSalvo.vrD : { ...VR_DIARIO_DEFAULT });
+  const [vrEstagiario, setVrEstagiario] = useState(vrSalvo ? vrSalvo.vrE : { ...VR_ESTAGIARIO_DEFAULT });
+  const [editingVr, setEditingVr] = useState(null);
   const [vrTemp, setVrTemp] = useState("");
 
-  // ferias: pré-populado com férias programadas, editável inline
   const [ferias, setFerias] = useState(feriasProgramadas);
 
   const [ano, mes] = mesRef.split("-").map(Number);
@@ -348,11 +379,14 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
     base44.entities.ColaboradorCLT.list().then(data => {
       const ativos = data.filter(c => c.ativo !== false);
       setColaboradores(ativos);
-      const init = { RJ: [], SP: [], Carbon: [], REDD: [] };
-      UNIDADES.forEach(u => {
-        init[u] = ativos.filter(c => c.unidade === u).map(c => c.id);
-      });
-      setSelecionados(init);
+      if (editando) {
+        // pré-seleciona os colaboradores que estavam no rateio salvo
+        setSelecionados(extrairSelecionados(rateioExistente));
+      } else {
+        const init = { RJ: [], SP: [], Carbon: [], REDD: [] };
+        UNIDADES.forEach(u => { init[u] = ativos.filter(c => c.unidade === u).map(c => c.id); });
+        setSelecionados(init);
+      }
     });
   }, []);
 
@@ -417,7 +451,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
         });
     });
 
-    await base44.entities.RateioCaju.create({
+    const payload = {
       mes_referencia: mesRef,
       mes_label: formatMes(mesRef),
       dias_uteis_sp: diasUteisSP,
@@ -431,8 +465,13 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
       total_carbon: totais.Carbon,
       total_redd: totais.REDD,
       total_geral: totalGeral,
-      status: "Rascunho",
-    });
+      status: editando ? (rateioExistente.status || "Rascunho") : "Rascunho",
+    };
+    if (editando) {
+      await base44.entities.RateioCaju.update(rateioExistente.id, payload);
+    } else {
+      await base44.entities.RateioCaju.create(payload);
+    }
     setSaving(false);
     onSaved();
   };
@@ -450,7 +489,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
             <ArrowLeft size={16} className="text-slate-600" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-[#1A4731]">Novo Rateio</h1>
+            <h1 className="text-2xl font-bold text-[#1A4731]">{editando ? "Editar Rateio" : "Novo Rateio"}</h1>
             <p className="text-sm text-slate-500 mt-0.5">Vale Refeição Caju — selecione o mês e confirme os colaboradores</p>
           </div>
         </div>
@@ -472,7 +511,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
             disabled={saving}
             className="bg-[#1A4731] hover:bg-[#1A4731]/90 text-white shadow-sm gap-1.5 text-xs"
           >
-            {saving ? "Salvando..." : "Salvar Rateio"}
+            {saving ? "Salvando..." : editando ? "Salvar Alterações" : "Salvar Rateio"}
           </Button>
         </div>
       </div>
@@ -615,7 +654,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
             disabled={saving}
             className="bg-white text-[#1A4731] hover:bg-white/90 font-semibold shadow-sm text-xs"
           >
-            {saving ? "Salvando..." : "Salvar Rateio"}
+            {saving ? "Salvando..." : editando ? "Salvar Alterações" : "Salvar Rateio"}
           </Button>
         </div>
       </div>

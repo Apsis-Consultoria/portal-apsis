@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Plus, Settings, TrendingUp, MapPin, CalendarDays, Download, Wallet } from "lucide-react";
 import * as XLSX from "xlsx";
 
@@ -15,16 +14,17 @@ const fmt = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", c
 
 const STATUS_CONFIG = {
   Finalizado: { cls: "bg-emerald-100 text-emerald-800 border border-emerald-200", dot: "bg-emerald-500" },
-  Rascunho:   { cls: "bg-amber-100 text-amber-800 border border-amber-200",   dot: "bg-amber-400"  },
+  Rascunho:   { cls: "bg-amber-100 text-amber-800 border border-amber-200",       dot: "bg-amber-400"  },
 };
 
-const UNIDADE_COLORS = {
-  SP:     { text: "text-blue-700",   bg: "bg-blue-50",   label: "SP" },
-  RJ:     { text: "text-emerald-700", bg: "bg-emerald-50", label: "RJ" },
-  Carbon: { text: "text-teal-700",   bg: "bg-teal-50",   label: "Carbon" },
-  REDD:   { text: "text-purple-700", bg: "bg-purple-50", label: "REDD" },
-};
+const UNIDADES_CONFIG = [
+  { key: "SP",     field: "colaboradores_sp",     total: "total_sp",     label: "São Paulo",  badgeCls: "bg-blue-100 text-blue-800",     borderCls: "border-blue-200",   headerCls: "bg-blue-50",   totalCls: "text-blue-700"   },
+  { key: "RJ",     field: "colaboradores_rj",     total: "total_rj",     label: "Rio de Janeiro", badgeCls: "bg-emerald-100 text-emerald-800", borderCls: "border-emerald-200", headerCls: "bg-emerald-50", totalCls: "text-emerald-700" },
+  { key: "Carbon", field: "colaboradores_carbon", total: "total_carbon", label: "Carbon",     badgeCls: "bg-teal-100 text-teal-800",     borderCls: "border-teal-200",   headerCls: "bg-teal-50",   totalCls: "text-teal-700"   },
+  { key: "REDD",   field: "colaboradores_redd",   total: "total_redd",   label: "REDD",       badgeCls: "bg-purple-100 text-purple-800", borderCls: "border-purple-200", headerCls: "bg-purple-50", totalCls: "text-purple-700" },
+];
 
+// ── Tela principal ────────────────────────────────────────────────────────────
 export default function RateioCaju() {
   const [rateios, setRateios] = useState([]);
   const [colaboradores, setColaboradores] = useState([]);
@@ -33,6 +33,7 @@ export default function RateioCaju() {
   const [showFeriados, setShowFeriados] = useState(false);
   const [showFerias, setShowFerias] = useState(false);
   const [criandoRateio, setCriandoRateio] = useState(false);
+  const [rateioSelecionado, setRateioSelecionado] = useState(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -62,16 +63,9 @@ export default function RateioCaju() {
     : 0;
 
   const handleExportarRateio = (rateio) => {
-    const unidades = ["SP", "RJ", "Carbon", "REDD"];
     const workbook = XLSX.utils.book_new();
-    const mapColabs = {
-      SP:     rateio.colaboradores_sp     ? JSON.parse(rateio.colaboradores_sp)     : [],
-      RJ:     rateio.colaboradores_rj     ? JSON.parse(rateio.colaboradores_rj)     : [],
-      Carbon: rateio.colaboradores_carbon ? JSON.parse(rateio.colaboradores_carbon) : [],
-      REDD:   rateio.colaboradores_redd   ? JSON.parse(rateio.colaboradores_redd)   : [],
-    };
-    unidades.forEach(unidade => {
-      const colabs = mapColabs[unidade];
+    UNIDADES_CONFIG.forEach(u => {
+      const colabs = rateio[u.field] ? JSON.parse(rateio[u.field]) : [];
       const data = colabs.map(c => ({
         Nome: c.nome || "",
         "Tipo de Contrato": c.tipo_contrato || "CLT",
@@ -80,11 +74,12 @@ export default function RateioCaju() {
         "Dias Efetivos": c.dias_efetivos || 0,
         Total: c.total || 0,
       }));
-      XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(data), unidade);
+      XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(data), u.key);
     });
     XLSX.writeFile(workbook, `Rateio_Caju_${rateio.mes_label || rateio.mes_referencia}.xlsx`);
   };
 
+  // ── Tela: criando novo rateio
   if (criandoRateio) {
     return (
       <NovoRateioForm
@@ -95,6 +90,19 @@ export default function RateioCaju() {
     );
   }
 
+  // ── Tela: editando rateio selecionado
+  if (rateioSelecionado) {
+    return (
+      <NovoRateioForm
+        rateioExistente={rateioSelecionado}
+        onCancel={() => setRateioSelecionado(null)}
+        onSaved={() => { setRateioSelecionado(null); fetchData(); }}
+        feriasProgramadas={loadFeriasProgramadas()}
+      />
+    );
+  }
+
+  // ── Tela: lista principal
   return (
     <div className="space-y-6">
 
@@ -106,35 +114,20 @@ export default function RateioCaju() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFerias(true)}
-            className="gap-1.5 text-xs border-slate-200 text-slate-600 hover:bg-slate-50"
-          >
+          <Button variant="outline" size="sm" onClick={() => setShowFerias(true)}
+            className="gap-1.5 text-xs border-slate-200 text-slate-600 hover:bg-slate-50">
             <CalendarDays size={13} /> Férias
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFeriados(true)}
-            className="gap-1.5 text-xs border-slate-200 text-slate-600 hover:bg-slate-50"
-          >
+          <Button variant="outline" size="sm" onClick={() => setShowFeriados(true)}
+            className="gap-1.5 text-xs border-slate-200 text-slate-600 hover:bg-slate-50">
             <CalendarDays size={13} /> Feriados SP/RJ
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowCLTModal(true)}
-            className="gap-1.5 text-xs border-slate-200 text-slate-600 hover:bg-slate-50"
-          >
+          <Button variant="outline" size="sm" onClick={() => setShowCLTModal(true)}
+            className="gap-1.5 text-xs border-slate-200 text-slate-600 hover:bg-slate-50">
             <Settings size={13} /> Colaboradores CLT
           </Button>
-          <Button
-            size="sm"
-            onClick={() => setCriandoRateio(true)}
-            className="gap-1.5 bg-[#1A4731] hover:bg-[#1A4731]/90 text-white shadow-sm"
-          >
+          <Button size="sm" onClick={() => setCriandoRateio(true)}
+            className="gap-1.5 bg-[#1A4731] hover:bg-[#1A4731]/90 text-white shadow-sm">
             <Plus size={14} /> Novo Rateio
           </Button>
         </div>
@@ -143,7 +136,6 @@ export default function RateioCaju() {
       {/* ── KPI Cards ──────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-        {/* Média Mensal */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Média Mensal</span>
@@ -155,7 +147,6 @@ export default function RateioCaju() {
           <p className="text-xs text-slate-400 mt-2">{rateios.length} rateios realizados</p>
         </div>
 
-        {/* Último Rateio */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Último Rateio</span>
@@ -171,7 +162,6 @@ export default function RateioCaju() {
           </p>
         </div>
 
-        {/* VR Médio/dia */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">VR Médio/dia</span>
@@ -183,7 +173,6 @@ export default function RateioCaju() {
           <p className="text-xs text-slate-400 mt-2">por colaborador</p>
         </div>
 
-        {/* Por Unidade */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Por Unidade</span>
@@ -234,8 +223,11 @@ export default function RateioCaju() {
             {rateios.map(r => {
               const status = STATUS_CONFIG[r.status] || STATUS_CONFIG["Rascunho"];
               return (
-                <div key={r.id} className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 transition group">
-
+                <div
+                  key={r.id}
+                  onClick={() => setRateioSelecionado(r)}
+                  className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 transition group cursor-pointer"
+                >
                   {/* Ícone */}
                   <div className="w-10 h-10 rounded-xl bg-[#1A4731]/10 flex items-center justify-center flex-shrink-0">
                     <CalendarDays size={18} className="text-[#1A4731]" />
@@ -247,12 +239,8 @@ export default function RateioCaju() {
                       {r.mes_label || formatMes(r.mes_referencia)}
                     </p>
                     <div className="flex gap-2 mt-0.5 flex-wrap">
-                      <span className="text-xs text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md font-medium">
-                        SP {r.dias_uteis_sp}d
-                      </span>
-                      <span className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md font-medium">
-                        RJ {r.dias_uteis_rj}d
-                      </span>
+                      <span className="text-xs text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md font-medium">SP {r.dias_uteis_sp}d</span>
+                      <span className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md font-medium">RJ {r.dias_uteis_rj}d</span>
                     </div>
                   </div>
 
@@ -283,11 +271,11 @@ export default function RateioCaju() {
                     {r.status || "Rascunho"}
                   </span>
 
-                  {/* Exportar */}
+                  {/* Exportar — isolado para não propagar o click */}
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleExportarRateio(r)}
+                    onClick={e => { e.stopPropagation(); handleExportarRateio(r); }}
                     className="gap-1.5 text-xs opacity-0 group-hover:opacity-100 transition border-slate-200"
                   >
                     <Download size={13} /> Exportar

@@ -288,18 +288,18 @@ export default function Ferias() {
                          <div className="flex-1 min-w-0">
                            <div className="flex items-center gap-2 flex-wrap">
                              <span className="text-sm font-semibold text-slate-800">{c.nome}</span>
-                             <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">{calcularDiasRestantes(periodos)}d restantes</span>
                              {c.area && <span className="text-xs text-slate-400">{c.area}</span>}
-                            {(c.tipo_vinculo || c.tipo_contrato) && (
-                              <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
-                                (c.tipo_vinculo || c.tipo_contrato) === "Estagiário"
-                                  ? "bg-amber-100 text-amber-700"
-                                  : "bg-slate-100 text-slate-600"
-                              }`}>
-                                {c.tipo_vinculo || c.tipo_contrato}
-                              </span>
-                            )}
-                          </div>
+                             {(c.tipo_vinculo || c.tipo_contrato) && (
+                               <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
+                                 (c.tipo_vinculo || c.tipo_contrato) === "Estagiário"
+                                   ? "bg-amber-100 text-amber-700"
+                                   : "bg-slate-100 text-slate-600"
+                               }`}>
+                                 {c.tipo_vinculo || c.tipo_contrato}
+                               </span>
+                             )}
+                             <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">{calcularDiasRestantes(periodos)}d restantes</span>
+                           </div>
                         </div>
 
                         {/* Períodos inline + botão adicionar */}

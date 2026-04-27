@@ -89,6 +89,22 @@ export default function ConfigurarAreas() {
     setGrupoPermissoes(updated);
   };
 
+  const ativarTodosGrupos = (dept) => {
+    const updated = { ...grupoPermissoes };
+    MENU_GROUPS.forEach(g => {
+      updated[dept] = { ...updated[dept], [g.group]: true };
+    });
+    setGrupoPermissoes(updated);
+  };
+
+  const desativarTodosGrupos = (dept) => {
+    const updated = { ...grupoPermissoes };
+    MENU_GROUPS.forEach(g => {
+      updated[dept] = { ...updated[dept], [g.group]: false };
+    });
+    setGrupoPermissoes(updated);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12 gap-2 text-slate-400">
@@ -158,6 +174,22 @@ export default function ConfigurarAreas() {
               {isExpanded && (
                 <div className={`p-4 border-t border-slate-100 ${emEdicao[dept] ? "bg-blue-50" : ""}`}>
                   {!emEdicao[dept] && <p className="text-xs text-slate-500 mb-3 italic">Clique em "Editar" para modificar as permissões</p>}
+                  {emEdicao[dept] && (
+                    <div className="flex gap-2 mb-3 pb-3 border-b border-slate-200">
+                      <button
+                        onClick={() => ativarTodosGrupos(dept)}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium transition"
+                      >
+                        Selecionar Todos
+                      </button>
+                      <button
+                        onClick={() => desativarTodosGrupos(dept)}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition"
+                      >
+                        Deselecionar Todos
+                      </button>
+                    </div>
+                  )}
                   <div className="grid grid-cols-2 gap-2">
                     {MENU_GROUPS.map(grupo => {
                       const ativo = permsGrupos[grupo.group] || false;

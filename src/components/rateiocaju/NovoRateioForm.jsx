@@ -384,7 +384,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
         setSelecionados(extrairSelecionados(rateioExistente));
       } else {
         const init = { RJ: [], SP: [], Carbon: [], REDD: [] };
-        UNIDADES.forEach(u => { init[u] = ativos.filter(c => c.unidade === u).map(c => String(c.id)); });
+        UNIDADES.forEach(u => { init[u] = ativos.filter(c => (c.unidade || "").trim().toUpperCase() === u.toUpperCase()).map(c => String(c.id)); });
         setSelecionados(init);
       }
     });
@@ -400,7 +400,9 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
     }));
   };
 
-  const getColabs = (unidade) => colaboradores.filter(c => c.unidade === unidade);
+  // Normaliza o valor de unidade para comparação (case-insensitive + trim)
+  const normalizeUnidade = (u) => (u || "").trim().toUpperCase();
+  const getColabs = (unidade) => colaboradores.filter(c => normalizeUnidade(c.unidade) === normalizeUnidade(unidade));
 
   const handleFeriasChange = (colaboradorId, periodos) => {
     setFerias(prev => ({ ...prev, [colaboradorId]: periodos }));

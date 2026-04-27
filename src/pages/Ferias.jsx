@@ -241,13 +241,12 @@ export default function Ferias() {
                 </span>
               </button>
 
-              {/* Lista de colaboradores — visível apenas se expandida */}
-              {isUnidadeExpanded && <div className="divide-y divide-slate-100">
-                {colabs.map(c => {
+              {/* Lista de colaboradores — sempre mostra 2, expande para ver todos */}
+              <div className="divide-y divide-slate-100">
+                {(isUnidadeExpanded ? colabs : colabs.slice(0, 2)).map(c => {
                   const periodos = ferias[c.id] || [];
                   const isExpanded = expandidos[c.id];
                   const isAdding = adicionando === c.id;
-                  const estado = unidade === "SP" ? "SP" : "RJ";
 
                   return (
                     <div key={c.id} className="px-5 py-3">
@@ -366,7 +365,15 @@ export default function Ferias() {
                     </div>
                   );
                 })}
-              </div>}
+                {!isUnidadeExpanded && colabs.length > 2 && (
+                  <div
+                    onClick={() => toggleUnidade(unidade)}
+                    className="px-5 py-2 text-xs text-slate-400 hover:text-slate-600 cursor-pointer hover:bg-slate-50 transition"
+                  >
+                    + {colabs.length - 2} colaborador{colabs.length - 2 !== 1 ? "es" : ""} — clique para ver todos
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}

@@ -145,10 +145,10 @@ const navItems = [
     ]
   },
   { label: "Planejamento Estratégico", page: "PlanejamentoEstrategico", icon: Target },
-  { label: "Gerenciamento de Acessos", page: "GerenciamentoAcessos", icon: Lock },
   { label: "Inova+", externalUrl: "https://inova.apsis.com.br/", icon: Sparkles },
   { label: "Dashboard Qualidade", externalUrl: "https://qualidade.apsis.com.br", icon: BarChart3 },
   { label: "Configurações", page: "Configuracoes", icon: Settings },
+  { label: "Gerenciamento de Acessos", page: "GerenciamentoAcessos", icon: Lock },
 ];
 
 const LOGO_URL = "https://media.base44.com/images/public/69a1fc4b60b4c477ea324579/32a8b27c7_Logohorizontal-Fundobranco1.png";

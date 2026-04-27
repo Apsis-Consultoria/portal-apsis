@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { colaboradoresService } from "@/lib/supabaseColaboradores";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -66,7 +65,7 @@ export default function Ferias() {
 
   useEffect(() => {
     setLoading(true);
-    colaboradoresService.list().then(data => {
+    base44.entities.ColaboradorCLT.list().then(data => {
       setColaboradores(data.filter(c => c.ativo !== false));
       setFerias(loadFerias());
       setLoading(false);

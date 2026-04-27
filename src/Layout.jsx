@@ -107,7 +107,6 @@ const navItems = [
     ]
   },
   { label: "Comercial", page: "Comercial", icon: ShoppingCart },
-  { label: "Configurações", page: "Configuracoes", icon: Settings },
   { label: "Consultoria Contábil & Tributária", page: "ConsultoriaContabil", icon: Calculator },
   { label: "Consultoria Estratégica", page: "ConsultoriaEstrategica", icon: Lightbulb },
   { label: "Dashboard Qualidade", externalUrl: "https://qualidade.apsis.com.br", icon: BarChart3 },
@@ -147,6 +146,7 @@ const navItems = [
   { label: "Planejamento Estratégico", page: "PlanejamentoEstrategico", icon: Target },
   { label: "Projetos Especiais", page: "ProjetosEspeciais", icon: Star },
   { label: "Sustentabilidade", page: "Sustentabilidade", icon: Leaf },
+  { label: "Configurações", page: "Configuracoes", icon: Settings },
   { label: "Gerenciamento de Acessos", page: "GerenciamentoAcessos", icon: Lock },
 ];
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Settings, TrendingUp, MapPin, CalendarDays, Download, Wallet } from "lucide-react";
+import { Plus, Settings, TrendingUp, MapPin, CalendarDays, Download, Wallet, ArrowLeft } from "lucide-react";
 import * as XLSX from "xlsx";
 
 import ColaboradoresCLTModal from "@/components/rateiocaju/ColaboradoresCLTModal";
@@ -15,16 +15,155 @@ const fmt = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", c
 
 const STATUS_CONFIG = {
   Finalizado: { cls: "bg-emerald-100 text-emerald-800 border border-emerald-200", dot: "bg-emerald-500" },
-  Rascunho:   { cls: "bg-amber-100 text-amber-800 border border-amber-200",   dot: "bg-amber-400"  },
+  Rascunho:   { cls: "bg-amber-100 text-amber-800 border border-amber-200",       dot: "bg-amber-400"  },
 };
 
-const UNIDADE_COLORS = {
-  SP:     { text: "text-blue-700",   bg: "bg-blue-50",   label: "SP" },
-  RJ:     { text: "text-emerald-700", bg: "bg-emerald-50", label: "RJ" },
-  Carbon: { text: "text-teal-700",   bg: "bg-teal-50",   label: "Carbon" },
-  REDD:   { text: "text-purple-700", bg: "bg-purple-50", label: "REDD" },
-};
+const UNIDADES_CONFIG = [
+  { key: "SP",     field: "colaboradores_sp",     total: "total_sp",     label: "São Paulo",  badgeCls: "bg-blue-100 text-blue-800",     borderCls: "border-blue-200",   headerCls: "bg-blue-50",   totalCls: "text-blue-700"   },
+  { key: "RJ",     field: "colaboradores_rj",     total: "total_rj",     label: "Rio de Janeiro", badgeCls: "bg-emerald-100 text-emerald-800", borderCls: "border-emerald-200", headerCls: "bg-emerald-50", totalCls: "text-emerald-700" },
+  { key: "Carbon", field: "colaboradores_carbon", total: "total_carbon", label: "Carbon",     badgeCls: "bg-teal-100 text-teal-800",     borderCls: "border-teal-200",   headerCls: "bg-teal-50",   totalCls: "text-teal-700"   },
+  { key: "REDD",   field: "colaboradores_redd",   total: "total_redd",   label: "REDD",       badgeCls: "bg-purple-100 text-purple-800", borderCls: "border-purple-200", headerCls: "bg-purple-50", totalCls: "text-purple-700" },
+];
 
+// ── Tela de detalhe de um rateio ──────────────────────────────────────────────
+function RateioDetalhe({ rateio, onVoltar, onExportar }) {
+  const status = STATUS_CONFIG[rateio.status] || STATUS_CONFIG["Rascunho"];
+
+  const unidadesComDados = UNIDADES_CONFIG.map(u => ({
+    ...u,
+    colabs: rateio[u.field] ? JSON.parse(rateio[u.field]) : [],
+    total:  rateio[u.total] || 0,
+  })).filter(u => u.colabs.length > 0);
+
+  return (
+    <div className="space-y-6">
+
+      {/* Header */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onVoltar}
+            className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition flex-shrink-0"
+          >
+            <ArrowLeft size={16} className="text-slate-600" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-[#1A4731]">
+              {rateio.mes_label || formatMes(rateio.mes_referencia)}
+            </h1>
+            <p className="text-sm text-slate-500 mt-0.5">Detalhamento do rateio de Vale Refeição</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full ${status.cls}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
+            {rateio.status || "Rascunho"}
+          </span>
+          <Button
+            size="sm"
+            onClick={() => onExportar(rateio)}
+            className="gap-1.5 bg-[#1A4731] hover:bg-[#1A4731]/90 text-white shadow-sm text-xs"
+          >
+            <Download size={13} /> Exportar Excel
+          </Button>
+        </div>
+      </div>
+
+      {/* Resumo dias úteis */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Dias Úteis do Mês</p>
+        <div className="flex gap-6 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg font-semibold">SP {rateio.dias_uteis_sp}d</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg font-semibold">RJ / Carbon / REDD {rateio.dias_uteis_rj}d</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabelas por unidade */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {unidadesComDados.map(u => (
+          <div key={u.key} className={`bg-white rounded-2xl border-2 ${u.borderCls} overflow-hidden shadow-sm`}>
+
+            {/* Header unidade */}
+            <div className={`px-5 py-3 ${u.headerCls} border-b ${u.borderCls} flex items-center justify-between`}>
+              <div className="flex items-center gap-2">
+                <Badge className={`${u.badgeCls} font-bold px-2.5`}>{u.key}</Badge>
+                <span className="text-xs text-slate-500">{u.label}</span>
+              </div>
+              <span className={`text-sm font-bold ${u.totalCls}`}>{fmt(u.total)}</span>
+            </div>
+
+            {/* Lista de colaboradores */}
+            <div className="divide-y divide-slate-100">
+              {u.colabs.map((c, i) => (
+                <div key={i} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 transition">
+                  {/* Avatar inicial */}
+                  <div className={`w-7 h-7 rounded-full ${u.headerCls} flex items-center justify-center flex-shrink-0`}>
+                    <span className={`text-xs font-bold ${u.totalCls}`}>
+                      {(c.nome || "?")[0].toUpperCase()}
+                    </span>
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-800 truncate">{c.nome}</p>
+                    <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                      {c.tipo_contrato && c.tipo_contrato !== "CLT" && (
+                        <span className="text-[10px] font-medium text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">
+                          {c.tipo_contrato}
+                        </span>
+                      )}
+                      <span className="text-[10px] text-slate-400">
+                        {fmt(c.valor_diario)}/dia
+                      </span>
+                      {c.dias_ferias > 0 && (
+                        <span className="text-[10px] text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded">
+                          {c.dias_ferias}d férias
+                        </span>
+                      )}
+                      <span className="text-[10px] text-slate-400">
+                        {c.dias_efetivos}d efetivos
+                      </span>
+                    </div>
+                  </div>
+
+                  <span className="text-sm font-semibold text-slate-800 text-right tabular-nums">
+                    {fmt(c.total)}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer total */}
+            <div className={`px-5 py-3 ${u.headerCls} border-t ${u.borderCls} flex justify-between items-center`}>
+              <span className="text-xs text-slate-500">{u.colabs.length} colaborador{u.colabs.length !== 1 ? "es" : ""}</span>
+              <span className={`text-sm font-bold ${u.totalCls}`}>{fmt(u.total)}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Total geral */}
+      <div className="bg-[#1A4731] rounded-2xl p-5 flex items-center justify-between shadow-sm">
+        <div>
+          <p className="text-sm font-medium text-white/70">Total Geral</p>
+          <p className="text-3xl font-bold text-white mt-0.5">{fmt(rateio.total_geral)}</p>
+        </div>
+        <Button
+          onClick={() => onExportar(rateio)}
+          className="bg-white text-[#1A4731] hover:bg-white/90 font-semibold shadow-sm gap-1.5 text-xs"
+        >
+          <Download size={13} /> Exportar Excel
+        </Button>
+      </div>
+
+    </div>
+  );
+}
+
+// ── Tela principal ────────────────────────────────────────────────────────────
 export default function RateioCaju() {
   const [rateios, setRateios] = useState([]);
   const [colaboradores, setColaboradores] = useState([]);
@@ -33,6 +172,7 @@ export default function RateioCaju() {
   const [showFeriados, setShowFeriados] = useState(false);
   const [showFerias, setShowFerias] = useState(false);
   const [criandoRateio, setCriandoRateio] = useState(false);
+  const [rateioSelecionado, setRateioSelecionado] = useState(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -62,16 +202,9 @@ export default function RateioCaju() {
     : 0;
 
   const handleExportarRateio = (rateio) => {
-    const unidades = ["SP", "RJ", "Carbon", "REDD"];
     const workbook = XLSX.utils.book_new();
-    const mapColabs = {
-      SP:     rateio.colaboradores_sp     ? JSON.parse(rateio.colaboradores_sp)     : [],
-      RJ:     rateio.colaboradores_rj     ? JSON.parse(rateio.colaboradores_rj)     : [],
-      Carbon: rateio.colaboradores_carbon ? JSON.parse(rateio.colaboradores_carbon) : [],
-      REDD:   rateio.colaboradores_redd   ? JSON.parse(rateio.colaboradores_redd)   : [],
-    };
-    unidades.forEach(unidade => {
-      const colabs = mapColabs[unidade];
+    UNIDADES_CONFIG.forEach(u => {
+      const colabs = rateio[u.field] ? JSON.parse(rateio[u.field]) : [];
       const data = colabs.map(c => ({
         Nome: c.nome || "",
         "Tipo de Contrato": c.tipo_contrato || "CLT",
@@ -80,11 +213,12 @@ export default function RateioCaju() {
         "Dias Efetivos": c.dias_efetivos || 0,
         Total: c.total || 0,
       }));
-      XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(data), unidade);
+      XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(data), u.key);
     });
     XLSX.writeFile(workbook, `Rateio_Caju_${rateio.mes_label || rateio.mes_referencia}.xlsx`);
   };
 
+  // ── Tela: criando novo rateio
   if (criandoRateio) {
     return (
       <NovoRateioForm
@@ -95,6 +229,18 @@ export default function RateioCaju() {
     );
   }
 
+  // ── Tela: visualizando rateio selecionado
+  if (rateioSelecionado) {
+    return (
+      <RateioDetalhe
+        rateio={rateioSelecionado}
+        onVoltar={() => setRateioSelecionado(null)}
+        onExportar={handleExportarRateio}
+      />
+    );
+  }
+
+  // ── Tela: lista principal
   return (
     <div className="space-y-6">
 
@@ -106,35 +252,20 @@ export default function RateioCaju() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFerias(true)}
-            className="gap-1.5 text-xs border-slate-200 text-slate-600 hover:bg-slate-50"
-          >
+          <Button variant="outline" size="sm" onClick={() => setShowFerias(true)}
+            className="gap-1.5 text-xs border-slate-200 text-slate-600 hover:bg-slate-50">
             <CalendarDays size={13} /> Férias
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFeriados(true)}
-            className="gap-1.5 text-xs border-slate-200 text-slate-600 hover:bg-slate-50"
-          >
+          <Button variant="outline" size="sm" onClick={() => setShowFeriados(true)}
+            className="gap-1.5 text-xs border-slate-200 text-slate-600 hover:bg-slate-50">
             <CalendarDays size={13} /> Feriados SP/RJ
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowCLTModal(true)}
-            className="gap-1.5 text-xs border-slate-200 text-slate-600 hover:bg-slate-50"
-          >
+          <Button variant="outline" size="sm" onClick={() => setShowCLTModal(true)}
+            className="gap-1.5 text-xs border-slate-200 text-slate-600 hover:bg-slate-50">
             <Settings size={13} /> Colaboradores CLT
           </Button>
-          <Button
-            size="sm"
-            onClick={() => setCriandoRateio(true)}
-            className="gap-1.5 bg-[#1A4731] hover:bg-[#1A4731]/90 text-white shadow-sm"
-          >
+          <Button size="sm" onClick={() => setCriandoRateio(true)}
+            className="gap-1.5 bg-[#1A4731] hover:bg-[#1A4731]/90 text-white shadow-sm">
             <Plus size={14} /> Novo Rateio
           </Button>
         </div>
@@ -143,7 +274,6 @@ export default function RateioCaju() {
       {/* ── KPI Cards ──────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-        {/* Média Mensal */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Média Mensal</span>
@@ -155,7 +285,6 @@ export default function RateioCaju() {
           <p className="text-xs text-slate-400 mt-2">{rateios.length} rateios realizados</p>
         </div>
 
-        {/* Último Rateio */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Último Rateio</span>
@@ -171,7 +300,6 @@ export default function RateioCaju() {
           </p>
         </div>
 
-        {/* VR Médio/dia */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">VR Médio/dia</span>
@@ -183,7 +311,6 @@ export default function RateioCaju() {
           <p className="text-xs text-slate-400 mt-2">por colaborador</p>
         </div>
 
-        {/* Por Unidade */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Por Unidade</span>
@@ -234,8 +361,11 @@ export default function RateioCaju() {
             {rateios.map(r => {
               const status = STATUS_CONFIG[r.status] || STATUS_CONFIG["Rascunho"];
               return (
-                <div key={r.id} className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 transition group">
-
+                <div
+                  key={r.id}
+                  onClick={() => setRateioSelecionado(r)}
+                  className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 transition group cursor-pointer"
+                >
                   {/* Ícone */}
                   <div className="w-10 h-10 rounded-xl bg-[#1A4731]/10 flex items-center justify-center flex-shrink-0">
                     <CalendarDays size={18} className="text-[#1A4731]" />
@@ -247,12 +377,8 @@ export default function RateioCaju() {
                       {r.mes_label || formatMes(r.mes_referencia)}
                     </p>
                     <div className="flex gap-2 mt-0.5 flex-wrap">
-                      <span className="text-xs text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md font-medium">
-                        SP {r.dias_uteis_sp}d
-                      </span>
-                      <span className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md font-medium">
-                        RJ {r.dias_uteis_rj}d
-                      </span>
+                      <span className="text-xs text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md font-medium">SP {r.dias_uteis_sp}d</span>
+                      <span className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md font-medium">RJ {r.dias_uteis_rj}d</span>
                     </div>
                   </div>
 
@@ -283,11 +409,11 @@ export default function RateioCaju() {
                     {r.status || "Rascunho"}
                   </span>
 
-                  {/* Exportar */}
+                  {/* Exportar — isolado para não propagar o click */}
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleExportarRateio(r)}
+                    onClick={e => { e.stopPropagation(); handleExportarRateio(r); }}
                     className="gap-1.5 text-xs opacity-0 group-hover:opacity-100 transition border-slate-200"
                   >
                     <Download size={13} /> Exportar

@@ -1,25 +1,55 @@
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { MENU_GROUPS, AREAS_DISPONIVEIS, CARGOS_DISPONIVEIS } from "./menuOptions";
+import { ChevronDown, ChevronUp, Check, X } from "lucide-react";
+import { MENU_GROUPS, CARGOS_DISPONIVEIS } from "./menuOptions";
+import { colaboradoresService } from "@/lib/supabaseColaboradores";
 
 export default function ConfigurarCargos() {
+  const [departamentos, setDepartamentos] = useState([]);
   const [grupoPermissoes, setGrupoPermissoes] = useState({});
   const [cargoAcessos, setCargoAcessos] = useState({});
-  const [areaSelecionada, setAreaSelecionada] = useState("Contábil");
+  const [departamentoSelecionado, setDepartamentoSelecionado] = useState(null);
   const [expandidos, setExpandidos] = useState({});
+  const [loading, setLoading] = useState(true);
 
-  // Carregar dados do localStorage
+  // Carregar departamentos e permissões
   useEffect(() => {
-    const grupoData = localStorage.getItem("grupo_permissoes");
-    if (grupoData) {
-      setGrupoPermissoes(JSON.parse(grupoData));
-    }
+    setLoading(true);
+    colaboradoresService.list().then(data => {
+      const depts = [...new Set((data || [])
+        .filter(c => c.departamento || c.departamentos)
+        .flatMap(c => {
+          if (c.departamentos) {
+            try {
+              return JSON.parse(c.departamentos);
+            } catch {
+              return c.departamento ? [c.departamento] : [];
+            }
+          }
+          return c.departamento ? [c.departamento] : [];
+        })
+        .filter(Boolean)
+      )].sort();
 
-    const cargoData = localStorage.getItem("cargo_acessos");
-    if (cargoData) {
-      setCargoAcessos(JSON.parse(cargoData));
-    }
+      setDepartamentos(depts);
+      if (depts.length > 0) {
+        setDepartamentoSelecionado(depts[0]);
+      }
+
+      // Carregar permissões de grupos por departamento
+      const grupoData = localStorage.getItem("departamento_grupo_permissoes");
+      if (grupoData) {
+        setGrupoPermissoes(JSON.parse(grupoData));
+      }
+
+      // Carregar permissões de cargos
+      const cargoData = localStorage.getItem("departamento_cargo_permissoes");
+      if (cargoData) {
+        setCargoAcessos(JSON.parse(cargoData));
+      }
+
+      setLoading(false);
+    });
   }, []);
 
   const toggleExpand = (cargo) => {
@@ -27,7 +57,7 @@ export default function ConfigurarCargos() {
   };
 
   const toggleGrupoParaCargo = (cargo, grupo) => {
-    const key = `${cargo}_${areaSelecionada}`;
+    const key = `${departamentoSelecionado}_${cargo}`;
     const atual = cargoAcessos[key] || [];
     const updated = atual.includes(grupo)
       ? atual.filter(g => g !== grupo)
@@ -35,56 +65,66 @@ export default function ConfigurarCargos() {
 
     const newCargoAcessos = { ...cargoAcessos, [key]: updated };
     setCargoAcessos(newCargoAcessos);
-    localStorage.setItem("cargo_acessos", JSON.stringify(newCargoAcessos));
+    localStorage.setItem("departamento_cargo_permissoes", JSON.stringify(newCargoAcessos));
   };
 
   const toggleTudosParaCargo = (cargo, ativar) => {
-    const key = `${cargo}_${areaSelecionada}`;
-    const gruposAtivos = MENU_GROUPS
-      .filter(g => grupoPermissoes[g.group])
-      .map(g => g.group);
+    const key = `${departamentoSelecionado}_${cargo}`;
+    const deptPerms = grupoPermissoes[departamentoSelecionado] || {};
+    const gruposAtivos = Object.keys(deptPerms).filter(g => deptPerms[g]);
 
     const newCargoAcessos = {
       ...cargoAcessos,
       [key]: ativar ? gruposAtivos : []
     };
     setCargoAcessos(newCargoAcessos);
-    localStorage.setItem("cargo_acessos", JSON.stringify(newCargoAcessos));
+    localStorage.setItem("departamento_cargo_permissoes", JSON.stringify(newCargoAcessos));
   };
 
-  // Grupos disponíveis (ativados na aba de áreas)
-  const gruposDisponiveis = MENU_GROUPS.filter(g => grupoPermissoes[g.group]);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12 gap-2 text-slate-400">
+        <div className="w-4 h-4 border-2 border-slate-200 border-t-[#1A4731] rounded-full animate-spin" />
+        <span className="text-sm">Carregando dados...</span>
+      </div>
+    );
+  }
+
+  const deptPerms = grupoPermissoes[departamentoSelecionado] || {};
+  const gruposDisponiveis = MENU_GROUPS.filter(g => deptPerms[g.group]);
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-slate-600 mb-4">
-        Defina quais grupos de páginas cada cargo pode acessar por área.
+        Para cada cargo, escolha quais grupos ele poderá acessar no departamento selecionado.
       </p>
 
-      {/* Seletor de área */}
-      <div className="bg-white rounded-xl border border-slate-200 p-3">
-        <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Área</p>
-        <div className="flex flex-wrap gap-2">
-          {AREAS_DISPONIVEIS.map(area => (
-            <button
-              key={area}
-              onClick={() => setAreaSelecionada(area)}
-              className={`text-xs px-3 py-1.5 rounded-lg font-medium transition ${
-                areaSelecionada === area
-                  ? "bg-[#1A4731] text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              {area}
-            </button>
-          ))}
+      {/* Seletor de departamento */}
+      {departamentos.length > 0 && (
+        <div className="bg-white rounded-xl border border-slate-200 p-3">
+          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Departamento</p>
+          <div className="flex flex-wrap gap-2">
+            {departamentos.map(dept => (
+              <button
+                key={dept}
+                onClick={() => setDepartamentoSelecionado(dept)}
+                className={`text-xs px-3 py-1.5 rounded-lg font-medium transition ${
+                  departamentoSelecionado === dept
+                    ? "bg-[#1A4731] text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                {dept}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Info */}
       {gruposDisponiveis.length === 0 ? (
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-sm text-yellow-700">
-          ⚠️ Nenhum grupo ativado. Configure os grupos na aba "Configurar Áreas" primeiro.
+          ⚠️ Nenhum grupo ativado para este departamento. Configure na aba "Configurar Áreas" primeiro.
         </div>
       ) : (
         <>
@@ -93,7 +133,7 @@ export default function ConfigurarCargos() {
           {/* Cargos */}
           <div className="space-y-3">
             {CARGOS_DISPONIVEIS.map(cargo => {
-              const key = `${cargo}_${areaSelecionada}`;
+              const key = `${departamentoSelecionado}_${cargo}`;
               const acessosCargo = cargoAcessos[key] || [];
               const isExpanded = expandidos[cargo];
 
@@ -108,7 +148,7 @@ export default function ConfigurarCargos() {
                         : "bg-slate-50 hover:bg-slate-100"
                     }`}
                   >
-                    <Badge className={acessosCargo.length > 0 ? "bg-green-600" : "bg-purple-600"}>
+                    <Badge className={acessosCargo.length > 0 ? "bg-green-600" : "bg-slate-600"}>
                       {cargo}
                     </Badge>
                     <span className="text-xs text-slate-500">
@@ -139,40 +179,37 @@ export default function ConfigurarCargos() {
                       </div>
 
                       {/* Grid de grupos */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-2">
                         {gruposDisponiveis.map(grupo => {
                           const temAcesso = acessosCargo.includes(grupo.group);
                           return (
                             <button
                               key={grupo.group}
                               onClick={() => toggleGrupoParaCargo(cargo, grupo.group)}
-                              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-left text-sm border ${
+                              className={`flex items-center gap-2 px-3 py-2.5 rounded-lg transition text-left text-sm border ${
                                 temAcesso
                                   ? "bg-white border-green-300 hover:bg-green-50"
                                   : "bg-white border-slate-200 hover:bg-slate-50"
                               }`}
                             >
-                              {/* Toggle */}
-                              <div className={`w-4 h-4 rounded-full border-2 transition flex items-center justify-center flex-shrink-0 ${
+                              {/* Toggle visual com check/x */}
+                              <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition ${
                                 temAcesso
-                                  ? "bg-green-500 border-green-600"
-                                  : "border-slate-300 bg-white"
+                                  ? "bg-green-500"
+                                  : "bg-red-500"
                               }`}>
-                                {temAcesso && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                                {temAcesso ? (
+                                  <Check size={14} className="text-white" />
+                                ) : (
+                                  <X size={14} className="text-white" />
+                                )}
                               </div>
 
                               {/* Label */}
-                              <span className={`flex-1 font-medium ${temAcesso ? "text-green-700" : "text-slate-600"}`}>
-                                {grupo.label}
-                              </span>
-
-                              {/* Badge com contagem */}
-                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                                temAcesso
-                                  ? "bg-green-200 text-green-700"
-                                  : "bg-slate-200 text-slate-600"
+                              <span className={`flex-1 font-medium text-xs ${
+                                temAcesso ? "text-green-700" : "text-slate-600"
                               }`}>
-                                {grupo.pages.length}
+                                {grupo.label}
                               </span>
                             </button>
                           );

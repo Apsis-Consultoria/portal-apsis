@@ -1,107 +1,158 @@
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Check, X } from "lucide-react";
 import { MENU_GROUPS } from "./menuOptions";
+import { colaboradoresService } from "@/lib/supabaseColaboradores";
 
 export default function ConfigurarAreas() {
+  const [departamentos, setDepartamentos] = useState([]);
   const [grupoPermissoes, setGrupoPermissoes] = useState({});
   const [expandidos, setExpandidos] = useState({});
+  const [loading, setLoading] = useState(true);
 
-  // Carregar permissões do localStorage
+  // Carregar departamentos dos colaboradores e permissões
   useEffect(() => {
-    const saved = localStorage.getItem("grupo_permissoes");
-    if (saved) {
-      setGrupoPermissoes(JSON.parse(saved));
-    } else {
-      // Inicializar com todos os grupos desativados
-      const defaults = {};
-      MENU_GROUPS.forEach(grupo => {
-        defaults[grupo.group] = false;
-      });
-      setGrupoPermissoes(defaults);
-      localStorage.setItem("grupo_permissoes", JSON.stringify(defaults));
-    }
+    setLoading(true);
+    colaboradoresService.list().then(data => {
+      // Extrair departamentos únicos
+      const depts = [...new Set((data || [])
+        .filter(c => c.departamento || c.departamentos)
+        .flatMap(c => {
+          if (c.departamentos) {
+            try {
+              return JSON.parse(c.departamentos);
+            } catch {
+              return c.departamento ? [c.departamento] : [];
+            }
+          }
+          return c.departamento ? [c.departamento] : [];
+        })
+        .filter(Boolean)
+      )].sort();
+
+      setDepartamentos(depts);
+
+      // Carregar permissões do localStorage
+      const saved = localStorage.getItem("departamento_grupo_permissoes");
+      if (saved) {
+        setGrupoPermissoes(JSON.parse(saved));
+      } else {
+        // Inicializar todos os grupos como desativados para todos os departamentos
+        const defaults = {};
+        depts.forEach(dept => {
+          defaults[dept] = {};
+          MENU_GROUPS.forEach(grupo => {
+            defaults[dept][grupo.group] = false;
+          });
+        });
+        setGrupoPermissoes(defaults);
+        localStorage.setItem("departamento_grupo_permissoes", JSON.stringify(defaults));
+      }
+
+      setLoading(false);
+    });
   }, []);
 
-  const toggleExpand = (group) => {
-    setExpandidos(prev => ({ ...prev, [group]: !prev[group] }));
+  const toggleExpand = (dept) => {
+    setExpandidos(prev => ({ ...prev, [dept]: !prev[dept] }));
   };
 
-  const toggleGrupo = (group) => {
+  const toggleGrupo = (dept, grupo) => {
     const updated = {
       ...grupoPermissoes,
-      [group]: !grupoPermissoes[group]
+      [dept]: {
+        ...(grupoPermissoes[dept] || {}),
+        [grupo]: !grupoPermissoes[dept]?.[grupo]
+      }
     };
     setGrupoPermissoes(updated);
-    localStorage.setItem("grupo_permissoes", JSON.stringify(updated));
+    localStorage.setItem("departamento_grupo_permissoes", JSON.stringify(updated));
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12 gap-2 text-slate-400">
+        <div className="w-4 h-4 border-2 border-slate-200 border-t-[#1A4731] rounded-full animate-spin" />
+        <span className="text-sm">Carregando departamentos...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3">
       <p className="text-sm text-slate-600 mb-4">
-        Ative ou desative os grupos de páginas que estarão disponíveis para as áreas.
+        Para cada departamento, selecione quais grupos de páginas estarão disponíveis.
       </p>
 
-      {MENU_GROUPS.map(grupo => {
-        const isExpanded = expandidos[grupo.group];
-        const ativo = grupoPermissoes[grupo.group] || false;
+      {departamentos.length === 0 ? (
+        <div className="text-center py-8 text-slate-400 text-sm">
+          Nenhum departamento encontrado. Certifique-se de que os colaboradores têm departamentos configurados.
+        </div>
+      ) : (
+        departamentos.map(dept => {
+          const isExpanded = expandidos[dept];
+          const permsGrupos = grupoPermissoes[dept] || {};
+          const totalAtivos = Object.values(permsGrupos).filter(Boolean).length;
 
-        return (
-          <div key={grupo.group} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-            {/* Header */}
-            <button
-              onClick={() => toggleExpand(grupo.group)}
-              className={`w-full px-4 py-3 flex items-center gap-3 transition ${
-                ativo
-                  ? "bg-green-50 hover:bg-green-100"
-                  : "bg-slate-50 hover:bg-slate-100"
-              }`}
-            >
-              {/* Toggle */}
+          return (
+            <div key={dept} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+              {/* Header */}
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleGrupo(grupo.group);
-                }}
-                className={`w-5 h-5 rounded-full border-2 transition flex items-center justify-center flex-shrink-0 ${
-                  ativo
-                    ? "bg-green-500 border-green-600"
-                    : "border-slate-300 bg-white hover:border-slate-400"
-                }`}
+                onClick={() => toggleExpand(dept)}
+                className="w-full px-4 py-3 flex items-center gap-3 bg-slate-50 hover:bg-slate-100 transition"
               >
-                {ativo && <div className="w-2 h-2 bg-white rounded-full" />}
+                <Badge className="bg-[#1A4731] text-white font-bold">{dept}</Badge>
+                <span className="text-xs text-slate-500">{totalAtivos} de {MENU_GROUPS.length} grupos</span>
+                <span className="ml-auto text-slate-400">
+                  {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                </span>
               </button>
 
-              <Badge className={ativo ? "bg-green-600" : "bg-slate-600"}>{grupo.label}</Badge>
-              <span className="text-xs text-slate-500">{grupo.pages.length} página{grupo.pages.length !== 1 ? "s" : ""}</span>
+              {/* Conteúdo - Grid de grupos */}
+              {isExpanded && (
+                <div className="p-4 border-t border-slate-100">
+                  <div className="grid grid-cols-2 gap-2">
+                    {MENU_GROUPS.map(grupo => {
+                      const ativo = permsGrupos[grupo.group] || false;
+                      return (
+                        <button
+                          key={grupo.group}
+                          onClick={() => toggleGrupo(dept, grupo.group)}
+                          className={`flex items-center gap-2 px-3 py-2.5 rounded-lg transition text-left text-sm border ${
+                            ativo
+                              ? "bg-green-50 border-green-300 hover:bg-green-100"
+                              : "bg-slate-50 border-slate-200 hover:bg-slate-100"
+                          }`}
+                        >
+                          {/* Toggle visual com check/x */}
+                          <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition ${
+                            ativo
+                              ? "bg-green-500"
+                              : "bg-red-500"
+                          }`}>
+                            {ativo ? (
+                              <Check size={14} className="text-white" />
+                            ) : (
+                              <X size={14} className="text-white" />
+                            )}
+                          </div>
 
-              <span className={`ml-auto text-slate-400 ${ativo ? "text-green-600" : ""}`}>
-                {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
-              </span>
-            </button>
-
-            {/* Conteúdo - Lista de páginas */}
-            {isExpanded && (
-              <div className={`p-4 border-t ${ativo ? "border-green-200 bg-green-50" : "border-slate-100 bg-slate-50"}`}>
-                <div className="space-y-1.5">
-                  {grupo.pages.map(page => (
-                    <div
-                      key={page.page}
-                      className={`text-sm px-3 py-2 rounded-lg ${
-                        ativo
-                          ? "bg-white border border-green-200 text-green-700"
-                          : "bg-white border border-slate-200 text-slate-500"
-                      }`}
-                    >
-                      • {page.label}
-                    </div>
-                  ))}
+                          {/* Label */}
+                          <span className={`flex-1 font-medium text-xs ${
+                            ativo ? "text-green-700" : "text-slate-600"
+                          }`}>
+                            {grupo.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        );
-      })}
+              )}
+            </div>
+          );
+        })
+      )}
     </div>
   );
 }

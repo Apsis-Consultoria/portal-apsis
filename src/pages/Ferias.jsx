@@ -110,6 +110,8 @@ export default function Ferias() {
   });
 
   // ── KPIs ──────────────────────────────────────────────────────────────
+  const vinculos = [...new Set(cajuColabs.map(c => c.tipo_vinculo || c.tipo_contrato).filter(Boolean))];
+  const subTotalColabs = vinculos.length > 0 ? vinculos.join(" + ") : "Todos os vínculos";
   const totalComFerias = cajuColabs.filter(c => (ferias[c.id] || []).length > 0).length;
   const totalPeriodos = Object.values(ferias).reduce((acc, arr) => acc + (arr?.length || 0), 0);
   const hoje = new Date();
@@ -150,7 +152,7 @@ export default function Ferias() {
       {/* ── KPI Cards ───────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Colaboradores",    value: cajuColabs.length,   sub: "CLT + Estagiários", cls: "text-[#1A4731]",   bg: "bg-[#1A4731]/10" },
+          { label: "Colaboradores",    value: cajuColabs.length,   sub: subTotalColabs, cls: "text-[#1A4731]",   bg: "bg-[#1A4731]/10" },
           { label: "Com férias",        value: totalComFerias,      sub: "ao menos 1 período", cls: "text-orange-600", bg: "bg-orange-50" },
           { label: "Em andamento",      value: emAndamento,         sub: "atualmente de férias", cls: "text-blue-600",  bg: "bg-blue-50" },
           { label: "Períodos totais",   value: totalPeriodos,       sub: "registrados",        cls: "text-purple-600", bg: "bg-purple-50" },

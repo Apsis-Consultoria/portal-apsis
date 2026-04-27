@@ -57,6 +57,7 @@ export default function Ferias() {
   const [loading, setLoading] = useState(true);
   const [busca, setBusca] = useState("");
   const [expandidos, setExpandidos] = useState({});
+  const [unidadesExpandidas, setUnidadesExpandidas] = useState({});
   const [adicionando, setAdicionando] = useState(null);
   const [novoInicio, setNovoInicio] = useState("");
   const [novoFim, setNovoFim] = useState("");
@@ -92,6 +93,7 @@ export default function Ferias() {
   };
 
   const toggleExpand = (id) => setExpandidos(prev => ({ ...prev, [id]: !prev[id] }));
+  const toggleUnidade = (u) => setUnidadesExpandidas(prev => ({ ...prev, [u]: !prev[u] }));
 
   // ── Filtragem ──────────────────────────────────────────────────────────
   const cajuColabs = colaboradores;
@@ -220,20 +222,27 @@ export default function Ferias() {
         )}
         {porUnidade.map(({ unidade, colabs }) => {
           const cfg = UNIDADE_CONFIG[unidade] || UNIDADE_CONFIG.SP;
+          const isUnidadeExpanded = !!unidadesExpandidas[unidade];
           return (
             <div key={unidade} className={`bg-white rounded-2xl border-2 ${cfg.border} shadow-sm overflow-hidden`}>
-              {/* Header unidade */}
-              <div className={`px-5 py-3 flex items-center gap-3 border-b ${cfg.border} ${cfg.header}`}>
+              {/* Header unidade — clicável para expandir/colapsar */}
+              <button
+                onClick={() => toggleUnidade(unidade)}
+                className={`w-full px-5 py-3 flex items-center gap-3 ${cfg.header} hover:opacity-80 transition`}
+              >
                 <Badge className={`${cfg.badge} font-bold px-3`}>{unidade}</Badge>
                 <span className="text-xs text-slate-500 font-medium">{colabs.length} colaborador{colabs.length !== 1 ? "es" : ""}</span>
                 <span className="text-xs text-slate-400">·</span>
                 <span className="text-xs text-slate-500">
                   {colabs.filter(c => (ferias[c.id] || []).length > 0).length} com férias registradas
                 </span>
-              </div>
+                <span className="ml-auto text-slate-400">
+                  {isUnidadeExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                </span>
+              </button>
 
-              {/* Lista de colaboradores */}
-              <div className="divide-y divide-slate-100">
+              {/* Lista de colaboradores — visível apenas se expandida */}
+              {isUnidadeExpanded && <div className="divide-y divide-slate-100">
                 {colabs.map(c => {
                   const periodos = ferias[c.id] || [];
                   const isExpanded = expandidos[c.id];
@@ -357,7 +366,7 @@ export default function Ferias() {
                     </div>
                   );
                 })}
-              </div>
+              </div>}
             </div>
           );
         })}

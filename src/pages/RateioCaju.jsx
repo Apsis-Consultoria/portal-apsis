@@ -61,8 +61,8 @@ export default function RateioCaju() {
   const mediaMensal    = valoresMensais.length > 0 ? valoresMensais.reduce((a, b) => a + b, 0) / valoresMensais.length : 0;
   const ultimoRateio   = rateios[0];
 
-  const vrMedioMensal = valoresMensais.length > 0
-    ? valoresMensais.reduce((a, b) => a + b, 0) / valoresMensais.length
+  const vrMedioMensal = (valoresMensais.length > 0 && cajuColabs.length > 0)
+    ? (valoresMensais.reduce((a, b) => a + b, 0) / valoresMensais.length) / cajuColabs.length
     : 0;
 
   const handleDeletarRateio = async (e, id) => {
@@ -180,7 +180,7 @@ export default function RateioCaju() {
             </div>
           </div>
           <p className="text-2xl font-bold text-slate-900 leading-none">{fmt(vrMedioMensal)}</p>
-          <p className="text-xs text-slate-400 mt-2">média dos rateios</p>
+          <p className="text-xs text-slate-400 mt-2">por colaborador/mês</p>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">

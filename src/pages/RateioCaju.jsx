@@ -61,8 +61,8 @@ export default function RateioCaju() {
   const mediaMensal    = valoresMensais.length > 0 ? valoresMensais.reduce((a, b) => a + b, 0) / valoresMensais.length : 0;
   const ultimoRateio   = rateios[0];
 
-  const vrPorPessoa = colaboradores.length > 0
-    ? colaboradores.reduce((acc, c) => acc + (c.valor_vr_diario || 0), 0) / colaboradores.length
+  const vrMedioMensal = valoresMensais.length > 0
+    ? valoresMensais.reduce((a, b) => a + b, 0) / valoresMensais.length
     : 0;
 
   const handleDeletarRateio = async (e, id) => {
@@ -174,13 +174,13 @@ export default function RateioCaju() {
 
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">VR Médio/dia</span>
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">VR Médio/mês</span>
             <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
               <CalendarDays size={15} className="text-blue-600" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-slate-900 leading-none">{fmt(vrPorPessoa)}</p>
-          <p className="text-xs text-slate-400 mt-2">por colaborador</p>
+          <p className="text-2xl font-bold text-slate-900 leading-none">{fmt(vrMedioMensal)}</p>
+          <p className="text-xs text-slate-400 mt-2">média dos rateios</p>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">

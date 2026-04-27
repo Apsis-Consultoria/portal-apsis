@@ -220,82 +220,87 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
   };
 
   return (
-    <div className={`bg-white border ${cfg.borderCls} rounded-xl p-5`}>
-      <div className="flex items-center justify-between mb-4">
+    <div className={`bg-white border-2 ${cfg.borderCls} rounded-2xl overflow-hidden shadow-sm`}>
+      {/* Header da unidade */}
+      <div className={`px-5 py-3 flex items-center justify-between border-b ${cfg.borderCls}`}
+        style={{ background: `color-mix(in srgb, currentColor 4%, white)` }}>
         <div className="flex items-center gap-2">
-          <Badge className={`${cfg.badgeCls} text-sm font-bold px-3`}>{unidade}</Badge>
+          <Badge className={`${cfg.badgeCls} text-sm font-bold px-3 py-0.5`}>{unidade}</Badge>
+          <span className="text-xs text-slate-500 font-medium">{UNIDADE_CONFIG[unidade]?.label || unidade}</span>
         </div>
-        <div className={`flex items-center gap-1 text-xs px-3 py-1 rounded-full ${cfg.infoCls}`}>
-          <CalendarDays size={12} />
+        <div className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full ${cfg.infoCls}`}>
+          <CalendarDays size={11} />
           <span>{diasUteis} dias úteis</span>
         </div>
       </div>
 
-      {temEstagiarios ? (
-        <div className="space-y-3 mb-4">
-          <SubgrupoColabs
-            titulo="CLT"
-            cor={{ borderCls: cfg.borderCls, badgeCls: cfg.badgeCls }}
-            colaboradores={clts}
-            selecionados={selecionados}
-            onToggle={onToggle}
-            diasUteis={diasUteis}
-            vrDiario={vrDiario}
-            ferias={ferias}
-            onFeriasChange={onFeriasChange}
-            estado={estado}
-            ano={ano}
-            mes={mes}
-            cfg={cfg}
-          />
-          <SubgrupoColabs
-            titulo="Estagiários"
-            cor={{ borderCls: "border-yellow-200", badgeCls: "bg-yellow-100 text-yellow-800" }}
-            colaboradores={estagiarios}
-            selecionados={selecionados}
-            onToggle={onToggle}
-            diasUteis={diasUteis}
-            vrDiario={vrEstagiario || vrDiario}
-            ferias={ferias}
-            onFeriasChange={onFeriasChange}
-            estado={estado}
-            ano={ano}
-            mes={mes}
-            cfg={cfg}
-          />
-        </div>
-      ) : (
-        <div className="space-y-1 mb-4">
-          {colaboradores.length === 0 && (
-            <p className="text-xs text-gray-400 text-center py-4">Nenhum colaborador cadastrado</p>
-          )}
-          {colaboradores.map(c => {
-            const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
-            const diasEfetivos = getDiasEfetivos(c.id);
-            return (
-              <ColaboradorRow
-                key={c.id}
-                c={c}
-                cfg={cfg}
-                selecionado={selecionados.includes(c.id)}
-                onToggle={onToggle}
-                diasFerias={diasFerias}
-                diasEfetivos={diasEfetivos}
-                valor={vrDiario * diasEfetivos}
-                periodos={ferias[c.id] || []}
-                onAddFerias={handleAddFerias}
-                onRemoveFerias={handleRemoveFerias}
-              />
-            );
-          })}
-        </div>
-      )}
+      <div className="p-4">
+        {temEstagiarios ? (
+          <div className="space-y-3 mb-4">
+            <SubgrupoColabs
+              titulo="CLT"
+              cor={{ borderCls: cfg.borderCls, badgeCls: cfg.badgeCls }}
+              colaboradores={clts}
+              selecionados={selecionados}
+              onToggle={onToggle}
+              diasUteis={diasUteis}
+              vrDiario={vrDiario}
+              ferias={ferias}
+              onFeriasChange={onFeriasChange}
+              estado={estado}
+              ano={ano}
+              mes={mes}
+              cfg={cfg}
+            />
+            <SubgrupoColabs
+              titulo="Estagiários"
+              cor={{ borderCls: "border-amber-200", badgeCls: "bg-amber-100 text-amber-800" }}
+              colaboradores={estagiarios}
+              selecionados={selecionados}
+              onToggle={onToggle}
+              diasUteis={diasUteis}
+              vrDiario={vrEstagiario || vrDiario}
+              ferias={ferias}
+              onFeriasChange={onFeriasChange}
+              estado={estado}
+              ano={ano}
+              mes={mes}
+              cfg={cfg}
+            />
+          </div>
+        ) : (
+          <div className="space-y-1 mb-4">
+            {colaboradores.length === 0 && (
+              <p className="text-xs text-slate-400 text-center py-4">Nenhum colaborador cadastrado</p>
+            )}
+            {colaboradores.map(c => {
+              const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
+              const diasEfetivos = getDiasEfetivos(c.id);
+              return (
+                <ColaboradorRow
+                  key={c.id}
+                  c={c}
+                  cfg={cfg}
+                  selecionado={selecionados.includes(c.id)}
+                  onToggle={onToggle}
+                  diasFerias={diasFerias}
+                  diasEfetivos={diasEfetivos}
+                  valor={vrDiario * diasEfetivos}
+                  periodos={ferias[c.id] || []}
+                  onAddFerias={handleAddFerias}
+                  onRemoveFerias={handleRemoveFerias}
+                />
+              );
+            })}
+          </div>
+        )}
 
-      <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
-        <span className="text-xs text-gray-500">
-          {selecionados.length} de {colaboradores.length} selecionados
-        </span>
-        <span className={`text-base font-bold ${cfg.totalCls}`}>{fmt(total)}</span>
+        <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
+          <span className="text-xs text-slate-400">
+            {selecionados.length} de {colaboradores.length} selecionados
+          </span>
+          <span className={`text-lg font-bold ${cfg.totalCls}`}>{fmt(total)}</span>
+        </div>
       </div>
     </div>
   );
@@ -434,143 +439,188 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+
+      {/* ── Header ─────────────────────────────────────────────────── */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <button onClick={onCancel} className="p-1.5 rounded-lg hover:bg-gray-100 transition">
-            <ArrowLeft size={18} className="text-gray-500" />
+          <button
+            onClick={onCancel}
+            className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition flex-shrink-0"
+          >
+            <ArrowLeft size={16} className="text-slate-600" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-[#1A4731]">Novo Rateio — Vale Refeição Caju</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Selecione o mês e confirme os colaboradores por unidade</p>
+            <h1 className="text-2xl font-bold text-[#1A4731]">Novo Rateio</h1>
+            <p className="text-sm text-slate-500 mt-0.5">Vale Refeição Caju — selecione o mês e confirme os colaboradores</p>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowFeriasModal(true)} className="gap-2 text-sm">
-            <CalendarDays size={15} />
-            Férias Programadas
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowFeriasModal(true)}
+            className="gap-1.5 text-xs border-slate-200 text-slate-600 hover:bg-slate-50"
+          >
+            <CalendarDays size={13} /> Férias Programadas
           </Button>
-          <Button variant="outline" onClick={onCancel}>Cancelar</Button>
-          <Button onClick={handleSalvar} disabled={saving} className="bg-[#1A4731] hover:bg-[#1A4731]/90">
+          <Button variant="outline" size="sm" onClick={onCancel} className="text-xs">
+            Cancelar
+          </Button>
+          <Button
+            size="sm"
+            onClick={handleSalvar}
+            disabled={saving}
+            className="bg-[#1A4731] hover:bg-[#1A4731]/90 text-white shadow-sm gap-1.5 text-xs"
+          >
             {saving ? "Salvando..." : "Salvar Rateio"}
           </Button>
         </div>
       </div>
 
-      {/* Mês de referência + card de valores */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5">
-        <div className="flex items-center gap-6 flex-wrap">
+      {/* ── Mês de referência + VR por unidade ─────────────────────── */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <div className="flex items-start gap-8 flex-wrap">
+
+          {/* Seletor de mês */}
           <div>
-            <label className="text-xs font-semibold text-gray-500 block mb-1">Mês de Referência</label>
-            <input
-              type="month"
-              value={mesRef}
-              onChange={e => setMesRef(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1A4731]"
-            />
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-2">
+              Mês de Referência
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="month"
+                value={mesRef}
+                onChange={e => setMesRef(e.target.value)}
+                className="border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 focus:outline-none focus:border-[#1A4731] focus:ring-2 focus:ring-[#1A4731]/10 bg-slate-50"
+              />
+              <span className="text-base font-semibold text-[#1A4731]">{formatMes(mesRef)}</span>
+            </div>
           </div>
-          <div className="text-base font-semibold text-gray-700 mt-4">{formatMes(mesRef)}</div>
 
           <div className="flex-1" />
 
-          {/* Valores VR por unidade */}
-          <div className="flex gap-3 flex-wrap">
-            {UNIDADES.map(u => {
-              const cfg = UNIDADE_CONFIG[u];
-              const dias = getDias(u);
-              const temEst = u === "RJ" || u === "SP";
-              return (
-                <div key={u} className="flex flex-row gap-1">
-                  {/* Card CLT */}
-                  <div className={`flex flex-col items-center px-4 py-2 rounded-xl border ${cfg.borderCls} bg-white min-w-[90px] cursor-pointer group`}
-                    onClick={() => editingVr !== u && startEditVr(u)}
-                    title="Clique para editar o valor diário CLT"
-                  >
-                    <div className="flex items-center gap-1 mb-1">
-                      <Badge className={`${cfg.badgeCls} text-xs font-bold`}>{u}</Badge>
-                      {temEst && <span className="text-xs text-gray-400">CLT</span>}
-                    </div>
-                    {editingVr === u ? (
-                      <input autoFocus
-                        className="w-20 text-center text-base font-bold border border-gray-300 rounded px-1 py-0.5 focus:outline-none focus:border-[#1A4731]"
-                        value={vrTemp}
-                        onChange={e => setVrTemp(e.target.value)}
-                        onBlur={() => confirmEditVr(u)}
-                        onKeyDown={e => { if (e.key === "Enter") confirmEditVr(u); if (e.key === "Escape") setEditingVr(null); }}
-                        onClick={e => e.stopPropagation()}
-                      />
-                    ) : (
-                      <span className="text-base font-bold text-gray-800 group-hover:text-[#1A4731] transition-colors">{fmt(vrDiario[u])}</span>
-                    )}
-                    <span className="text-xs text-gray-400">por dia</span>
-                    <span className={`text-xs mt-1 font-medium ${cfg.totalCls}`}>{dias} dias úteis</span>
-                  </div>
-                  {/* Card Estagiário — só RJ e SP */}
-                  {temEst && (
-                    <div className="flex flex-col items-center px-4 py-2 rounded-xl border border-yellow-200 bg-yellow-50 min-w-[90px] cursor-pointer group"
-                      onClick={() => editingVr !== `${u}_est` && startEditVr(`${u}_est`)}
-                      title="Clique para editar o valor diário Estagiário"
+          {/* Cards VR por unidade (clicáveis para editar) */}
+          <div>
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-2">
+              Valor VR Diário <span className="normal-case font-normal text-slate-400">(clique para editar)</span>
+            </label>
+            <div className="flex gap-2 flex-wrap">
+              {UNIDADES.map(u => {
+                const cfg = UNIDADE_CONFIG[u];
+                const dias = getDias(u);
+                const temEst = u === "RJ" || u === "SP";
+                return (
+                  <div key={u} className="flex gap-1.5">
+                    {/* Card CLT */}
+                    <div
+                      className={`flex flex-col items-center px-3 py-2.5 rounded-xl border-2 ${cfg.borderCls} bg-white min-w-[82px] cursor-pointer hover:shadow-sm transition group`}
+                      onClick={() => editingVr !== u && startEditVr(u)}
+                      title="Clique para editar o valor diário CLT"
                     >
-                      <div className="flex items-center gap-1 mb-1">
-                        <Badge className="bg-yellow-100 text-yellow-800 text-xs font-bold">{u}</Badge>
-                        <span className="text-xs text-yellow-700">Est.</span>
+                      <div className="flex items-center gap-1 mb-1.5">
+                        <Badge className={`${cfg.badgeCls} text-xs font-bold px-1.5`}>{u}</Badge>
+                        {temEst && <span className="text-[10px] text-slate-400 font-medium">CLT</span>}
                       </div>
-                      {editingVr === `${u}_est` ? (
+                      {editingVr === u ? (
                         <input autoFocus
-                          className="w-20 text-center text-base font-bold border border-yellow-300 rounded px-1 py-0.5 focus:outline-none focus:border-yellow-500"
+                          className="w-16 text-center text-sm font-bold border border-slate-300 rounded-lg px-1 py-0.5 focus:outline-none focus:border-[#1A4731]"
                           value={vrTemp}
                           onChange={e => setVrTemp(e.target.value)}
-                          onBlur={() => confirmEditVr(`${u}_est`)}
-                          onKeyDown={e => { if (e.key === "Enter") confirmEditVr(`${u}_est`); if (e.key === "Escape") setEditingVr(null); }}
+                          onBlur={() => confirmEditVr(u)}
+                          onKeyDown={e => { if (e.key === "Enter") confirmEditVr(u); if (e.key === "Escape") setEditingVr(null); }}
                           onClick={e => e.stopPropagation()}
                         />
                       ) : (
-                        <span className="text-base font-bold text-yellow-800 group-hover:text-yellow-900 transition-colors">{fmt(vrEstagiario[u])}</span>
+                        <span className={`text-sm font-bold ${cfg.totalCls} group-hover:underline decoration-dotted`}>
+                          {fmt(vrDiario[u])}
+                        </span>
                       )}
-                      <span className="text-xs text-yellow-600">por dia</span>
-                      <span className="text-xs mt-1 font-medium text-yellow-700">{dias} dias úteis</span>
+                      <span className="text-[10px] text-slate-400 mt-0.5">/dia · {dias}d úteis</span>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+
+                    {/* Card Estagiário */}
+                    {temEst && (
+                      <div
+                        className="flex flex-col items-center px-3 py-2.5 rounded-xl border-2 border-amber-200 bg-amber-50/60 min-w-[82px] cursor-pointer hover:shadow-sm transition group"
+                        onClick={() => editingVr !== `${u}_est` && startEditVr(`${u}_est`)}
+                        title="Clique para editar o valor diário Estagiário"
+                      >
+                        <div className="flex items-center gap-1 mb-1.5">
+                          <Badge className="bg-amber-100 text-amber-800 text-xs font-bold px-1.5">{u}</Badge>
+                          <span className="text-[10px] text-amber-600 font-medium">Est.</span>
+                        </div>
+                        {editingVr === `${u}_est` ? (
+                          <input autoFocus
+                            className="w-16 text-center text-sm font-bold border border-amber-300 rounded-lg px-1 py-0.5 focus:outline-none focus:border-amber-500"
+                            value={vrTemp}
+                            onChange={e => setVrTemp(e.target.value)}
+                            onBlur={() => confirmEditVr(`${u}_est`)}
+                            onKeyDown={e => { if (e.key === "Enter") confirmEditVr(`${u}_est`); if (e.key === "Escape") setEditingVr(null); }}
+                            onClick={e => e.stopPropagation()}
+                          />
+                        ) : (
+                          <span className="text-sm font-bold text-amber-700 group-hover:underline decoration-dotted">
+                            {fmt(vrEstagiario[u])}
+                          </span>
+                        )}
+                        <span className="text-[10px] text-amber-500 mt-0.5">/dia · {dias}d úteis</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Seções por unidade */}
-      {UNIDADES.map(u => (
-        <UnidadeSection
-          key={u}
-          unidade={u}
-          colaboradores={getColabs(u)}
-          selecionados={selecionados[u]}
-          onToggle={(id) => toggleUnidade(u, id)}
-          diasUteis={getDias(u)}
-          vrDiario={vrDiario[u]}
-          vrEstagiario={vrEstagiario[u]}
-          ferias={ferias}
-          onFeriasChange={handleFeriasChange}
-          ano={ano}
-          mes={mes}
-        />
-      ))}
-
-      {/* Total geral */}
-      <div className="bg-[#1A4731]/5 border border-[#1A4731]/20 rounded-xl p-4 flex items-center justify-end">
-        <span className="text-sm font-semibold text-[#1A4731] mr-4">Total Geral</span>
-        <span className="text-xl font-bold text-[#1A4731]">{fmt(totalGeral)}</span>
+      {/* ── Seções por unidade ─────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {UNIDADES.map(u => (
+          <UnidadeSection
+            key={u}
+            unidade={u}
+            colaboradores={getColabs(u)}
+            selecionados={selecionados[u]}
+            onToggle={(id) => toggleUnidade(u, id)}
+            diasUteis={getDias(u)}
+            vrDiario={vrDiario[u]}
+            vrEstagiario={vrEstagiario[u]}
+            ferias={ferias}
+            onFeriasChange={handleFeriasChange}
+            ano={ano}
+            mes={mes}
+          />
+        ))}
       </div>
 
-      {/* Botões rodapé */}
-      <div className="flex justify-end gap-2 pb-4">
-        <Button variant="outline" onClick={onCancel}>Cancelar</Button>
-        <Button onClick={handleSalvar} disabled={saving} className="bg-[#1A4731] hover:bg-[#1A4731]/90">
-          {saving ? "Salvando..." : "Salvar Rateio"}
-        </Button>
+      {/* ── Total geral + ações ────────────────────────────────────── */}
+      <div className="bg-[#1A4731] rounded-2xl p-5 flex items-center justify-between shadow-sm">
+        <div>
+          <p className="text-sm font-medium text-white/70">Total Geral</p>
+          <p className="text-3xl font-bold text-white mt-0.5">{fmt(totalGeral)}</p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onCancel}
+            className="bg-transparent border-white/30 text-white hover:bg-white/10 text-xs"
+          >
+            Cancelar
+          </Button>
+          <Button
+            size="sm"
+            onClick={handleSalvar}
+            disabled={saving}
+            className="bg-white text-[#1A4731] hover:bg-white/90 font-semibold shadow-sm text-xs"
+          >
+            {saving ? "Salvando..." : "Salvar Rateio"}
+          </Button>
+        </div>
       </div>
 
-      {/* Modal de férias */}
+      {/* ── Modal de férias ────────────────────────────────────────── */}
       <FeriasColaboradorModal
         open={showFeriasModal}
         onClose={() => setShowFeriasModal(false)}

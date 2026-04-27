@@ -162,7 +162,7 @@ export default function Ferias() {
           <CalendarDays size={15} className="text-slate-400" />
           <span className="text-xs text-slate-500 font-medium">Ano:</span>
           <div className="flex gap-1">
-            {[2024, 2025, 2026, 2027].map(ano => (
+            {[2026, 2027, 2028, 2029].map(ano => (
               <button
                 key={ano}
                 onClick={() => setFiltroAno(ano)}

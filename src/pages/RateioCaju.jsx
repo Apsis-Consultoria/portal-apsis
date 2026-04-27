@@ -49,11 +49,13 @@ export default function RateioCaju() {
 
   useEffect(() => { fetchData(); }, []);
 
-  const totalSP     = colaboradores.filter(c => c.unidade === "SP").length;
-  const totalRJ     = colaboradores.filter(c => c.unidade === "RJ").length;
-  const totalCarbon = colaboradores.filter(c => c.unidade === "Carbon").length;
-  const totalREDD   = colaboradores.filter(c => c.unidade === "REDD").length;
-  const totalCLT    = colaboradores.length;
+  const VINCULOS_CAJU = ["CLT", "Estagiário"];
+  const cajuColabs  = colaboradores.filter(c => VINCULOS_CAJU.includes((c.tipo_vinculo || c.tipo_contrato || "").trim()));
+  const totalSP     = cajuColabs.filter(c => c.unidade === "SP").length;
+  const totalRJ     = cajuColabs.filter(c => c.unidade === "RJ").length;
+  const totalCarbon = cajuColabs.filter(c => c.unidade === "Carbon").length;
+  const totalREDD   = cajuColabs.filter(c => c.unidade === "REDD").length;
+  const totalCLT    = cajuColabs.length;
 
   const valoresMensais = rateios.map(r => r.total_geral || 0);
   const mediaMensal    = valoresMensais.length > 0 ? valoresMensais.reduce((a, b) => a + b, 0) / valoresMensais.length : 0;

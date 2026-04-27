@@ -134,41 +134,50 @@ export default function ConfigurarAreas() {
           return (
             <div key={dept} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
               {/* Header */}
-              <div className="w-full px-4 py-3 flex items-center gap-3 bg-slate-50 hover:bg-slate-100 transition">
+              <div 
+                onClick={() => toggleExpand(dept)}
+                className="w-full px-4 py-3 flex items-center gap-3 bg-slate-50 hover:bg-slate-100 transition cursor-pointer"
+              >
                 <Badge className="bg-[#1A4731] text-white font-bold">{dept}</Badge>
                 <span className="text-xs text-slate-500">{totalAtivos} de {MENU_GROUPS.length} grupos</span>
                 
                 {emEdicao[dept] ? (
-                  <div className="ml-auto flex gap-2">
-                    <button
-                      onClick={() => salvarEdicao(dept)}
-                      className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg transition font-medium"
-                    >
-                      <Save size={13} /> Salvar
-                    </button>
-                    <button
-                      onClick={() => descartarEdicao(dept)}
-                      className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition font-medium"
-                    >
-                      <RotateCcw size={13} /> Descartar
-                    </button>
-                  </div>
-                ) : (
-                  <div className="ml-auto flex gap-2 items-center">
-                    <button
-                      onClick={() => iniciarEdicao(dept)}
-                      className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition font-medium"
-                    >
-                      <Edit2 size={13} /> Editar
-                    </button>
-                    <button
-                      onClick={() => toggleExpand(dept)}
-                      className="text-slate-400 hover:text-slate-600"
-                    >
-                      {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
-                    </button>
-                  </div>
-                )}
+                   <div className="ml-auto flex gap-2">
+                     <button
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         salvarEdicao(dept);
+                       }}
+                       className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg transition font-medium"
+                     >
+                       <Save size={13} /> Salvar
+                     </button>
+                     <button
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         descartarEdicao(dept);
+                       }}
+                       className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition font-medium"
+                     >
+                       <RotateCcw size={13} /> Descartar
+                     </button>
+                   </div>
+                 ) : (
+                   <div className="ml-auto flex gap-2 items-center">
+                     <button
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         iniciarEdicao(dept);
+                       }}
+                       className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition font-medium"
+                     >
+                       <Edit2 size={13} /> Editar
+                     </button>
+                     <span className="text-slate-400">
+                       {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                     </span>
+                   </div>
+                 )}
               </div>
 
               {/* Conteúdo - Grid de grupos */}

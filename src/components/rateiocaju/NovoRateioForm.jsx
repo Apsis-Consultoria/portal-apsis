@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { colaboradoresService } from "@/lib/supabaseColaboradores";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatMes, getDiasUteisNoIntervalo } from "./feriadosUtils";
@@ -143,10 +144,10 @@ function SubgrupoColabs({ titulo, cor, colaboradores, selecionados, onToggle, di
   };
 
   const total = colaboradores
-    .filter(c => selecionados.includes(c.id))
+    .filter(c => selecionados.includes(String(c.id)))
     .reduce((acc, c) => acc + vrDiario * getDiasEfetivos(c.id), 0);
 
-  const selCount = colaboradores.filter(c => selecionados.includes(c.id)).length;
+  const selCount = colaboradores.filter(c => selecionados.includes(String(c.id))).length;
 
   return (
     <div className={`rounded-lg border ${cor.borderCls} p-3`}>
@@ -169,7 +170,7 @@ function SubgrupoColabs({ titulo, cor, colaboradores, selecionados, onToggle, di
               key={c.id}
               c={c}
               cfg={cfg}
-              selecionado={selecionados.includes(c.id)}
+              selecionado={selecionados.includes(String(c.id))}
               onToggle={onToggle}
               diasFerias={diasFerias}
               diasEfetivos={diasEfetivos}
@@ -191,8 +192,8 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
   const estado = unidade === "SP" ? "SP" : "RJ";
   const temEstagiarios = unidade === "RJ" || unidade === "SP";
 
-  const clts = temEstagiarios ? colaboradores.filter(c => (c.tipo_contrato || "CLT") === "CLT") : colaboradores;
-  const estagiarios = temEstagiarios ? colaboradores.filter(c => c.tipo_contrato === "Estagiário") : [];
+  const clts = temEstagiarios ? colaboradores.filter(c => (c.tipo_vinculo || c.tipo_contrato || "CLT") !== "Estagiário") : colaboradores;
+  const estagiarios = temEstagiarios ? colaboradores.filter(c => (c.tipo_vinculo || c.tipo_contrato) === "Estagiário") : [];
 
   const getDiasEfetivos = (id) => {
     const diasFerias = calcDiasFeriasMes(id, ferias, ano, mes, estado);
@@ -200,11 +201,11 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
   };
 
   const totalCLT = clts
-    .filter(c => selecionados.includes(c.id))
+    .filter(c => selecionados.includes(String(c.id)))
     .reduce((acc, c) => acc + vrDiario * getDiasEfetivos(c.id), 0);
 
   const totalEst = estagiarios
-    .filter(c => selecionados.includes(c.id))
+    .filter(c => selecionados.includes(String(c.id)))
     .reduce((acc, c) => acc + (vrEstagiario || vrDiario) * getDiasEfetivos(c.id), 0);
 
   const total = totalCLT + totalEst;
@@ -281,7 +282,7 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
                   key={c.id}
                   c={c}
                   cfg={cfg}
-                  selecionado={selecionados.includes(c.id)}
+                  selecionado={selecionados.includes(String(c.id))}
                   onToggle={onToggle}
                   diasFerias={diasFerias}
                   diasEfetivos={diasEfetivos}
@@ -376,26 +377,26 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
   };
 
   useEffect(() => {
-    base44.entities.ColaboradorCLT.list().then(data => {
+    colaboradoresService.list().then(data => {
       const ativos = data.filter(c => c.ativo !== false);
       setColaboradores(ativos);
       if (editando) {
-        // pré-seleciona os colaboradores que estavam no rateio salvo
         setSelecionados(extrairSelecionados(rateioExistente));
       } else {
         const init = { RJ: [], SP: [], Carbon: [], REDD: [] };
-        UNIDADES.forEach(u => { init[u] = ativos.filter(c => c.unidade === u).map(c => c.id); });
+        UNIDADES.forEach(u => { init[u] = ativos.filter(c => c.unidade === u).map(c => String(c.id)); });
         setSelecionados(init);
       }
     });
   }, []);
 
   const toggleUnidade = (unidade, id) => {
+    const sid = String(id);
     setSelecionados(prev => ({
       ...prev,
-      [unidade]: prev[unidade].includes(id)
-        ? prev[unidade].filter(x => x !== id)
-        : [...prev[unidade], id],
+      [unidade]: prev[unidade].includes(sid)
+        ? prev[unidade].filter(x => x !== sid)
+        : [...prev[unidade], sid],
     }));
   };
 
@@ -406,7 +407,8 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
   };
 
   const getVrColaborador = (unidade, c) => {
-    if ((unidade === "RJ" || unidade === "SP") && c.tipo_contrato === "Estagiário") {
+    const tipo = c.tipo_vinculo || c.tipo_contrato || "CLT";
+    if ((unidade === "RJ" || unidade === "SP") && tipo === "Estagiário") {
       return vrEstagiario[unidade] || vrDiario[unidade];
     }
     return vrDiario[unidade];
@@ -416,7 +418,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
     const dias = getDias(unidade);
     const estado = getEstado(unidade);
     return getColabs(unidade)
-      .filter(c => selecionados[unidade].includes(c.id))
+      .filter(c => selecionados[unidade].includes(String(c.id)))
       .reduce((acc, c) => {
         const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
         const diasEfetivos = Math.max(0, dias - diasFerias);
@@ -434,7 +436,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
       const dias = getDias(u);
       const estado = getEstado(u);
       colabData[u] = getColabs(u)
-        .filter(c => selecionados[u].includes(c.id))
+        .filter(c => selecionados[u].includes(String(c.id)))
         .map(c => {
           const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
           const diasEfetivos = Math.max(0, dias - diasFerias);
@@ -442,7 +444,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
           return {
             id: c.id,
             nome: c.nome,
-            tipo_contrato: c.tipo_contrato || "CLT",
+            tipo_contrato: c.tipo_vinculo || c.tipo_contrato || "CLT",
             valor_diario: vr,
             dias_ferias: diasFerias,
             dias_efetivos: diasEfetivos,

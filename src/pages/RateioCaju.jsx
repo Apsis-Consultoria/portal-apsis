@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { colaboradoresService } from "@/lib/supabaseColaboradores";
 import { Button } from "@/components/ui/button";
 import { Plus, Settings, TrendingUp, MapPin, CalendarDays, Download, Wallet, Trash2 } from "lucide-react";
 import * as XLSX from "xlsx";
@@ -39,10 +40,10 @@ export default function RateioCaju() {
     setLoading(true);
     const [r, c] = await Promise.all([
       base44.entities.RateioCaju.list("-created_date"),
-      base44.entities.ColaboradorCLT.list(),
+      colaboradoresService.list(),
     ]);
     setRateios(r);
-    setColaboradores(c.filter(c => c.ativo !== false));
+    setColaboradores(c.filter(col => col.ativo !== false));
     setLoading(false);
   };
 

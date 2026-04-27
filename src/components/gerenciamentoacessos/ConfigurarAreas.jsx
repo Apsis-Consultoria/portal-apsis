@@ -1,41 +1,28 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, Plus, Trash2, X } from "lucide-react";
-
-const AREAS_DISPONIVEIS = [
-  "Contábil",
-  "Consultoria",
-  "Tributária",
-  "Societária",
-  "M&A",
-  "Projetos Especiais",
-  "Outros"
-];
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { MENU_PAGES, AREAS_DISPONIVEIS } from "./menuOptions";
 
 export default function ConfigurarAreas() {
-  const [areas, setAreas] = useState({});
+  const [areaPermissoes, setAreaPermissoes] = useState({});
   const [expandidos, setExpandidos] = useState({});
-  const [novoModulo, setNovoModulo] = useState({});
 
-  // Carregar áreas do localStorage
+  // Carregar permissões do localStorage
   useEffect(() => {
-    const saved = localStorage.getItem("areas_modulos");
+    const saved = localStorage.getItem("area_permissoes");
     if (saved) {
-      setAreas(JSON.parse(saved));
+      setAreaPermissoes(JSON.parse(saved));
     } else {
-      // Inicializar com valores padrão
-      const defaults = {
-        "Contábil": ["Dashboard", "Relatórios", "Auditoria", "Documentos"],
-        "Consultoria": ["Projetos", "Propostas", "Faturamento", "Timeline"],
-        "Tributária": ["Conformidade", "Planejamento", "Operações"],
-        "Societária": ["Contratos", "Acionistas", "Governança"],
-        "M&A": ["Due Diligence", "Integração", "Análise"],
-        "Projetos Especiais": ["Gestão", "Timeline", "Budget"],
-        "Outros": ["Painel", "Relatórios"]
-      };
-      setAreas(defaults);
-      localStorage.setItem("areas_modulos", JSON.stringify(defaults));
+      // Inicializar com todas as páginas ativadas por padrão
+      const defaults = {};
+      AREAS_DISPONIVEIS.forEach(area => {
+        defaults[area] = {};
+        MENU_PAGES.forEach(page => {
+          defaults[area][page.page] = true;
+        });
+      });
+      setAreaPermissoes(defaults);
+      localStorage.setItem("area_permissoes", JSON.stringify(defaults));
     }
   }, []);
 
@@ -43,37 +30,50 @@ export default function ConfigurarAreas() {
     setExpandidos(prev => ({ ...prev, [area]: !prev[area] }));
   };
 
-  const adicionarModulo = (area) => {
-    const modulo = novoModulo[area]?.trim();
-    if (!modulo) return;
-    
+  const togglePaginaParaArea = (area, pagina) => {
     const updated = {
-      ...areas,
-      [area]: [...(areas[area] || []), modulo]
+      ...areaPermissoes,
+      [area]: {
+        ...(areaPermissoes[area] || {}),
+        [pagina]: !areaPermissoes[area]?.[pagina]
+      }
     };
-    setAreas(updated);
-    localStorage.setItem("areas_modulos", JSON.stringify(updated));
-    setNovoModulo({ ...novoModulo, [area]: "" });
+    setAreaPermissoes(updated);
+    localStorage.setItem("area_permissoes", JSON.stringify(updated));
   };
 
-  const removerModulo = (area, modulo) => {
+  const toggleTodasParaArea = (area, ativar) => {
     const updated = {
-      ...areas,
-      [area]: (areas[area] || []).filter(m => m !== modulo)
+      ...areaPermissoes,
+      [area]: {}
     };
-    setAreas(updated);
-    localStorage.setItem("areas_modulos", JSON.stringify(updated));
+    MENU_PAGES.forEach(page => {
+      updated[area][page.page] = ativar;
+    });
+    setAreaPermissoes(updated);
+    localStorage.setItem("area_permissoes", JSON.stringify(updated));
   };
+
+  // Agrupar páginas por categoria
+  const paginasPorCategoria = {};
+  MENU_PAGES.forEach(page => {
+    if (!paginasPorCategoria[page.categoria]) {
+      paginasPorCategoria[page.categoria] = [];
+    }
+    paginasPorCategoria[page.categoria].push(page);
+  });
 
   return (
     <div className="space-y-3">
       <p className="text-sm text-slate-600 mb-4">
-        Defina os módulos/telas disponíveis para cada área.
+        Selecione quais páginas do menu estarão disponíveis em cada área.
       </p>
 
       {AREAS_DISPONIVEIS.map(area => {
-        const modulos = areas[area] || [];
         const isExpanded = expandidos[area];
+        const permsArea = areaPermissoes[area] || {};
+        const totalAtivas = Object.values(permsArea).filter(Boolean).length;
+        const totalPaginas = MENU_PAGES.length;
 
         return (
           <div key={area} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -83,7 +83,9 @@ export default function ConfigurarAreas() {
               className="w-full px-4 py-3 flex items-center gap-3 bg-slate-50 hover:bg-slate-100 transition"
             >
               <Badge className="bg-[#1A4731] text-white font-bold">{area}</Badge>
-              <span className="text-xs text-slate-500">{modulos.length} módulo{modulos.length !== 1 ? "s" : ""}</span>
+              <span className="text-xs text-slate-500">
+                {totalAtivas} de {totalPaginas} páginas ativadas
+              </span>
               <span className="ml-auto text-slate-400">
                 {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
               </span>
@@ -92,46 +94,63 @@ export default function ConfigurarAreas() {
             {/* Conteúdo */}
             {isExpanded && (
               <div className="p-4 space-y-3 border-t border-slate-100">
-                {/* Lista de módulos */}
-                {modulos.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {modulos.map(modulo => (
-                      <div
-                        key={modulo}
-                        className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5 text-sm text-blue-700"
-                      >
-                        {modulo}
-                        <button
-                          onClick={() => removerModulo(area, modulo)}
-                          className="text-blue-500 hover:text-blue-700 ml-1"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Input novo módulo */}
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={novoModulo[area] || ""}
-                    onChange={e => setNovoModulo({ ...novoModulo, [area]: e.target.value })}
-                    onKeyPress={e => {
-                      if (e.key === "Enter") adicionarModulo(area);
-                    }}
-                    placeholder="Novo módulo..."
-                    className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A4731] bg-slate-50"
-                  />
-                  <Button
-                    onClick={() => adicionarModulo(area)}
-                    size="sm"
-                    className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-1"
+                {/* Botões de ativar/desativar tudo */}
+                <div className="flex gap-2 pb-3 border-b border-slate-100">
+                  <button
+                    onClick={() => toggleTodasParaArea(area, true)}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 font-medium transition"
                   >
-                    <Plus size={14} /> Adicionar
-                  </Button>
+                    Ativar Tudo
+                  </button>
+                  <button
+                    onClick={() => toggleTodasParaArea(area, false)}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 font-medium transition"
+                  >
+                    Desativar Tudo
+                  </button>
                 </div>
+
+                {/* Páginas agrupadas por categoria */}
+                {Object.entries(paginasPorCategoria).map(([categoria, paginas]) => (
+                  <div key={categoria} className="space-y-2">
+                    <h4 className="text-xs font-semibold text-slate-600 uppercase tracking-wide">{categoria}</h4>
+                    <div className="space-y-1.5 ml-2">
+                      {paginas.map(page => {
+                        const ativo = permsArea[page.page] || false;
+                        return (
+                          <button
+                            key={page.page}
+                            onClick={() => togglePaginaParaArea(area, page.page)}
+                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition text-left text-sm ${
+                              ativo
+                                ? "bg-green-50 border border-green-200"
+                                : "bg-slate-50 border border-slate-200"
+                            }`}
+                          >
+                            {/* Toggle visual */}
+                            <div className={`w-4 h-4 rounded-full border-2 transition flex items-center justify-center ${
+                              ativo
+                                ? "bg-green-500 border-green-600"
+                                : "border-slate-300 bg-white"
+                            }`}>
+                              {ativo && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                            </div>
+
+                            {/* Label */}
+                            <span className={`flex-1 font-medium ${ativo ? "text-green-700" : "text-slate-600"}`}>
+                              {page.label}
+                            </span>
+
+                            {/* Status badge */}
+                            <Badge className={ativo ? "bg-green-600" : "bg-slate-300"}>
+                              {ativo ? "Ativo" : "Inativo"}
+                            </Badge>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>

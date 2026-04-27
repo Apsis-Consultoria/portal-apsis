@@ -18,7 +18,7 @@ import {
   ChevronRight, Bell, User, Menu, X, Megaphone, TrendingUp, PieChart, Settings, Sparkles, Users, Grid3x3, Home,
   Search, Calendar, Split, ArrowRightLeft, Package, Cpu,
   Server, Landmark, Star, GitMerge, Calculator, BookOpen, Award, Target, Leaf, ShoppingCart, Briefcase, Building2, Lightbulb,
-  CalendarDays
+  CalendarDays, Lock
 } from "lucide-react";
 import { Clock } from "lucide-react";
 import AssistantWidget from "@/components/AssistantWidget";

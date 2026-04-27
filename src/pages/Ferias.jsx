@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { colaboradoresService } from "@/lib/supabaseColaboradores";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   CalendarDays, Plus, Trash2, Search, ChevronDown, ChevronUp,
-  RefreshCw, AlertCircle, CheckCircle2, Clock
+  AlertCircle, CheckCircle2, Clock
 } from "lucide-react";
 import { getDiasUteisNoIntervalo } from "@/components/rateiocaju/feriadosUtils";
 
@@ -65,8 +65,8 @@ export default function Ferias() {
 
   useEffect(() => {
     setLoading(true);
-    base44.entities.ColaboradorCLT.list().then(data => {
-      setColaboradores(data.filter(c => c.ativo !== false));
+    colaboradoresService.list().then(data => {
+      setColaboradores((data || []).filter(c => c.ativo !== false));
       setFerias(loadFerias());
       setLoading(false);
     });
@@ -94,10 +94,7 @@ export default function Ferias() {
   const toggleExpand = (id) => setExpandidos(prev => ({ ...prev, [id]: !prev[id] }));
 
   // ── Filtragem ──────────────────────────────────────────────────────────
-  const VINCULOS_CAJU = ["CLT", "Estagiário"];
-  const cajuColabs = colaboradores.filter(c =>
-    VINCULOS_CAJU.includes((c.tipo_vinculo || c.tipo_contrato || "").trim())
-  );
+  const cajuColabs = colaboradores;
 
   const unidades = ["Todas", ...new Set(cajuColabs.map(c => c.unidade).filter(Boolean))];
 
@@ -145,14 +142,8 @@ export default function Ferias() {
         <div>
           <h1 className="text-2xl font-bold text-[#1A4731]">Férias</h1>
           <p className="text-sm text-slate-500 mt-0.5">
-            Gerencie os períodos de férias dos colaboradores. Os dados alimentam automaticamente o Rateio Caju.
+            Gerencie os períodos de férias de todos os colaboradores.
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 text-xs bg-[#1A4731]/10 text-[#1A4731] px-3 py-1.5 rounded-lg font-medium">
-            <RefreshCw size={11} />
-            Sincronizado com Rateio Caju
-          </div>
         </div>
       </div>
 
@@ -370,19 +361,7 @@ export default function Ferias() {
         })}
       </div>
 
-      {/* ── Aviso de integração ──────────────────────────────────────── */}
-      <div className="bg-[#1A4731]/5 border border-[#1A4731]/20 rounded-2xl p-4 flex items-start gap-3">
-        <div className="w-8 h-8 rounded-lg bg-[#1A4731]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <RefreshCw size={14} className="text-[#1A4731]" />
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-[#1A4731]">Integração com Rateio Caju</p>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Os períodos de férias cadastrados aqui são automaticamente aplicados ao criar um novo rateio mensal de VR.
-            Os dias de férias que coincidem com o mês de referência são descontados do cálculo de cada colaborador.
-          </p>
-        </div>
-      </div>
+
 
     </div>
   );

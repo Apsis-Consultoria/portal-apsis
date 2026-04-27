@@ -145,6 +145,7 @@ const navItems = [
     ]
   },
   { label: "Planejamento Estratégico", page: "PlanejamentoEstrategico", icon: Target },
+  { label: "Gerenciamento de Acessos", page: "GerenciamentoAcessos", icon: Lock },
   { label: "Inova+", externalUrl: "https://inova.apsis.com.br/", icon: Sparkles },
   { label: "Dashboard Qualidade", externalUrl: "https://qualidade.apsis.com.br", icon: BarChart3 },
   { label: "Configurações", page: "Configuracoes", icon: Settings },

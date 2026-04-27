@@ -141,6 +141,13 @@ export const MENU_GROUPS = [
     ]
   },
   {
+    label: "Inova+",
+    group: "InovaPlus",
+    pages: [
+      { label: "Inova+ Platform", externalUrl: "https://inova.apsis.com.br/" }
+    ]
+  },
+  {
     label: "Geral",
     group: "Geral",
     pages: [

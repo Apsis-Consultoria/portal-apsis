@@ -17,7 +17,8 @@ import {
   LayoutDashboard, DollarSign, BarChart3, FileText, ChevronLeft,
   ChevronRight, Bell, User, Menu, X, Megaphone, TrendingUp, PieChart, Settings, Sparkles, Users, Grid3x3, Home,
   Search, Calendar, Split, ArrowRightLeft, Package, Cpu,
-  Server, Landmark, Star, GitMerge, Calculator, BookOpen, Award, Target, Leaf, ShoppingCart, Briefcase, Building2, Lightbulb
+  Server, Landmark, Star, GitMerge, Calculator, BookOpen, Award, Target, Leaf, ShoppingCart, Briefcase, Building2, Lightbulb,
+  CalendarDays
 } from "lucide-react";
 import { Clock } from "lucide-react";
 import AssistantWidget from "@/components/AssistantWidget";
@@ -125,6 +126,7 @@ const navItems = [
       { label: "Alocações", page: "CapitalHumano", icon: Calendar, tabParam: "alocacoes" },
       { label: "Rateios CH", page: "RateiosCapitalHumano", icon: Split },
       { label: "Rateio Caju", page: "RateioCaju", icon: Split },
+      { label: "Férias", page: "Ferias", icon: CalendarDays },
       { label: "Onboarding", page: "OnboardingInterno", icon: Briefcase },
       { label: "Configurações", page: "CapitalHumano", icon: Settings, tabParam: "configuracoes" },
     ]

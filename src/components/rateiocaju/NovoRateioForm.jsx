@@ -629,7 +629,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
                     >
                       <div className="flex items-center gap-1 mb-1.5">
                         <Badge className={`${cfg.badgeCls} text-xs font-bold px-1.5`}>{u}</Badge>
-                        {temEst && <span className="text-[10px] text-slate-400 font-medium">CLT</span>}
+                        <span className="text-[10px] text-slate-400 font-medium">CLT</span>
                       </div>
                       {editingVr === u ? (
                         <input autoFocus
@@ -657,7 +657,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
                       >
                         <div className="flex items-center gap-1 mb-1.5">
                           <Badge className="bg-amber-100 text-amber-800 text-xs font-bold px-1.5">{u}</Badge>
-                          <span className="text-[10px] text-amber-600 font-medium">Est.</span>
+                          <span className="text-[10px] text-amber-600 font-medium">Estagiário</span>
                         </div>
                         {editingVr === `${u}_est` ? (
                           <input autoFocus

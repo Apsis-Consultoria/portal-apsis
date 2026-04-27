@@ -63,6 +63,7 @@ export default function Ferias() {
   const [novoFim, setNovoFim] = useState("");
   const [filtroUnidade, setFiltroUnidade] = useState("Todas");
   const [filtroStatus, setFiltroStatus] = useState("Todos");
+  const [filtroAno, setFiltroAno] = useState(new Date().getFullYear());
 
   useEffect(() => {
     setLoading(true);
@@ -100,10 +101,14 @@ export default function Ferias() {
 
   const unidades = ["Todas", ...new Set(cajuColabs.map(c => c.unidade).filter(Boolean))];
 
+  // Períodos filtrados pelo ano selecionado
+  const periodosDoAno = (id) =>
+    (ferias[id] || []).filter(p => p.inicio?.startsWith(String(filtroAno)) || p.fim?.startsWith(String(filtroAno)));
+
   const filtrados = cajuColabs.filter(c => {
     const nomeOk = !busca || (c.nome || "").toLowerCase().includes(busca.toLowerCase());
     const unidadeOk = filtroUnidade === "Todas" || c.unidade === filtroUnidade;
-    const periodos = ferias[c.id] || [];
+    const periodos = periodosDoAno(c.id);
     const statusOk =
       filtroStatus === "Todos" ||
       (filtroStatus === "Com férias" && periodos.length > 0) ||
@@ -114,11 +119,11 @@ export default function Ferias() {
   // ── KPIs ──────────────────────────────────────────────────────────────
   const vinculos = [...new Set(cajuColabs.map(c => c.tipo_vinculo || c.tipo_contrato).filter(Boolean))];
   const subTotalColabs = vinculos.length > 0 ? vinculos.join(" + ") : "Todos os vínculos";
-  const totalComFerias = cajuColabs.filter(c => (ferias[c.id] || []).length > 0).length;
-  const totalPeriodos = Object.values(ferias).reduce((acc, arr) => acc + (arr?.length || 0), 0);
+  const totalComFerias = cajuColabs.filter(c => periodosDoAno(c.id).length > 0).length;
+  const totalPeriodos = cajuColabs.reduce((acc, c) => acc + periodosDoAno(c.id).length, 0);
   const hoje = new Date();
   const emAndamento = cajuColabs.filter(c =>
-    (ferias[c.id] || []).some(p => new Date(p.inicio + "T00:00:00") <= hoje && new Date(p.fim + "T00:00:00") >= hoje)
+    periodosDoAno(c.id).some(p => new Date(p.inicio + "T00:00:00") <= hoje && new Date(p.fim + "T00:00:00") >= hoje)
   ).length;
 
   // ── Agrupamento por unidade ────────────────────────────────────────────
@@ -152,6 +157,25 @@ export default function Ferias() {
           <p className="text-sm text-slate-500 mt-0.5">
             Gerencie os períodos de férias de todos os colaboradores.
           </p>
+        </div>
+        <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-sm">
+          <CalendarDays size={15} className="text-slate-400" />
+          <span className="text-xs text-slate-500 font-medium">Ano:</span>
+          <div className="flex gap-1">
+            {[2024, 2025, 2026, 2027].map(ano => (
+              <button
+                key={ano}
+                onClick={() => setFiltroAno(ano)}
+                className={`text-xs px-2.5 py-1 rounded-lg font-semibold transition ${
+                  filtroAno === ano
+                    ? "bg-[#1A4731] text-white"
+                    : "text-slate-500 hover:bg-slate-100"
+                }`}
+              >
+                {ano}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -248,7 +272,7 @@ export default function Ferias() {
               {/* Lista de colaboradores — sempre mostra 2, expande para ver todos */}
               <div className="divide-y divide-slate-100">
                 {(isUnidadeExpanded ? colabs : colabs.slice(0, 2)).map(c => {
-                  const periodos = ferias[c.id] || [];
+                  const periodos = periodosDoAno(c.id);
                   const isExpanded = expandidos[c.id];
                   const isAdding = adicionando === c.id;
 

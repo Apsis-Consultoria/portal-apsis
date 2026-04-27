@@ -62,6 +62,7 @@ export default function ConfigurarAreas() {
   const iniciarEdicao = (dept) => {
     setEmEdicao(prev => ({ ...prev, [dept]: true }));
     setBackupPermissoes(prev => ({ ...prev, [dept]: grupoPermissoes[dept] }));
+    setExpandidos(prev => ({ ...prev, [dept]: true }));
   };
 
   const salvarEdicao = (dept) => {

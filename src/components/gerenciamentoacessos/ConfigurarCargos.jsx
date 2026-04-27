@@ -62,6 +62,7 @@ export default function ConfigurarCargos() {
     const key = `${departamentoSelecionado}_${cargo}`;
     setEmEdicao(prev => ({ ...prev, [cargo]: true }));
     setBackupAcessos(prev => ({ ...prev, [key]: cargoAcessos[key] || [] }));
+    setExpandidos(prev => ({ ...prev, [cargo]: true }));
   };
 
   const salvarEdicao = (cargo) => {
@@ -166,11 +167,14 @@ export default function ConfigurarCargos() {
               return (
                 <div key={cargo} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
                   {/* Header */}
-                  <div className={`w-full px-4 py-3 flex items-center gap-3 transition ${
-                    acessosCargo.length > 0
-                      ? "bg-green-50"
-                      : "bg-slate-50"
-                  }`}>
+                  <div 
+                    onClick={() => toggleExpand(cargo)}
+                    className={`w-full px-4 py-3 flex items-center gap-3 transition cursor-pointer ${
+                      acessosCargo.length > 0
+                        ? "bg-green-50 hover:bg-green-100"
+                        : "bg-slate-50 hover:bg-slate-100"
+                    }`}
+                  >
                     <Badge className={acessosCargo.length > 0 ? "bg-green-600" : "bg-slate-600"}>
                       {cargo}
                     </Badge>
@@ -181,13 +185,19 @@ export default function ConfigurarCargos() {
                     {emEdicao[cargo] ? (
                       <div className="ml-auto flex gap-2">
                         <button
-                          onClick={() => salvarEdicao(cargo)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            salvarEdicao(cargo);
+                          }}
                           className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg transition font-medium"
                         >
                           <Save size={13} /> Salvar
                         </button>
                         <button
-                          onClick={() => descartarEdicao(cargo)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            descartarEdicao(cargo);
+                          }}
                           className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition font-medium"
                         >
                           <RotateCcw size={13} /> Descartar
@@ -196,17 +206,17 @@ export default function ConfigurarCargos() {
                     ) : (
                       <div className="ml-auto flex gap-2 items-center">
                         <button
-                          onClick={() => iniciarEdicao(cargo)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            iniciarEdicao(cargo);
+                          }}
                           className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition font-medium"
                         >
                           <Edit2 size={13} /> Editar
                         </button>
-                        <button
-                          onClick={() => toggleExpand(cargo)}
-                          className={`${acessosCargo.length > 0 ? "text-green-600" : "text-slate-400"}`}
-                        >
+                        <span className="text-slate-400">
                           {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
-                        </button>
+                        </span>
                       </div>
                     )}
                   </div>

@@ -125,7 +125,7 @@ export default function Ferias() {
   const porUnidade = ["SP", "RJ", "Carbon", "REDD"]
     .map(u => ({
       unidade: u,
-      colabs: filtrados.filter(c => c.unidade === u),
+      colabs: filtrados.filter(c => c.unidade === u).sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR")),
     }))
     .filter(g => g.colabs.length > 0);
 

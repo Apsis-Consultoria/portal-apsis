@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatMes, getDiasUteisNoIntervalo } from "./feriadosUtils";
 import { getDiasUteisParaMes } from "./FeriadosModal";
-import { CalendarDays, ArrowLeft } from "lucide-react";
+import { CalendarDays, ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
 import FeriasColaboradorModal from "./FeriasColaboradorModal";
 
 const fmt = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -162,7 +162,7 @@ function SubgrupoColabs({ titulo, cor, colaboradores, selecionados, onToggle, di
         {colaboradores.length === 0 && (
           <p className="text-xs text-gray-400 text-center py-2">Nenhum cadastrado</p>
         )}
-        {colaboradores.map(c => {
+        {[...colaboradores].sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR")).map(c => {
           const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
           const diasEfetivos = getDiasEfetivos(c.id);
           return (
@@ -187,13 +187,19 @@ function SubgrupoColabs({ titulo, cor, colaboradores, selecionados, onToggle, di
   );
 }
 
+const COLLAPSED_HEIGHT = 260; // px visíveis quando recolhido
+
 function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUteis, vrDiario, vrEstagiario, ferias, onFeriasChange, ano, mes }) {
   const cfg = UNIDADE_CONFIG[unidade];
   const estado = unidade === "SP" ? "SP" : "RJ";
   const temEstagiarios = unidade === "RJ" || unidade === "SP";
+  const [expandido, setExpandido] = useState(false);
 
-  const clts = temEstagiarios ? colaboradores.filter(c => (c.tipo_vinculo || c.tipo_contrato || "CLT") !== "Estagiário") : colaboradores;
-  const estagiarios = temEstagiarios ? colaboradores.filter(c => (c.tipo_vinculo || c.tipo_contrato) === "Estagiário") : [];
+  // Ordenar colaboradores por nome
+  const sorted = [...colaboradores].sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR"));
+
+  const clts = temEstagiarios ? sorted.filter(c => (c.tipo_vinculo || c.tipo_contrato || "CLT") !== "Estagiário") : sorted;
+  const estagiarios = temEstagiarios ? sorted.filter(c => (c.tipo_vinculo || c.tipo_contrato) === "Estagiário") : [];
 
   const getDiasEfetivos = (id) => {
     const diasFerias = calcDiasFeriasMes(id, ferias, ano, mes, estado);
@@ -229,80 +235,101 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
           <Badge className={`${cfg.badgeCls} text-sm font-bold px-3 py-0.5`}>{unidade}</Badge>
           <span className="text-xs text-slate-500 font-medium">{UNIDADE_CONFIG[unidade]?.label || unidade}</span>
         </div>
-        <div className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full ${cfg.infoCls}`}>
-          <CalendarDays size={11} />
-          <span>{diasUteis} dias úteis</span>
+        <div className="flex items-center gap-2">
+          <div className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full ${cfg.infoCls}`}>
+            <CalendarDays size={11} />
+            <span>{diasUteis} dias úteis</span>
+          </div>
+          <span className={`text-sm font-bold ${cfg.totalCls}`}>{fmt(total)}</span>
         </div>
       </div>
 
-      <div className="p-4">
-        {temEstagiarios ? (
-          <div className="space-y-3 mb-4">
-            <SubgrupoColabs
-              titulo="CLT"
-              cor={{ borderCls: cfg.borderCls, badgeCls: cfg.badgeCls }}
-              colaboradores={clts}
-              selecionados={selecionados}
-              onToggle={onToggle}
-              diasUteis={diasUteis}
-              vrDiario={vrDiario}
-              ferias={ferias}
-              onFeriasChange={onFeriasChange}
-              estado={estado}
-              ano={ano}
-              mes={mes}
-              cfg={cfg}
-            />
-            <SubgrupoColabs
-              titulo="Estagiários"
-              cor={{ borderCls: "border-amber-200", badgeCls: "bg-amber-100 text-amber-800" }}
-              colaboradores={estagiarios}
-              selecionados={selecionados}
-              onToggle={onToggle}
-              diasUteis={diasUteis}
-              vrDiario={vrEstagiario || vrDiario}
-              ferias={ferias}
-              onFeriasChange={onFeriasChange}
-              estado={estado}
-              ano={ano}
-              mes={mes}
-              cfg={cfg}
-            />
+      {/* Conteúdo com altura limitada quando recolhido */}
+      <div
+        className="overflow-hidden transition-all duration-300"
+        style={{ maxHeight: expandido ? "9999px" : `${COLLAPSED_HEIGHT}px` }}
+      >
+        <div className="p-4">
+          {temEstagiarios ? (
+            <div className="space-y-3 mb-4">
+              <SubgrupoColabs
+                titulo="CLT"
+                cor={{ borderCls: cfg.borderCls, badgeCls: cfg.badgeCls }}
+                colaboradores={clts}
+                selecionados={selecionados}
+                onToggle={onToggle}
+                diasUteis={diasUteis}
+                vrDiario={vrDiario}
+                ferias={ferias}
+                onFeriasChange={onFeriasChange}
+                estado={estado}
+                ano={ano}
+                mes={mes}
+                cfg={cfg}
+              />
+              <SubgrupoColabs
+                titulo="Estagiários"
+                cor={{ borderCls: "border-amber-200", badgeCls: "bg-amber-100 text-amber-800" }}
+                colaboradores={estagiarios}
+                selecionados={selecionados}
+                onToggle={onToggle}
+                diasUteis={diasUteis}
+                vrDiario={vrEstagiario || vrDiario}
+                ferias={ferias}
+                onFeriasChange={onFeriasChange}
+                estado={estado}
+                ano={ano}
+                mes={mes}
+                cfg={cfg}
+              />
+            </div>
+          ) : (
+            <div className="space-y-1 mb-4">
+              {sorted.length === 0 && (
+                <p className="text-xs text-slate-400 text-center py-4">Nenhum colaborador cadastrado</p>
+              )}
+              {sorted.map(c => {
+                const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
+                const diasEfetivos = getDiasEfetivos(c.id);
+                return (
+                  <ColaboradorRow
+                    key={c.id}
+                    c={c}
+                    cfg={cfg}
+                    selecionado={selecionados.includes(String(c.id))}
+                    onToggle={onToggle}
+                    diasFerias={diasFerias}
+                    diasEfetivos={diasEfetivos}
+                    valor={vrDiario * diasEfetivos}
+                    periodos={ferias[c.id] || []}
+                    onAddFerias={handleAddFerias}
+                    onRemoveFerias={handleRemoveFerias}
+                  />
+                );
+              })}
+            </div>
+          )}
+
+          <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
+            <span className="text-xs text-slate-400">
+              {selecionados.length} de {colaboradores.length} selecionados
+            </span>
+            <span className={`text-lg font-bold ${cfg.totalCls}`}>{fmt(total)}</span>
           </div>
+        </div>
+      </div>
+
+      {/* Botão expandir/recolher */}
+      <button
+        onClick={() => setExpandido(e => !e)}
+        className={`w-full flex items-center justify-center gap-1.5 py-2 text-xs font-medium border-t ${cfg.borderCls} ${cfg.hoverCls} transition text-slate-500`}
+      >
+        {expandido ? (
+          <><ChevronUp size={13} /> Recolher</>
         ) : (
-          <div className="space-y-1 mb-4">
-            {colaboradores.length === 0 && (
-              <p className="text-xs text-slate-400 text-center py-4">Nenhum colaborador cadastrado</p>
-            )}
-            {colaboradores.map(c => {
-              const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
-              const diasEfetivos = getDiasEfetivos(c.id);
-              return (
-                <ColaboradorRow
-                  key={c.id}
-                  c={c}
-                  cfg={cfg}
-                  selecionado={selecionados.includes(String(c.id))}
-                  onToggle={onToggle}
-                  diasFerias={diasFerias}
-                  diasEfetivos={diasEfetivos}
-                  valor={vrDiario * diasEfetivos}
-                  periodos={ferias[c.id] || []}
-                  onAddFerias={handleAddFerias}
-                  onRemoveFerias={handleRemoveFerias}
-                />
-              );
-            })}
-          </div>
+          <><ChevronDown size={13} /> Ver todos ({colaboradores.length})</>
         )}
-
-        <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
-          <span className="text-xs text-slate-400">
-            {selecionados.length} de {colaboradores.length} selecionados
-          </span>
-          <span className={`text-lg font-bold ${cfg.totalCls}`}>{fmt(total)}</span>
-        </div>
-      </div>
+      </button>
     </div>
   );
 }

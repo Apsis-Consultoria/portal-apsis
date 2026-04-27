@@ -9,7 +9,8 @@ export default function ColaboradorFormModal({ open, colaborador, onClose, onSav
     cargo: '',
     area: '',
     departamento: '',
-    capacidade_horas_mensais: 160,
+    unidade: '',
+    tipo_vinculo: '',
     ativo: true,
   });
   const [saving, setSaving] = useState(false);
@@ -24,7 +25,8 @@ export default function ColaboradorFormModal({ open, colaborador, onClose, onSav
         cargo: '',
         area: '',
         departamento: '',
-        capacidade_horas_mensais: 160,
+        unidade: '',
+        tipo_vinculo: '',
         ativo: true,
       });
     }
@@ -98,6 +100,40 @@ export default function ColaboradorFormModal({ open, colaborador, onClose, onSav
 
           <div className="grid grid-cols-2 gap-3">
             <div>
+              <label className="text-xs font-semibold text-[var(--text-secondary)] block mb-1">Unidade</label>
+              <select
+                name="unidade"
+                value={formData.unidade}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg text-sm focus:outline-none focus:border-[#F47920] bg-white"
+              >
+                <option value="">Selecione...</option>
+                <option value="RJ">RJ</option>
+                <option value="SP">SP</option>
+                <option value="Carbon">Carbon</option>
+                <option value="REDD">REDD</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-[var(--text-secondary)] block mb-1">Tipo de Vínculo</label>
+              <select
+                name="tipo_vinculo"
+                value={formData.tipo_vinculo}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg text-sm focus:outline-none focus:border-[#F47920] bg-white"
+              >
+                <option value="">Selecione...</option>
+                <option value="CLT">CLT</option>
+                <option value="Sócio">Sócio</option>
+                <option value="Estagiário">Estagiário</option>
+                <option value="PJ">PJ</option>
+                <option value="Temporário">Temporário</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
               <label className="text-xs font-semibold text-[var(--text-secondary)] block mb-1">Cargo</label>
               <input
                 type="text"
@@ -130,18 +166,6 @@ export default function ColaboradorFormModal({ open, colaborador, onClose, onSav
               onChange={handleChange}
               className="w-full px-3 py-2 border border-[var(--border)] rounded-lg text-sm focus:outline-none focus:border-[#F47920]"
               placeholder="Departamento"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-[var(--text-secondary)] block mb-1">Capacidade de Horas/Mês</label>
-            <input
-              type="number"
-              name="capacidade_horas_mensais"
-              value={formData.capacidade_horas_mensais}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-[var(--border)] rounded-lg text-sm focus:outline-none focus:border-[#F47920]"
-              min="0"
             />
           </div>
 

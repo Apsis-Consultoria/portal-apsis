@@ -15,7 +15,7 @@ export default function CapitalHumano() {
   const [editingColab, setEditingColab] = useState(null);
   const [showImportModal, setShowImportModal] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: 'nome', dir: 'asc' });
-  const [filters, setFilters] = useState({ departamento: '', cargo: '', area: '' });
+  const [filters, setFilters] = useState({ departamento: '', unidade: '', tipo_vinculo: '' });
   const [openFilter, setOpenFilter] = useState(null);
 
   useEffect(() => {
@@ -84,8 +84,8 @@ export default function CapitalHumano() {
   const filteredAndSorted = colaboradores
     .filter(c => !search || c.nome?.toLowerCase().includes(search.toLowerCase()) || c.email?.toLowerCase().includes(search.toLowerCase()))
     .filter(c => !filters.departamento || c.departamento === filters.departamento)
-    .filter(c => !filters.cargo || c.cargo === filters.cargo)
-    .filter(c => !filters.area || c.area === filters.area)
+    .filter(c => !filters.unidade || c.unidade === filters.unidade)
+    .filter(c => !filters.tipo_vinculo || c.tipo_vinculo === filters.tipo_vinculo)
     .sort((a, b) => {
       const va = a[sortConfig.key] ?? '';
       const vb = b[sortConfig.key] ?? '';
@@ -357,11 +357,10 @@ export default function CapitalHumano() {
                       <tr className="bg-[var(--surface-2)] border-b border-[var(--border)]">
                         {[
                           { label: 'Nome', key: 'nome', sortable: true, filterable: false },
-                          { label: 'Cargo', key: 'cargo', sortable: true, filterable: true },
-                          { label: 'Área', key: 'area', sortable: true, filterable: true },
+                          { label: 'Unidade', key: 'unidade', sortable: true, filterable: true },
+                          { label: 'Tipo de Vínculo', key: 'tipo_vinculo', sortable: true, filterable: true },
                           { label: 'Departamento', key: 'departamento', sortable: true, filterable: true },
                           { label: 'E-mail', key: 'email', sortable: true, filterable: false },
-                          { label: 'Cap. Horas/mês', key: 'capacidade_horas_mensais', sortable: true, filterable: false },
                           { label: 'Status', key: 'ativo', sortable: false, filterable: false },
                           { label: 'Ações', key: null, sortable: false, filterable: false },
                         ].map(col => (
@@ -390,11 +389,10 @@ export default function CapitalHumano() {
                                 <span className="font-medium text-[var(--text-primary)]">{c.nome}</span>
                               </div>
                             </td>
-                            <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{c.cargo || '—'}</td>
-                            <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{c.area || '—'}</td>
+                            <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{c.unidade || '—'}</td>
+                            <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{c.tipo_vinculo || '—'}</td>
                             <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{c.departamento || '—'}</td>
                             <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{c.email || '—'}</td>
-                            <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{c.capacidade_horas_mensais ?? 160}h</td>
                             <td className="px-4 py-3">
                               <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${c.ativo !== false ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-400'}`}>
                                 {c.ativo !== false ? 'Ativo' : 'Inativo'}

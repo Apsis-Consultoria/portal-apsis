@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { MENU_PAGES, AREAS_DISPONIVEIS, CARGOS_DISPONIVEIS } from "./menuOptions";
+import { MENU_GROUPS, AREAS_DISPONIVEIS, CARGOS_DISPONIVEIS } from "./menuOptions";
 
 export default function ConfigurarCargos() {
-  const [areaPermissoes, setAreaPermissoes] = useState({});
+  const [grupoPermissoes, setGrupoPermissoes] = useState({});
   const [cargoAcessos, setCargoAcessos] = useState({});
   const [areaSelecionada, setAreaSelecionada] = useState("Contábil");
   const [expandidos, setExpandidos] = useState({});
 
   // Carregar dados do localStorage
   useEffect(() => {
-    const areasData = localStorage.getItem("area_permissoes");
-    if (areasData) {
-      setAreaPermissoes(JSON.parse(areasData));
+    const grupoData = localStorage.getItem("grupo_permissoes");
+    if (grupoData) {
+      setGrupoPermissoes(JSON.parse(grupoData));
     }
 
     const cargoData = localStorage.getItem("cargo_acessos");
@@ -26,50 +26,39 @@ export default function ConfigurarCargos() {
     setExpandidos(prev => ({ ...prev, [cargo]: !prev[cargo] }));
   };
 
-  const togglePaginaParaCargo = (cargo, pagina) => {
+  const toggleGrupoParaCargo = (cargo, grupo) => {
     const key = `${cargo}_${areaSelecionada}`;
     const atual = cargoAcessos[key] || [];
-    const updated = atual.includes(pagina)
-      ? atual.filter(p => p !== pagina)
-      : [...atual, pagina];
+    const updated = atual.includes(grupo)
+      ? atual.filter(g => g !== grupo)
+      : [...atual, grupo];
 
     const newCargoAcessos = { ...cargoAcessos, [key]: updated };
     setCargoAcessos(newCargoAcessos);
     localStorage.setItem("cargo_acessos", JSON.stringify(newCargoAcessos));
   };
 
-  const toggleTodasParaCargo = (cargo, ativar) => {
+  const toggleTudosParaCargo = (cargo, ativar) => {
     const key = `${cargo}_${areaSelecionada}`;
-    const paginasDisponiveis = (areaPermissoes[areaSelecionada] || {});
-    const paginasAtivas = Object.keys(paginasDisponiveis).filter(p => paginasDisponiveis[p]);
+    const gruposAtivos = MENU_GROUPS
+      .filter(g => grupoPermissoes[g.group])
+      .map(g => g.group);
 
     const newCargoAcessos = {
       ...cargoAcessos,
-      [key]: ativar ? paginasAtivas : []
+      [key]: ativar ? gruposAtivos : []
     };
     setCargoAcessos(newCargoAcessos);
     localStorage.setItem("cargo_acessos", JSON.stringify(newCargoAcessos));
   };
 
-  // Páginas disponíveis na área selecionada
-  const paginasDisponiveisArea = Object.keys(areaPermissoes[areaSelecionada] || {})
-    .filter(p => areaPermissoes[areaSelecionada][p])
-    .map(p => MENU_PAGES.find(mp => mp.page === p))
-    .filter(Boolean);
-
-  // Agrupar por categoria
-  const paginasPorCategoria = {};
-  paginasDisponiveisArea.forEach(page => {
-    if (!paginasPorCategoria[page.categoria]) {
-      paginasPorCategoria[page.categoria] = [];
-    }
-    paginasPorCategoria[page.categoria].push(page);
-  });
+  // Grupos disponíveis (ativados na aba de áreas)
+  const gruposDisponiveis = MENU_GROUPS.filter(g => grupoPermissoes[g.group]);
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-slate-600 mb-4">
-        Defina quais páginas cada cargo pode acessar dentro da área selecionada.
+        Defina quais grupos de páginas cada cargo pode acessar por área.
       </p>
 
       {/* Seletor de área */}
@@ -92,14 +81,14 @@ export default function ConfigurarCargos() {
         </div>
       </div>
 
-      {/* Info da área */}
-      {paginasDisponiveisArea.length === 0 ? (
+      {/* Info */}
+      {gruposDisponiveis.length === 0 ? (
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-sm text-yellow-700">
-          ⚠️ Nenhuma página ativada para esta área. Configure as páginas na aba "Configurar Áreas" primeiro.
+          ⚠️ Nenhum grupo ativado. Configure os grupos na aba "Configurar Áreas" primeiro.
         </div>
       ) : (
         <>
-          <p className="text-xs text-slate-500">{paginasDisponiveisArea.length} página{paginasDisponiveisArea.length !== 1 ? "s" : ""} disponível{paginasDisponiveisArea.length !== 1 ? "is" : ""} nesta área</p>
+          <p className="text-xs text-slate-500">{gruposDisponiveis.length} grupo{gruposDisponiveis.length !== 1 ? "s" : ""} disponível{gruposDisponiveis.length !== 1 ? "is" : ""}</p>
 
           {/* Cargos */}
           <div className="space-y-3">
@@ -113,77 +102,82 @@ export default function ConfigurarCargos() {
                   {/* Header */}
                   <button
                     onClick={() => toggleExpand(cargo)}
-                    className="w-full px-4 py-3 flex items-center gap-3 bg-slate-50 hover:bg-slate-100 transition"
+                    className={`w-full px-4 py-3 flex items-center gap-3 transition ${
+                      acessosCargo.length > 0
+                        ? "bg-green-50 hover:bg-green-100"
+                        : "bg-slate-50 hover:bg-slate-100"
+                    }`}
                   >
-                    <Badge className="bg-purple-600 text-white font-bold">{cargo}</Badge>
+                    <Badge className={acessosCargo.length > 0 ? "bg-green-600" : "bg-purple-600"}>
+                      {cargo}
+                    </Badge>
                     <span className="text-xs text-slate-500">
-                      {acessosCargo.length} de {paginasDisponiveisArea.length} páginas
+                      {acessosCargo.length} de {gruposDisponiveis.length} grupo{gruposDisponiveis.length !== 1 ? "s" : ""}
                     </span>
-                    <span className="ml-auto text-slate-400">
+                    <span className={`ml-auto ${acessosCargo.length > 0 ? "text-green-600" : "text-slate-400"}`}>
                       {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                     </span>
                   </button>
 
                   {/* Conteúdo */}
                   {isExpanded && (
-                    <div className="p-4 space-y-3 border-t border-slate-100">
+                    <div className={`p-4 border-t space-y-3 ${acessosCargo.length > 0 ? "border-green-200 bg-green-50" : "border-slate-100 bg-slate-50"}`}>
                       {/* Botões de ativar/desativar tudo */}
-                      <div className="flex gap-2 pb-3 border-b border-slate-100">
+                      <div className="flex gap-2 pb-3 border-b border-slate-200">
                         <button
-                          onClick={() => toggleTodasParaCargo(cargo, true)}
+                          onClick={() => toggleTudosParaCargo(cargo, true)}
                           className="text-xs px-3 py-1.5 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 font-medium transition"
                         >
                           Ativar Tudo
                         </button>
                         <button
-                          onClick={() => toggleTodasParaCargo(cargo, false)}
+                          onClick={() => toggleTudosParaCargo(cargo, false)}
                           className="text-xs px-3 py-1.5 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 font-medium transition"
                         >
                           Desativar Tudo
                         </button>
                       </div>
 
-                      {/* Páginas por categoria */}
-                      {Object.entries(paginasPorCategoria).map(([categoria, paginas]) => (
-                        <div key={categoria} className="space-y-2">
-                          <h4 className="text-xs font-semibold text-slate-600 uppercase tracking-wide">{categoria}</h4>
-                          <div className="space-y-1.5 ml-2">
-                            {paginas.map(page => {
-                              const temAcesso = acessosCargo.includes(page.page);
-                              return (
-                                <button
-                                  key={page.page}
-                                  onClick={() => togglePaginaParaCargo(cargo, page.page)}
-                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition text-left text-sm ${
-                                    temAcesso
-                                      ? "bg-green-50 border border-green-200"
-                                      : "bg-slate-50 border border-slate-200"
-                                  }`}
-                                >
-                                  {/* Toggle visual */}
-                                  <div className={`w-4 h-4 rounded-full border-2 transition flex items-center justify-center ${
-                                    temAcesso
-                                      ? "bg-green-500 border-green-600"
-                                      : "border-slate-300 bg-white"
-                                  }`}>
-                                    {temAcesso && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
-                                  </div>
+                      {/* Grid de grupos */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {gruposDisponiveis.map(grupo => {
+                          const temAcesso = acessosCargo.includes(grupo.group);
+                          return (
+                            <button
+                              key={grupo.group}
+                              onClick={() => toggleGrupoParaCargo(cargo, grupo.group)}
+                              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-left text-sm border ${
+                                temAcesso
+                                  ? "bg-white border-green-300 hover:bg-green-50"
+                                  : "bg-white border-slate-200 hover:bg-slate-50"
+                              }`}
+                            >
+                              {/* Toggle */}
+                              <div className={`w-4 h-4 rounded-full border-2 transition flex items-center justify-center flex-shrink-0 ${
+                                temAcesso
+                                  ? "bg-green-500 border-green-600"
+                                  : "border-slate-300 bg-white"
+                              }`}>
+                                {temAcesso && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                              </div>
 
-                                  {/* Label */}
-                                  <span className={`flex-1 font-medium ${temAcesso ? "text-green-700" : "text-slate-600"}`}>
-                                    {page.label}
-                                  </span>
+                              {/* Label */}
+                              <span className={`flex-1 font-medium ${temAcesso ? "text-green-700" : "text-slate-600"}`}>
+                                {grupo.label}
+                              </span>
 
-                                  {/* Status badge */}
-                                  <Badge className={temAcesso ? "bg-green-600" : "bg-slate-300"}>
-                                    {temAcesso ? "Ativo" : "Inativo"}
-                                  </Badge>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      ))}
+                              {/* Badge com contagem */}
+                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                                temAcesso
+                                  ? "bg-green-200 text-green-700"
+                                  : "bg-slate-200 text-slate-600"
+                              }`}>
+                                {grupo.pages.length}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>

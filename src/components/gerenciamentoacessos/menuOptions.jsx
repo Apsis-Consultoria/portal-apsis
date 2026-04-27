@@ -1,40 +1,154 @@
-// Lista de todas as páginas do menu lateral com suas categorias
-export const MENU_PAGES = [
-  { label: "Boas-Vindas", page: "BoasVindas", categoria: "Geral" },
-  { label: "Estoque de Ativos", page: "EstoqueAtivos", categoria: "Inovação e Tecnologia" },
-  { label: "Alocação de Equipamentos", page: "AlocacaoEquipamentos", categoria: "Inovação e Tecnologia" },
-  { label: "Movimentações", page: "MovimentacoesEquipamentos", categoria: "Inovação e Tecnologia" },
-  { label: "Dashboard TI", page: "DashboardTI", categoria: "Inovação e Tecnologia" },
-  { label: "Painel de Solicitações IA", page: "SolicitacoesIAAdmin", categoria: "Inovação e Tecnologia" },
-  { label: "Infraestrutura", page: "Infraestrutura", categoria: "Infraestrutura" },
-  { label: "Controle de Alocação de Horas", page: "BusinessValuation", categoria: "Business Valuation" },
-  { label: "Contas a Pagar", page: "ContasAPagar", categoria: "Financeiro" },
-  { label: "Contas a Receber", page: "ContasAReceber", categoria: "Financeiro" },
-  { label: "Fluxo de Caixa", page: "FluxoCaixa", categoria: "Financeiro" },
-  { label: "Estoque", page: "Estoque", categoria: "Financeiro" },
-  { label: "Rateio de Despesas", page: "RateioDespesas", categoria: "Financeiro" },
-  { label: "APP Inventário", page: "AppAtivoFixo", categoria: "Ativos Fixos" },
-  { label: "App Conciliação", page: "AppConciliacao", categoria: "Ativos Fixos" },
-  { label: "App Imóveis", page: "AppImoveis", categoria: "Ativos Fixos" },
-  { label: "Projetos Especiais", page: "ProjetosEspeciais", categoria: "Projetos Especiais" },
-  { label: "M&A", page: "MA", categoria: "M&A" },
-  { label: "Indicadores Estratégicos", page: "MarketingIndicadores", categoria: "Marketing & Estratégia" },
-  { label: "Consultoria Contábil", page: "ConsultoriaContabil", categoria: "Consultoria Contábil" },
-  { label: "Capital Humano", page: "CapitalHumano", categoria: "Capital Humano" },
-  { label: "Rateios CH", page: "RateiosCapitalHumano", categoria: "Capital Humano" },
-  { label: "Rateio Caju", page: "RateioCaju", categoria: "Capital Humano" },
-  { label: "Férias", page: "Ferias", categoria: "Capital Humano" },
-  { label: "Onboarding", page: "OnboardingInterno", categoria: "Capital Humano" },
-  { label: "Editoração", page: "Editoracao", categoria: "Editoração" },
-  { label: "Perícias", page: "Pericias", categoria: "Perícias" },
-  { label: "Comercial", page: "Comercial", categoria: "Comercial" },
-  { label: "Diretoria Técnica", page: "DiretoriaTecnica", categoria: "Diretoria Técnica" },
-  { label: "Consultoria Estratégica", page: "ConsultoriaEstrategica", categoria: "Consultoria Estratégica" },
-  { label: "Sustentabilidade", page: "Sustentabilidade", categoria: "Sustentabilidade" },
-  { label: "APSIS CUBUS", page: "AppCubus", categoria: "Apps APSIS" },
-  { label: "Planejamento Estratégico", page: "PlanejamentoEstrategico", categoria: "Planejamento Estratégico" },
-  { label: "Configurações", page: "Configuracoes", categoria: "Configurações" },
-  { label: "Gerenciamento de Acessos", page: "GerenciamentoAcessos", categoria: "Configurações" }
+// Estrutura de grupos de páginas
+export const MENU_GROUPS = [
+  {
+    label: "Inovação e Tecnologia",
+    group: "TecnologiaInicio",
+    pages: [
+      { label: "Estoque de Ativos", page: "EstoqueAtivos" },
+      { label: "Alocação de Equipamentos", page: "AlocacaoEquipamentos" },
+      { label: "Movimentações", page: "MovimentacoesEquipamentos" },
+      { label: "Dashboard TI", page: "DashboardTI" },
+      { label: "Painel de Solicitações IA", page: "SolicitacoesIAAdmin" }
+    ]
+  },
+  {
+    label: "Infraestrutura",
+    group: "Infraestrutura",
+    pages: [
+      { label: "Infraestrutura", page: "Infraestrutura" }
+    ]
+  },
+  {
+    label: "Business Valuation",
+    group: "BusinessValuation",
+    pages: [
+      { label: "Controle de Alocação de Horas", page: "BusinessValuation" }
+    ]
+  },
+  {
+    label: "Financeiro",
+    group: "Financeiro",
+    pages: [
+      { label: "Contas a Pagar", page: "ContasAPagar" },
+      { label: "Contas a Receber", page: "ContasAReceber" },
+      { label: "Fluxo de Caixa", page: "FluxoCaixa" },
+      { label: "Estoque", page: "Estoque" },
+      { label: "Rateio de Despesas", page: "RateioDespesas" }
+    ]
+  },
+  {
+    label: "Ativos Fixos",
+    group: "AtivosFixos",
+    pages: [
+      { label: "APP Inventário", page: "AppAtivoFixo" },
+      { label: "App Conciliação", page: "AppConciliacao" },
+      { label: "App Imóveis", page: "AppImoveis" }
+    ]
+  },
+  {
+    label: "Projetos Especiais",
+    group: "ProjetosEspeciais",
+    pages: [
+      { label: "Projetos Especiais", page: "ProjetosEspeciais" }
+    ]
+  },
+  {
+    label: "M&A",
+    group: "MA",
+    pages: [
+      { label: "M&A", page: "MA" }
+    ]
+  },
+  {
+    label: "Marketing & Estratégia",
+    group: "Marketing",
+    pages: [
+      { label: "Indicadores Estratégicos", page: "MarketingIndicadores" }
+    ]
+  },
+  {
+    label: "Consultoria Contábil",
+    group: "ConsultoriaContabil",
+    pages: [
+      { label: "Consultoria Contábil", page: "ConsultoriaContabil" }
+    ]
+  },
+  {
+    label: "Capital Humano",
+    group: "CapitalHumano",
+    pages: [
+      { label: "Capital Humano", page: "CapitalHumano" },
+      { label: "Rateios CH", page: "RateiosCapitalHumano" },
+      { label: "Rateio Caju", page: "RateioCaju" },
+      { label: "Férias", page: "Ferias" },
+      { label: "Onboarding", page: "OnboardingInterno" }
+    ]
+  },
+  {
+    label: "Editoração",
+    group: "Editoracao",
+    pages: [
+      { label: "Editoração", page: "Editoracao" }
+    ]
+  },
+  {
+    label: "Perícias",
+    group: "Pericias",
+    pages: [
+      { label: "Perícias", page: "Pericias" }
+    ]
+  },
+  {
+    label: "Comercial",
+    group: "Comercial",
+    pages: [
+      { label: "Comercial", page: "Comercial" }
+    ]
+  },
+  {
+    label: "Diretoria Técnica",
+    group: "DiretoriaTecnica",
+    pages: [
+      { label: "Diretoria Técnica", page: "DiretoriaTecnica" }
+    ]
+  },
+  {
+    label: "Consultoria Estratégica",
+    group: "ConsultoriaEstrategica",
+    pages: [
+      { label: "Consultoria Estratégica", page: "ConsultoriaEstrategica" }
+    ]
+  },
+  {
+    label: "Sustentabilidade",
+    group: "Sustentabilidade",
+    pages: [
+      { label: "Sustentabilidade", page: "Sustentabilidade" }
+    ]
+  },
+  {
+    label: "Apps APSIS",
+    group: "AppsAPSIS",
+    pages: [
+      { label: "APSIS CUBUS", page: "AppCubus" }
+    ]
+  },
+  {
+    label: "Planejamento Estratégico",
+    group: "PlanejamentoEstrategico",
+    pages: [
+      { label: "Planejamento Estratégico", page: "PlanejamentoEstrategico" }
+    ]
+  },
+  {
+    label: "Geral",
+    group: "Geral",
+    pages: [
+      { label: "Boas-Vindas", page: "BoasVindas" },
+      { label: "Configurações", page: "Configuracoes" },
+      { label: "Gerenciamento de Acessos", page: "GerenciamentoAcessos" }
+    ]
+  }
 ];
 
 export const AREAS_DISPONIVEIS = [

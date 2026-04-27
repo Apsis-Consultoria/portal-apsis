@@ -411,7 +411,8 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
         setSelecionados(extrairSelecionados(rateioExistente));
       } else {
         const init = { RJ: [], SP: [], Carbon: [], REDD: [] };
-        UNIDADES.forEach(u => { init[u] = ativos.filter(c => (c.unidade || "").trim().toUpperCase() === u.toUpperCase()).map(c => String(c.id)); });
+        const vinculos = ["CLT", "Estagiário"];
+        UNIDADES.forEach(u => { init[u] = ativos.filter(c => (c.unidade || "").trim().toUpperCase() === u.toUpperCase() && vinculos.includes((c.tipo_vinculo || c.tipo_contrato || "").trim())).map(c => String(c.id)); });
         setSelecionados(init);
       }
     });
@@ -429,7 +430,13 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
 
   // Normaliza o valor de unidade para comparação (case-insensitive + trim)
   const normalizeUnidade = (u) => (u || "").trim().toUpperCase();
-  const getColabs = (unidade) => colaboradores.filter(c => normalizeUnidade(c.unidade) === normalizeUnidade(unidade));
+  // Apenas CLT e Estagiário participam do rateio Caju
+  const VINCULOS_CAJU = ["CLT", "Estagiário"];
+  const getColabs = (unidade) => colaboradores.filter(c => {
+    if (normalizeUnidade(c.unidade) !== normalizeUnidade(unidade)) return false;
+    const vinculo = (c.tipo_vinculo || c.tipo_contrato || "").trim();
+    return VINCULOS_CAJU.includes(vinculo);
+  });
 
   const handleFeriasChange = (colaboradorId, periodos) => {
     setFerias(prev => ({ ...prev, [colaboradorId]: periodos }));

@@ -290,14 +290,13 @@ export default function RateioCaju() {
 
                   {/* Excluir — apenas para Rascunho */}
                   {(r.status === "Rascunho" || !r.status) && (
-                    <Button
-                      variant="outline"
-                      size="sm"
+                    <button
                       onClick={e => handleDeletarRateio(e, r.id)}
-                      className="gap-1.5 text-xs opacity-0 group-hover:opacity-100 transition border-red-200 text-red-600 hover:bg-red-50"
+                      title="Excluir rateio"
+                      className="opacity-0 group-hover:opacity-100 transition p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
                     >
-                      <Trash2 size={13} /> Excluir
-                    </Button>
+                      <Trash2 size={15} />
+                    </button>
                   )}
                 </div>
               );

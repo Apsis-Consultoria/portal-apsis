@@ -151,24 +151,24 @@ function SubgrupoColabs({ titulo, cor, colaboradores, selecionados, onToggle, on
 
   return (
     <div className={`rounded-lg border ${cor.borderCls} p-3`}>
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cor.badgeCls}`}>{titulo}</span>
           <span className="text-xs text-gray-400">{fmt(vrDiario)}/dia</span>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              const allSelected = colaboradores.every(c => selecionados.includes(String(c.id)));
-              if (allSelected) onDeselectAll(colaboradores);
-              else onSelectAll(colaboradores);
-            }}
-            className="text-[10px] text-slate-400 hover:text-slate-600 underline underline-offset-2 transition"
-          >
-            {colaboradores.every(c => selecionados.includes(String(c.id))) ? "Desmarcar todos" : "Selecionar todos"}
-          </button>
-          <span className={`text-xs font-medium ${cfg.totalCls}`}>{fmt(total)}</span>
-        </div>
+        <span className={`text-xs font-medium ${cfg.totalCls}`}>{fmt(total)}</span>
+      </div>
+      <div className="mb-2">
+        <button
+          onClick={() => {
+            const allSelected = colaboradores.every(c => selecionados.includes(String(c.id)));
+            if (allSelected) onDeselectAll(colaboradores);
+            else onSelectAll(colaboradores);
+          }}
+          className="text-[10px] text-slate-400 hover:text-slate-600 underline underline-offset-2 transition"
+        >
+          {colaboradores.every(c => selecionados.includes(String(c.id))) ? "Desmarcar todos" : "Selecionar todos"}
+        </button>
       </div>
       <div className="space-y-1">
         {colaboradores.length === 0 && (
@@ -301,6 +301,23 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
             </div>
           ) : (
             <div className="space-y-1 mb-4">
+              {sorted.length > 0 && (
+                <div className="mb-2">
+                  <button
+                    onClick={() => {
+                      const allSel = sorted.every(c => selecionados.includes(String(c.id)));
+                      sorted.forEach(c => {
+                        const sel = selecionados.includes(String(c.id));
+                        if (allSel && sel) onToggle(c.id);
+                        if (!allSel && !sel) onToggle(c.id);
+                      });
+                    }}
+                    className="text-[10px] text-slate-400 hover:text-slate-600 underline underline-offset-2 transition"
+                  >
+                    {sorted.every(c => selecionados.includes(String(c.id))) ? "Desmarcar todos" : "Selecionar todos"}
+                  </button>
+                </div>
+              )}
               {sorted.length === 0 && (
                 <p className="text-xs text-slate-400 text-center py-4">Nenhum colaborador cadastrado</p>
               )}
@@ -327,26 +344,9 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
           )}
 
           <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-400">
-                {selecionados.length} de {colaboradores.length} selecionados
-              </span>
-              {!temEstagiarios && colaboradores.length > 0 && (
-                <button
-                  onClick={() => {
-                    const allSel = sorted.every(c => selecionados.includes(String(c.id)));
-                    sorted.forEach(c => {
-                      const sel = selecionados.includes(String(c.id));
-                      if (allSel && sel) onToggle(c.id);
-                      if (!allSel && !sel) onToggle(c.id);
-                    });
-                  }}
-                  className="text-[10px] text-slate-400 hover:text-slate-600 underline underline-offset-2 transition"
-                >
-                  {sorted.every(c => selecionados.includes(String(c.id))) ? "Desmarcar todos" : "Selecionar todos"}
-                </button>
-              )}
-            </div>
+            <span className="text-xs text-slate-400">
+              {selecionados.length} de {colaboradores.length} selecionados
+            </span>
             <span className={`text-lg font-bold ${cfg.totalCls}`}>{fmt(total)}</span>
           </div>
         </div>

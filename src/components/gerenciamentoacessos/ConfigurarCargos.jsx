@@ -155,7 +155,10 @@ export default function ConfigurarCargos() {
         </div>
       ) : (
         <>
-          <p className="text-xs text-slate-500">{gruposDisponiveis.length} grupo{gruposDisponiveis.length !== 1 ? "s" : ""} disponível{gruposDisponiveis.length !== 1 ? "is" : ""}</p>
+          {(() => {
+            const totalTelas = gruposDisponiveis.flatMap(g => g.pages || []).length;
+            return <p className="text-xs text-slate-500">{totalTelas} tela{totalTelas !== 1 ? "s" : ""} disponível{totalTelas !== 1 ? "is" : ""}</p>;
+          })()}
 
           {/* Cargos */}
           <div className="space-y-3">
@@ -178,9 +181,14 @@ export default function ConfigurarCargos() {
                     <Badge className={acessosCargo.length > 0 ? "bg-green-600" : "bg-slate-600"}>
                       {cargo}
                     </Badge>
-                    <span className="text-xs text-slate-500">
-                      {acessosCargo.length} de {gruposDisponiveis.length} grupo{gruposDisponiveis.length !== 1 ? "s" : ""}
-                    </span>
+                    {(() => {
+                      const totalTelas = gruposDisponiveis.flatMap(g => g.pages || []).length;
+                      return (
+                        <span className="text-xs text-slate-500">
+                          {acessosCargo.length} de {totalTelas} tela{totalTelas !== 1 ? "s" : ""}
+                        </span>
+                      );
+                    })()}
                     
                     {emEdicao[cargo] ? (
                       <div className="ml-auto flex gap-2">

@@ -96,14 +96,14 @@ export default function ConfigurarCargos() {
     const key = `${departamentoSelecionado}_${cargo}`;
     const deptPerms = grupoPermissoes[departamentoSelecionado] || {};
     
-    // Obter todas as telas dos grupos ativos
-    const todasAsTelas = MENU_GROUPS
+    // Obter todas as páginas dos grupos ativos
+    const todasAsPaginas = MENU_GROUPS
       .filter(g => deptPerms[g.group])
-      .flatMap(g => (g.telas || []).map(t => t.page));
+      .flatMap(g => (g.pages || []).map(p => p.page));
 
     const newCargoAcessos = {
       ...cargoAcessos,
-      [key]: ativar ? todasAsTelas : []
+      [key]: ativar ? todasAsPaginas : []
     };
     setCargoAcessos(newCargoAcessos);
   };
@@ -253,16 +253,15 @@ export default function ConfigurarCargos() {
                       </div>
 
                       {/* Grid de telas baseado nos grupos disponíveis */}
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         {gruposDisponiveis.map(grupo => {
-                          const temasDoGrupo = grupo.telas || [];
-                          const temAcessoGrupo = acessosCargo.includes(grupo.group);
+                          const telasDoGrupo = grupo.pages || [];
 
                           return (
                             <div key={grupo.group}>
-                              <p className="text-xs font-semibold text-slate-600 mb-2">{grupo.label}</p>
-                              <div className="grid grid-cols-2 gap-2 pl-2 border-l-2 border-slate-200">
-                                {temasDoGrupo.map(tela => {
+                              <p className="text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wide">{grupo.label}</p>
+                              <div className="grid grid-cols-1 gap-2 pl-2 border-l-2 border-slate-300">
+                                {telasDoGrupo.map(tela => {
                                   const temAcesso = acessosCargo.includes(tela.page);
                                   return (
                                     <button

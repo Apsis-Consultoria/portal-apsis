@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Settings, TrendingUp, MapPin, CalendarDays, Download, Wallet, ArrowLeft } from "lucide-react";
+import { Plus, Settings, TrendingUp, MapPin, CalendarDays, Download, Wallet } from "lucide-react";
 import * as XLSX from "xlsx";
 
 import ColaboradoresCLTModal from "@/components/rateiocaju/ColaboradoresCLTModal";
@@ -24,144 +23,6 @@ const UNIDADES_CONFIG = [
   { key: "Carbon", field: "colaboradores_carbon", total: "total_carbon", label: "Carbon",     badgeCls: "bg-teal-100 text-teal-800",     borderCls: "border-teal-200",   headerCls: "bg-teal-50",   totalCls: "text-teal-700"   },
   { key: "REDD",   field: "colaboradores_redd",   total: "total_redd",   label: "REDD",       badgeCls: "bg-purple-100 text-purple-800", borderCls: "border-purple-200", headerCls: "bg-purple-50", totalCls: "text-purple-700" },
 ];
-
-// ── Tela de detalhe de um rateio ──────────────────────────────────────────────
-function RateioDetalhe({ rateio, onVoltar, onExportar }) {
-  const status = STATUS_CONFIG[rateio.status] || STATUS_CONFIG["Rascunho"];
-
-  const unidadesComDados = UNIDADES_CONFIG.map(u => ({
-    ...u,
-    colabs: rateio[u.field] ? JSON.parse(rateio[u.field]) : [],
-    total:  rateio[u.total] || 0,
-  })).filter(u => u.colabs.length > 0);
-
-  return (
-    <div className="space-y-6">
-
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onVoltar}
-            className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition flex-shrink-0"
-          >
-            <ArrowLeft size={16} className="text-slate-600" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-[#1A4731]">
-              {rateio.mes_label || formatMes(rateio.mes_referencia)}
-            </h1>
-            <p className="text-sm text-slate-500 mt-0.5">Detalhamento do rateio de Vale Refeição</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full ${status.cls}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
-            {rateio.status || "Rascunho"}
-          </span>
-          <Button
-            size="sm"
-            onClick={() => onExportar(rateio)}
-            className="gap-1.5 bg-[#1A4731] hover:bg-[#1A4731]/90 text-white shadow-sm text-xs"
-          >
-            <Download size={13} /> Exportar Excel
-          </Button>
-        </div>
-      </div>
-
-      {/* Resumo dias úteis */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Dias Úteis do Mês</p>
-        <div className="flex gap-6 flex-wrap">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg font-semibold">SP {rateio.dias_uteis_sp}d</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg font-semibold">RJ / Carbon / REDD {rateio.dias_uteis_rj}d</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabelas por unidade */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {unidadesComDados.map(u => (
-          <div key={u.key} className={`bg-white rounded-2xl border-2 ${u.borderCls} overflow-hidden shadow-sm`}>
-
-            {/* Header unidade */}
-            <div className={`px-5 py-3 ${u.headerCls} border-b ${u.borderCls} flex items-center justify-between`}>
-              <div className="flex items-center gap-2">
-                <Badge className={`${u.badgeCls} font-bold px-2.5`}>{u.key}</Badge>
-                <span className="text-xs text-slate-500">{u.label}</span>
-              </div>
-              <span className={`text-sm font-bold ${u.totalCls}`}>{fmt(u.total)}</span>
-            </div>
-
-            {/* Lista de colaboradores */}
-            <div className="divide-y divide-slate-100">
-              {u.colabs.map((c, i) => (
-                <div key={i} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 transition">
-                  {/* Avatar inicial */}
-                  <div className={`w-7 h-7 rounded-full ${u.headerCls} flex items-center justify-center flex-shrink-0`}>
-                    <span className={`text-xs font-bold ${u.totalCls}`}>
-                      {(c.nome || "?")[0].toUpperCase()}
-                    </span>
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-800 truncate">{c.nome}</p>
-                    <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                      {c.tipo_contrato && c.tipo_contrato !== "CLT" && (
-                        <span className="text-[10px] font-medium text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">
-                          {c.tipo_contrato}
-                        </span>
-                      )}
-                      <span className="text-[10px] text-slate-400">
-                        {fmt(c.valor_diario)}/dia
-                      </span>
-                      {c.dias_ferias > 0 && (
-                        <span className="text-[10px] text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded">
-                          {c.dias_ferias}d férias
-                        </span>
-                      )}
-                      <span className="text-[10px] text-slate-400">
-                        {c.dias_efetivos}d efetivos
-                      </span>
-                    </div>
-                  </div>
-
-                  <span className="text-sm font-semibold text-slate-800 text-right tabular-nums">
-                    {fmt(c.total)}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {/* Footer total */}
-            <div className={`px-5 py-3 ${u.headerCls} border-t ${u.borderCls} flex justify-between items-center`}>
-              <span className="text-xs text-slate-500">{u.colabs.length} colaborador{u.colabs.length !== 1 ? "es" : ""}</span>
-              <span className={`text-sm font-bold ${u.totalCls}`}>{fmt(u.total)}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Total geral */}
-      <div className="bg-[#1A4731] rounded-2xl p-5 flex items-center justify-between shadow-sm">
-        <div>
-          <p className="text-sm font-medium text-white/70">Total Geral</p>
-          <p className="text-3xl font-bold text-white mt-0.5">{fmt(rateio.total_geral)}</p>
-        </div>
-        <Button
-          onClick={() => onExportar(rateio)}
-          className="bg-white text-[#1A4731] hover:bg-white/90 font-semibold shadow-sm gap-1.5 text-xs"
-        >
-          <Download size={13} /> Exportar Excel
-        </Button>
-      </div>
-
-    </div>
-  );
-}
 
 // ── Tela principal ────────────────────────────────────────────────────────────
 export default function RateioCaju() {
@@ -229,13 +90,14 @@ export default function RateioCaju() {
     );
   }
 
-  // ── Tela: visualizando rateio selecionado
+  // ── Tela: editando rateio selecionado
   if (rateioSelecionado) {
     return (
-      <RateioDetalhe
-        rateio={rateioSelecionado}
-        onVoltar={() => setRateioSelecionado(null)}
-        onExportar={handleExportarRateio}
+      <NovoRateioForm
+        rateioExistente={rateioSelecionado}
+        onCancel={() => setRateioSelecionado(null)}
+        onSaved={() => { setRateioSelecionado(null); fetchData(); }}
+        feriasProgramadas={loadFeriasProgramadas()}
       />
     );
   }

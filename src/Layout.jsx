@@ -71,6 +71,7 @@ const DEFAULT_ROLE_PAGES = {
  * - externalUrl: link externo (opcional)
  */
 const navItems = [
+  { label: "Boas-Vindas", page: "BoasVindas", icon: Home },
   { label: "Inova+", externalUrl: "https://inova.apsis.com.br/", icon: Sparkles },
   {
     label: "Apps APSIS", page: "AppsAPSIS", icon: Grid3x3,
@@ -86,7 +87,6 @@ const navItems = [
       { label: "App Imóveis", page: "AppImoveis", icon: Home },
     ]
   },
-  { label: "Boas-Vindas", page: "BoasVindas", icon: Home },
   {
     label: "Business Valuation", page: "BusinessValuation", icon: Landmark,
     children: [

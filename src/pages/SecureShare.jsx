@@ -1,12 +1,7 @@
 import { useState, useEffect } from "react";
 import { Share2, Plus, Mail, Eye, Trash2, Copy, Check, RefreshCw, Search, ExternalLink, Users, FolderOpen, Clock, Send } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_SERVICE_KEY
-);
+import { supabaseAdmin as supabase } from "@/lib/supabaseClient";
 
 const UPLOAD_APP_URL = "[LINK_DO_APP_DE_UPLOAD]"; // será configurado depois
 

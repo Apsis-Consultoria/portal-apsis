@@ -373,8 +373,8 @@ export default function SecureShare() {
 
       {/* Modal Novo Projeto */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
             <div className="p-6 border-b border-slate-100">
               <h2 className="text-lg font-bold text-[#1A2B1F]">Novo Projeto</h2>
               <p className="text-sm text-slate-500 mt-0.5">Preencha os dados e enviaremos os acessos automaticamente</p>

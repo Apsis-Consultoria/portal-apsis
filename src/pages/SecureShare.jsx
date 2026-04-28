@@ -78,8 +78,7 @@ export default function SecureShare() {
       .insert([{
         ap_os: form.ap_os,
         empresa: form.empresa,
-        emails: acessos.map(a => a.email),
-        acessos: JSON.stringify(acessos),
+        emails: JSON.stringify(acessos),
         area: form.area || null,
         status: "ativo",
         criado_em: new Date().toISOString(),
@@ -146,10 +145,15 @@ export default function SecureShare() {
   }
 
   function parseAcessos(projeto) {
-    const raw = projeto.acessos;
+    const raw = projeto.emails;
     if (!raw) return [];
-    if (typeof raw === "string") { try { return JSON.parse(raw); } catch { return []; } }
-    return raw;
+    if (typeof raw === "string") { try { const parsed = JSON.parse(raw); return Array.isArray(parsed) && parsed[0]?.senha ? parsed : []; } catch { return []; } }
+    if (Array.isArray(raw) && raw[0]?.senha) return raw;
+    return [];
+  }
+
+  function contarEmails(projeto) {
+    return parseAcessos(projeto).length || (Array.isArray(projeto.emails) ? projeto.emails.length : 0);
   }
 
   async function reenviarAcessos(projeto) {
@@ -220,7 +224,7 @@ export default function SecureShare() {
           {[
             { label: "Projetos ativos", value: totalAtivos, icon: FolderOpen, color: "text-[#1A4731]", bg: "bg-[#1A4731]/10" },
             { label: "Total de projetos", value: projetos.length, icon: FolderOpen, color: "text-blue-600", bg: "bg-blue-50" },
-            { label: "Clientes com acesso", value: projetos.reduce((acc, p) => acc + (p.emails?.length || 0), 0), icon: Users, color: "text-[#F47920]", bg: "bg-[#F47920]/10" },
+            { label: "Clientes com acesso", value: projetos.reduce((acc, p) => acc + contarEmails(p), 0), icon: Users, color: "text-[#F47920]", bg: "bg-[#F47920]/10" },
           ].map(({ label, value, icon: Icon, color, bg }) => (
             <div key={label} className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3">
               <div className={`w-10 h-10 ${bg} rounded-xl flex items-center justify-center flex-shrink-0`}>
@@ -306,7 +310,7 @@ export default function SecureShare() {
                     <p className="text-sm font-semibold text-[#1A2B1F]">{projeto.empresa}</p>
                     <div className="flex items-center gap-1 text-xs text-slate-400">
                       <Users size={11} />
-                      <span>{(projeto.emails || []).length} email(s)</span>
+                      <span>{contarEmails(projeto)} email(s)</span>
                       <span className="mx-1">·</span>
                       <Clock size={11} />
                       <span>{new Date(projeto.criado_em || projeto.created_at).toLocaleDateString("pt-BR")}</span>

@@ -44,6 +44,7 @@ Deno.serve(async (req) => {
       client_name: acesso.email,
       name: acesso.nome || acesso.email,
       access_token: crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, ''),
+      password_hash: acesso.senha,
       status: dbStatus,
       criado_em,
       emails: acesso.email // apenas o email

@@ -45,6 +45,7 @@ import PlanejamentoEstrategico from '@/pages/PlanejamentoEstrategico';
 import RateioCaju from '@/pages/RateioCaju';
 import Ferias from '@/pages/Ferias';
 import GerenciamentoAcessos from '@/pages/GerenciamentoAcessos';
+import SecureShare from '@/pages/SecureShare';
 
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -114,6 +115,7 @@ function App() {
               <Route path="/RateioCaju" element={<LayoutWrapper currentPageName="RateioCaju"><RateioCaju /></LayoutWrapper>} />
               <Route path="/Ferias" element={<LayoutWrapper currentPageName="Ferias"><Ferias /></LayoutWrapper>} />
               <Route path="/GerenciamentoAcessos" element={<LayoutWrapper currentPageName="GerenciamentoAcessos"><GerenciamentoAcessos /></LayoutWrapper>} />
+              <Route path="/SecureShare" element={<LayoutWrapper currentPageName="SecureShare"><SecureShare /></LayoutWrapper>} />
 
 
 

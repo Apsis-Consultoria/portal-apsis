@@ -18,7 +18,7 @@ import {
   ChevronRight, Bell, User, Menu, X, Megaphone, TrendingUp, PieChart, Settings, Sparkles, Users, Grid3x3, Home,
   Search, Calendar, Split, ArrowRightLeft, Package, Cpu,
   Server, Landmark, Star, GitMerge, Calculator, BookOpen, Award, Target, Leaf, ShoppingCart, Briefcase, Building2, Lightbulb,
-  CalendarDays, Lock
+  CalendarDays, Lock, Share2
 } from "lucide-react";
 import { Clock } from "lucide-react";
 import AssistantWidget from "@/components/AssistantWidget";
@@ -146,6 +146,7 @@ const navItems = [
   { label: "Planejamento Estratégico", page: "PlanejamentoEstrategico", icon: Target },
   { label: "Projetos Especiais", page: "ProjetosEspeciais", icon: Star },
   { label: "Sustentabilidade", page: "Sustentabilidade", icon: Leaf },
+  { label: "Secure Share", page: "SecureShare", icon: Share2 },
   { label: "Configurações", page: "Configuracoes", icon: Settings },
   { label: "Gerenciamento de Acessos", page: "GerenciamentoAcessos", icon: Lock },
 ];

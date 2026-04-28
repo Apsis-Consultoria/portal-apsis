@@ -93,7 +93,7 @@ export default function SecureShare() {
 
     console.log("Resposta da função:", response?.data);
 
-    if (!response?.data?.data && !response?.data?.id) {
+    if (!response?.data || (Array.isArray(response.data) && response.data.length === 0)) {
       const errMsg = response?.data?.error || JSON.stringify(response?.data) || "Erro desconhecido";
       console.error("Erro ao salvar projeto:", errMsg);
       alert("Erro ao salvar projeto: " + errMsg);

@@ -28,11 +28,31 @@ Deno.serve(async (req) => {
     const statusMap = { "ativo": "active", "encerrado": "inactive" };
     const dbStatus = statusMap[status] || status;
 
+    // Parse dos emails que vem como JSON string
+    let acessos = [];
+    try {
+      acessos = typeof emails === 'string' ? JSON.parse(emails) : emails;
+    } catch {
+      acessos = [];
+    }
+
+    // Cria uma linha para cada usuário/contato
+    const rowsToInsert = acessos.map(acesso => ({
+      ap_os,
+      empresa,
+      area: area || null,
+      client_name: acesso.email,
+      name: acesso.nome || acesso.email,
+      access_token: acesso.senha,
+      status: dbStatus,
+      criado_em,
+      emails: JSON.stringify([acesso]) // cada linha tem seu próprio usuário
+    }));
+
     const { data, error } = await supabase
       .from("inov_secure_share")
-      .insert([{ ap_os, empresa, emails, area, status: dbStatus, criado_em, name: empresa, access_token }])
-      .select()
-      .single();
+      .insert(rowsToInsert)
+      .select();
 
     if (error) {
       return Response.json({ error: error.message }, { status: 500 });

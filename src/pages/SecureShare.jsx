@@ -74,18 +74,29 @@ export default function SecureShare() {
     }));
 
     const { base44 } = await import("@/api/base44Client");
-    const response = await base44.functions.invoke("secureShareCreate", {
-      ap_os: form.ap_os,
-      empresa: form.empresa,
-      emails: JSON.stringify(acessos),
-      area: form.area || null,
-      status: "ativo",
-      criado_em: new Date().toISOString(),
-    });
+    let response;
+    try {
+      response = await base44.functions.invoke("secureShareCreate", {
+        ap_os: form.ap_os,
+        empresa: form.empresa,
+        emails: JSON.stringify(acessos),
+        area: form.area || null,
+        status: "ativo",
+        criado_em: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error("Erro na chamada da função:", err);
+      alert("Erro ao salvar projeto: " + (err?.response?.data?.error || err?.message || "Erro desconhecido"));
+      setSaving(false);
+      return;
+    }
 
-    if (!response.data?.data) {
-      console.error("Erro ao salvar projeto:", response.data?.error);
-      alert("Erro ao salvar projeto: " + (response.data?.error || "Erro desconhecido"));
+    console.log("Resposta da função:", response?.data);
+
+    if (!response?.data?.data && !response?.data?.id) {
+      const errMsg = response?.data?.error || JSON.stringify(response?.data) || "Erro desconhecido";
+      console.error("Erro ao salvar projeto:", errMsg);
+      alert("Erro ao salvar projeto: " + errMsg);
       setSaving(false);
       return;
     }

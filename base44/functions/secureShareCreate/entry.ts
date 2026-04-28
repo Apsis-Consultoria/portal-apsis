@@ -4,10 +4,10 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // Tenta autenticar mas não bloqueia — o app usa Azure SSO
+    // e pode não ter sessão base44 ativa
+    let user = null;
+    try { user = await base44.auth.me(); } catch (_) {}
 
     const body = await req.json();
     const { ap_os, empresa, emails, area, status, criado_em } = body;

@@ -33,8 +33,8 @@ export default function SecureShare() {
   const [form, setForm] = useState({
     ap_os: "",
     empresa: "",
-    emails: "",
     area: "",
+    contatos: [{ nome: "", email: "" }],
   });
 
   const AREAS = ["M&A", "Business Valuation", "Consultoria Contábil", "Ativos Fixos"];
@@ -61,14 +61,15 @@ export default function SecureShare() {
   }
 
   async function criarProjeto() {
-    if (!form.ap_os || !form.empresa || !form.emails.trim()) return;
+    const contatosValidos = form.contatos.filter(c => c.email.trim());
+    if (!form.ap_os || !form.empresa || contatosValidos.length === 0) return;
 
-    const emailList = form.emails.split(/[,;\n]/).map(e => e.trim()).filter(Boolean);
     setSaving(true);
 
-    // Gera senha para cada email
-    const acessos = emailList.map(email => ({
-      email,
+    // Gera senha para cada contato
+    const acessos = contatosValidos.map(c => ({
+      nome: c.nome.trim(),
+      email: c.email.trim(),
       senha: gerarSenha(),
     }));
 
@@ -77,7 +78,7 @@ export default function SecureShare() {
       .insert([{
         ap_os: form.ap_os,
         empresa: form.empresa,
-        emails: emailList,
+        emails: acessos.map(a => a.email),
         acessos: acessos,
         area: form.area || null,
         status: "ativo",
@@ -87,18 +88,17 @@ export default function SecureShare() {
       .single();
 
     if (!error && data) {
-      // Enviar emails para cada acesso
       for (const acesso of acessos) {
-        await enviarEmailAcesso(acesso.email, acesso.senha, form.ap_os, form.empresa);
+        await enviarEmailAcesso(acesso.email, acesso.nome, acesso.senha, form.ap_os, form.empresa);
       }
       await carregarProjetos();
       setShowModal(false);
-      setForm({ ap_os: "", empresa: "", emails: "", area: "" });
+      setForm({ ap_os: "", empresa: "", area: "", contatos: [{ nome: "", email: "" }] });
     }
     setSaving(false);
   }
 
-  async function enviarEmailAcesso(email, senha, apOs, empresa) {
+  async function enviarEmailAcesso(email, nome, senha, apOs, empresa) {
     try {
       const { base44 } = await import("@/api/base44Client");
       await base44.integrations.Core.SendEmail({
@@ -111,7 +111,7 @@ export default function SecureShare() {
               <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0; font-size: 14px;">APSIS Consultores</p>
             </div>
             <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-top: none; padding: 28px; border-radius: 0 0 12px 12px;">
-              <p style="color: #374151; font-size: 15px; margin-bottom: 16px;">Olá,</p>
+              <p style="color: #374151; font-size: 15px; margin-bottom: 16px;">Olá${nome ? `, ${nome}` : ""},</p>
               <p style="color: #374151; font-size: 15px; line-height: 1.6;">
                 Você recebeu acesso ao nosso portal seguro para envio de arquivos referente ao projeto <strong>${apOs}</strong> — <strong>${empresa}</strong>.
               </p>
@@ -143,7 +143,7 @@ export default function SecureShare() {
   async function reenviarAcessos(projeto) {
     setEnviando(projeto.id);
     for (const acesso of (projeto.acessos || [])) {
-      await enviarEmailAcesso(acesso.email, acesso.senha, projeto.ap_os, projeto.empresa);
+      await enviarEmailAcesso(acesso.email, acesso.nome || "", acesso.senha, projeto.ap_os, projeto.empresa);
     }
     setEnviando(null);
   }
@@ -339,6 +339,7 @@ export default function SecureShare() {
                       {(projeto.acessos || []).map((acesso, idx) => (
                         <div key={idx} className="bg-white rounded-lg border border-slate-200 p-3 flex items-center gap-3">
                           <div className="flex-1 min-w-0">
+                            {acesso.nome && <p className="text-xs font-semibold text-slate-600">{acesso.nome}</p>}
                             <p className="text-sm font-medium text-slate-800">{acesso.email}</p>
                             <p className="text-xs text-slate-500 font-mono mt-0.5">Senha: {acesso.senha}</p>
                           </div>
@@ -429,17 +430,52 @@ export default function SecureShare() {
                 </div>
               </div>
 
-              {/* Emails */}
+              {/* Contatos de Acesso */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">E-mails de Acesso</label>
-                <textarea
-                  value={form.emails}
-                  onChange={e => setForm(f => ({ ...f, emails: e.target.value }))}
-                  placeholder={"email1@empresa.com\nemail2@empresa.com"}
-                  rows={3}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1A4731]/20 focus:border-[#1A4731] resize-none"
-                />
-                <p className="text-xs text-slate-400 mt-1">Um e-mail por linha, ou separados por vírgula. Cada e-mail receberá uma senha única.</p>
+                <label className="block text-xs font-semibold text-slate-700 mb-2">Contatos de Acesso</label>
+                <div className="space-y-2">
+                  {form.contatos.map((contato, idx) => (
+                    <div key={idx} className="flex gap-2 items-center">
+                      <input
+                        value={contato.nome}
+                        onChange={e => setForm(f => {
+                          const contatos = [...f.contatos];
+                          contatos[idx] = { ...contatos[idx], nome: e.target.value };
+                          return { ...f, contatos };
+                        })}
+                        placeholder="Nome da pessoa"
+                        className="flex-1 px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1A4731]/20 focus:border-[#1A4731]"
+                      />
+                      <input
+                        value={contato.email}
+                        onChange={e => setForm(f => {
+                          const contatos = [...f.contatos];
+                          contatos[idx] = { ...contatos[idx], email: e.target.value };
+                          return { ...f, contatos };
+                        })}
+                        placeholder="email@empresa.com"
+                        type="email"
+                        className="flex-1 px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1A4731]/20 focus:border-[#1A4731]"
+                      />
+                      {form.contatos.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setForm(f => ({ ...f, contatos: f.contatos.filter((_, i) => i !== idx) }))}
+                          className="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition flex-shrink-0"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, contatos: [...f.contatos, { nome: "", email: "" }] }))}
+                  className="mt-2 text-xs text-[#1A4731] hover:text-[#245E40] font-medium flex items-center gap-1"
+                >
+                  <Plus size={12} /> Adicionar outro contato
+                </button>
               </div>
 
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
@@ -451,14 +487,14 @@ export default function SecureShare() {
             </div>
             <div className="p-6 border-t border-slate-100 flex gap-3 justify-end">
               <button
-                onClick={() => { setShowModal(false); setForm({ ap_os: "", empresa: "", emails: "", area: "" }); }}
+                onClick={() => { setShowModal(false); setForm({ ap_os: "", empresa: "", area: "", contatos: [{ nome: "", email: "" }] }); }}
                 className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl transition"
               >
                 Cancelar
               </button>
               <button
                 onClick={criarProjeto}
-                disabled={saving || !form.ap_os || !form.empresa || !form.emails.trim()}
+                disabled={saving || !form.ap_os || !form.empresa || !form.contatos.some(c => c.email.trim())}
                 className="flex items-center gap-2 px-5 py-2 bg-[#1A4731] hover:bg-[#245E40] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition"
               >
                 {saving ? <RefreshCw size={14} className="animate-spin" /> : <Send size={14} />}

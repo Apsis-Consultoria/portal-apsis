@@ -29,11 +29,21 @@ export default function SecureShare() {
   const [projetoDetalhe, setProjetoDetalhe] = useState(null);
   const [copied, setCopied] = useState(null);
   const [enviando, setEnviando] = useState(false);
+  const [areaFiltro, setAreaFiltro] = useState("Todas");
   const [form, setForm] = useState({
     ap_os: "",
     empresa: "",
     emails: "",
+    area: "",
   });
+
+  const AREAS = ["M&A", "Business Valuation", "Consultoria Contábil", "Ativos Fixos"];
+  const AREA_COLORS = {
+    "M&A": "bg-purple-100 text-purple-700",
+    "Business Valuation": "bg-blue-100 text-blue-700",
+    "Consultoria Contábil": "bg-emerald-100 text-emerald-700",
+    "Ativos Fixos": "bg-amber-100 text-amber-700",
+  };
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -69,6 +79,7 @@ export default function SecureShare() {
         empresa: form.empresa,
         emails: emailList,
         acessos: acessos,
+        area: form.area || null,
         status: "ativo",
         criado_em: new Date().toISOString(),
       }])
@@ -82,7 +93,7 @@ export default function SecureShare() {
       }
       await carregarProjetos();
       setShowModal(false);
-      setForm({ ap_os: "", empresa: "", emails: "" });
+      setForm({ ap_os: "", empresa: "", emails: "", area: "" });
     }
     setSaving(false);
   }
@@ -154,10 +165,18 @@ export default function SecureShare() {
     setTimeout(() => setCopied(null), 2000);
   }
 
-  const filtrados = projetos.filter(p =>
-    p.empresa?.toLowerCase().includes(search.toLowerCase()) ||
-    p.ap_os?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtrados = projetos.filter(p => {
+    const matchSearch = p.empresa?.toLowerCase().includes(search.toLowerCase()) ||
+      p.ap_os?.toLowerCase().includes(search.toLowerCase());
+    const matchArea = areaFiltro === "Todas" || p.area === areaFiltro;
+    return matchSearch && matchArea;
+  });
+
+  // Agrupar por área
+  const projetosPorArea = AREAS.reduce((acc, area) => {
+    acc[area] = filtrados.filter(p => p.area === area);
+    return acc;
+  }, { "Sem área": filtrados.filter(p => !p.area) });
 
   const totalAtivos = projetos.filter(p => p.status === "ativo").length;
 
@@ -203,15 +222,32 @@ export default function SecureShare() {
           ))}
         </div>
 
-        {/* Search */}
-        <div className="relative">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Buscar por empresa ou AP/OS..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#1A4731]/20"
-          />
+        {/* Search + Filtro Área */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Buscar por empresa ou AP/OS..."
+              className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#1A4731]/20"
+            />
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {["Todas", ...AREAS].map(a => (
+              <button
+                key={a}
+                onClick={() => setAreaFiltro(a)}
+                className={`text-xs px-3 py-2 rounded-xl font-medium transition border ${
+                  areaFiltro === a
+                    ? "bg-[#1A4731] text-white border-[#1A4731]"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-[#1A4731]/30"
+                }`}
+              >
+                {a}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Lista */}
@@ -227,8 +263,19 @@ export default function SecureShare() {
             <p className="text-slate-400 text-xs mt-1">Crie um novo projeto para começar</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {filtrados.map(projeto => (
+          <div className="space-y-6">
+            {(areaFiltro === "Todas" ? [...AREAS, "Sem área"] : [areaFiltro]).map(area => {
+              const lista = areaFiltro === "Todas" ? projetosPorArea[area] : filtrados;
+              if (!lista || lista.length === 0) return null;
+              return (
+                <div key={area}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${AREA_COLORS[area] || "bg-slate-100 text-slate-500"}`}>{area}</span>
+                    <span className="text-xs text-slate-400">{lista.length} projeto(s)</span>
+                    <div className="flex-1 h-px bg-slate-200" />
+                  </div>
+                  <div className="space-y-3">
+                  {lista.map(projeto => (
               <div key={projeto.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
                 {/* Row principal */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-4">
@@ -238,6 +285,11 @@ export default function SecureShare() {
                       <Badge className={projeto.status === "ativo" ? "bg-green-100 text-green-700 border-0" : "bg-slate-100 text-slate-600 border-0"}>
                         {projeto.status}
                       </Badge>
+                      {projeto.area && (
+                        <Badge className={`border-0 ${AREA_COLORS[projeto.area] || "bg-slate-100 text-slate-500"}`}>
+                          {projeto.area}
+                        </Badge>
+                      )}
                     </div>
                     <p className="text-sm font-semibold text-[#1A2B1F]">{projeto.empresa}</p>
                     <div className="flex items-center gap-1 text-xs text-slate-400">
@@ -310,6 +362,10 @@ export default function SecureShare() {
                 )}
               </div>
             ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -352,6 +408,27 @@ export default function SecureShare() {
                 />
               </div>
 
+              {/* Área */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Área</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {AREAS.map(a => (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, area: f.area === a ? "" : a }))}
+                      className={`text-xs px-3 py-2.5 rounded-xl font-medium transition border text-left ${
+                        form.area === a
+                          ? `${AREA_COLORS[a]} border-transparent`
+                          : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                      }`}
+                    >
+                      {a}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Emails */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">E-mails de Acesso</label>
@@ -374,7 +451,7 @@ export default function SecureShare() {
             </div>
             <div className="p-6 border-t border-slate-100 flex gap-3 justify-end">
               <button
-                onClick={() => { setShowModal(false); setForm({ ap_os: "", empresa: "", emails: "" }); }}
+                onClick={() => { setShowModal(false); setForm({ ap_os: "", empresa: "", emails: "", area: "" }); }}
                 className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl transition"
               >
                 Cancelar

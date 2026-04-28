@@ -73,22 +73,19 @@ export default function SecureShare() {
       senha: gerarSenha(),
     }));
 
-    const { data, error } = await supabase
-      .from("inov_secure_share")
-      .insert([{
-        ap_os: form.ap_os,
-        empresa: form.empresa,
-        emails: JSON.stringify(acessos),
-        area: form.area || null,
-        status: "ativo",
-        criado_em: new Date().toISOString(),
-      }])
-      .select()
-      .single();
+    const { base44 } = await import("@/api/base44Client");
+    const response = await base44.functions.invoke("secureShareCreate", {
+      ap_os: form.ap_os,
+      empresa: form.empresa,
+      emails: JSON.stringify(acessos),
+      area: form.area || null,
+      status: "ativo",
+      criado_em: new Date().toISOString(),
+    });
 
-    if (error) {
-      console.error("Erro ao salvar projeto:", error);
-      alert("Erro ao salvar projeto: " + error.message);
+    if (!response.data?.data) {
+      console.error("Erro ao salvar projeto:", response.data?.error);
+      alert("Erro ao salvar projeto: " + (response.data?.error || "Erro desconhecido"));
       setSaving(false);
       return;
     }
@@ -165,7 +162,9 @@ export default function SecureShare() {
   }
 
   async function alterarStatus(id, status) {
-    await supabase.from("inov_secure_share").update({ status }).eq("id", id);
+    const statusMap = { "ativo": "active", "encerrado": "inactive" };
+    const dbStatus = statusMap[status] || status;
+    await supabase.from("inov_secure_share").update({ status: dbStatus }).eq("id", id);
     await carregarProjetos();
   }
 
@@ -194,7 +193,7 @@ export default function SecureShare() {
     return acc;
   }, { "Sem área": filtrados.filter(p => !p.area) });
 
-  const totalAtivos = projetos.filter(p => p.status === "ativo").length;
+  const totalAtivos = projetos.filter(p => p.status === "active").length;
 
   return (
     <div className="min-h-screen bg-[#F4F6F4] p-6">
@@ -298,8 +297,8 @@ export default function SecureShare() {
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-bold text-[#1A2B1F] text-sm font-mono">{projeto.ap_os}</span>
-                      <Badge className={projeto.status === "ativo" ? "bg-green-100 text-green-700 border-0" : "bg-slate-100 text-slate-600 border-0"}>
-                        {projeto.status}
+                      <Badge className={projeto.status === "active" ? "bg-green-100 text-green-700 border-0" : "bg-slate-100 text-slate-600 border-0"}>
+                        {projeto.status === "active" ? "ativo" : "encerrado"}
                       </Badge>
                       {projeto.area && (
                         <Badge className={`border-0 ${AREA_COLORS[projeto.area] || "bg-slate-100 text-slate-500"}`}>
@@ -332,11 +331,11 @@ export default function SecureShare() {
                       <Eye size={12} /> Detalhes
                     </button>
                     <button
-                      onClick={() => alterarStatus(projeto.id, projeto.status === "ativo" ? "encerrado" : "ativo")}
+                      onClick={() => alterarStatus(projeto.id, projeto.status === "active" ? "encerrado" : "ativo")}
                       className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg font-medium transition"
                     >
                       <RefreshCw size={12} />
-                      {projeto.status === "ativo" ? "Encerrar" : "Reativar"}
+                      {projeto.status === "active" ? "Encerrar" : "Reativar"}
                     </button>
                     <button
                       onClick={() => deletarProjeto(projeto.id)}

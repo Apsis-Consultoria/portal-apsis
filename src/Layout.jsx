@@ -27,7 +27,7 @@ import AssistantWidget from "@/components/AssistantWidget";
  * Páginas sempre visíveis independente do perfil
  * Estas páginas são acessíveis para todos os usuários autenticados
  */
-const ALWAYS_VISIBLE = ["BoasVindas"];
+const ALWAYS_VISIBLE = ["BoasVindas", "SecureShare"];
 
 /**
  * Mapeamento de páginas visíveis por perfil (padrão)

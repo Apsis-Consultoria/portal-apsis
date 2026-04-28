@@ -43,10 +43,10 @@ Deno.serve(async (req) => {
       area: area || null,
       client_name: acesso.email,
       name: acesso.nome || acesso.email,
-      access_token: acesso.senha,
+      access_token: crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, ''),
       status: dbStatus,
       criado_em,
-      emails: JSON.stringify([acesso]) // cada linha tem seu próprio usuário
+      emails: acesso.email // apenas o email
     }));
 
     const { data, error } = await supabase

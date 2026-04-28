@@ -79,7 +79,7 @@ export default function SecureShare() {
         ap_os: form.ap_os,
         empresa: form.empresa,
         emails: acessos.map(a => a.email),
-        acessos: acessos,
+        acessos: JSON.stringify(acessos),
         area: form.area || null,
         status: "ativo",
         criado_em: new Date().toISOString(),
@@ -87,14 +87,19 @@ export default function SecureShare() {
       .select()
       .single();
 
-    if (!error && data) {
-      for (const acesso of acessos) {
-        await enviarEmailAcesso(acesso.email, acesso.nome, acesso.senha, form.ap_os, form.empresa);
-      }
-      await carregarProjetos();
-      setShowModal(false);
-      setForm({ ap_os: "", empresa: "", area: "", contatos: [{ nome: "", email: "" }] });
+    if (error) {
+      console.error("Erro ao salvar projeto:", error);
+      alert("Erro ao salvar projeto: " + error.message);
+      setSaving(false);
+      return;
     }
+
+    for (const acesso of acessos) {
+      await enviarEmailAcesso(acesso.email, acesso.nome, acesso.senha, form.ap_os, form.empresa);
+    }
+    await carregarProjetos();
+    setShowModal(false);
+    setForm({ ap_os: "", empresa: "", area: "", contatos: [{ nome: "", email: "" }] });
     setSaving(false);
   }
 
@@ -140,9 +145,16 @@ export default function SecureShare() {
     }
   }
 
+  function parseAcessos(projeto) {
+    const raw = projeto.acessos;
+    if (!raw) return [];
+    if (typeof raw === "string") { try { return JSON.parse(raw); } catch { return []; } }
+    return raw;
+  }
+
   async function reenviarAcessos(projeto) {
     setEnviando(projeto.id);
-    for (const acesso of (projeto.acessos || [])) {
+    for (const acesso of parseAcessos(projeto)) {
       await enviarEmailAcesso(acesso.email, acesso.nome || "", acesso.senha, projeto.ap_os, projeto.empresa);
     }
     setEnviando(null);
@@ -336,7 +348,7 @@ export default function SecureShare() {
                   <div className="border-t border-slate-100 p-4 bg-slate-50 space-y-3">
                     <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Credenciais de Acesso</p>
                     <div className="space-y-2">
-                      {(projeto.acessos || []).map((acesso, idx) => (
+                      {parseAcessos(projeto).map((acesso, idx) => (
                         <div key={idx} className="bg-white rounded-lg border border-slate-200 p-3 flex items-center gap-3">
                           <div className="flex-1 min-w-0">
                             {acesso.nome && <p className="text-xs font-semibold text-slate-600">{acesso.nome}</p>}

@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
     try { user = await base44.auth.me(); } catch (_) {}
 
     const body = await req.json();
-    const { ap_os, empresa, emails, area, status, criado_em } = body;
+    const { ap_os, empresa, emails, area, status, criado_em, arquivos } = body;
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseServiceKey = Deno.env.get("VITE_SUPABASE_SERVICE_KEY");
@@ -47,7 +47,8 @@ Deno.serve(async (req) => {
       password_hash: acesso.senha,
       status: dbStatus,
       criado_em,
-      emails: acesso.email // apenas o email
+      emails: acesso.email,
+      arquivos: arquivos || null
     }));
 
     const { data, error } = await supabase

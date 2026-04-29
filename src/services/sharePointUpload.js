@@ -41,6 +41,14 @@ async function getDriveId(token, siteId) {
 }
 
 async function ensureFolder(token, driveId, folderName) {
+  // Verifica se a pasta já existe
+  const checkRes = await fetch(
+    `${GRAPH}/drives/${driveId}/root:/${encodeURIComponent(folderName)}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  if (checkRes.ok) return; // pasta já existe, reutiliza
+
+  // Cria a pasta
   const res = await fetch(`${GRAPH}/drives/${driveId}/root/children`, {
     method: 'POST',
     headers: {
@@ -53,9 +61,9 @@ async function ensureFolder(token, driveId, folderName) {
       '@microsoft.graph.conflictBehavior': 'fail',
     }),
   });
-  // 409 = já existe → ok, usamos a pasta existente
   if (!res.ok && res.status !== 409) {
     const body = await res.json().catch(() => ({}));
+    console.error('[SharePoint] ensureFolder error body:', body);
     throw new Error(body.error?.message || `Erro ao criar pasta: ${res.status}`);
   }
 }

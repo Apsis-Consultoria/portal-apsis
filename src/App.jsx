@@ -43,6 +43,7 @@ import OnboardingPublico from '@/pages/OnboardingPublico';
 import Configuracoes from '@/pages/Configuracoes';
 import PlanejamentoEstrategico from '@/pages/PlanejamentoEstrategico';
 import RateioCaju from '@/pages/RateioCaju';
+import SecureShare from '@/pages/SecureShare';
 
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -110,6 +111,7 @@ function App() {
               <Route path="/Configuracoes" element={<LayoutWrapper currentPageName="Configuracoes"><Configuracoes /></LayoutWrapper>} />
               <Route path="/PlanejamentoEstrategico" element={<LayoutWrapper currentPageName="PlanejamentoEstrategico"><PlanejamentoEstrategico /></LayoutWrapper>} />
               <Route path="/RateioCaju" element={<LayoutWrapper currentPageName="RateioCaju"><RateioCaju /></LayoutWrapper>} />
+              <Route path="/SecureShare" element={<LayoutWrapper currentPageName="SecureShare"><SecureShare /></LayoutWrapper>} />
 
 
 

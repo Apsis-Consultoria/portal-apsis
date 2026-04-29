@@ -43,6 +43,8 @@ import OnboardingPublico from '@/pages/OnboardingPublico';
 import Configuracoes from '@/pages/Configuracoes';
 import PlanejamentoEstrategico from '@/pages/PlanejamentoEstrategico';
 import RateioCaju from '@/pages/RateioCaju';
+import Ferias from '@/pages/Ferias';
+import GerenciamentoAcessos from '@/pages/GerenciamentoAcessos';
 import SecureShare from '@/pages/SecureShare';
 
 
@@ -111,6 +113,8 @@ function App() {
               <Route path="/Configuracoes" element={<LayoutWrapper currentPageName="Configuracoes"><Configuracoes /></LayoutWrapper>} />
               <Route path="/PlanejamentoEstrategico" element={<LayoutWrapper currentPageName="PlanejamentoEstrategico"><PlanejamentoEstrategico /></LayoutWrapper>} />
               <Route path="/RateioCaju" element={<LayoutWrapper currentPageName="RateioCaju"><RateioCaju /></LayoutWrapper>} />
+              <Route path="/Ferias" element={<LayoutWrapper currentPageName="Ferias"><Ferias /></LayoutWrapper>} />
+              <Route path="/GerenciamentoAcessos" element={<LayoutWrapper currentPageName="GerenciamentoAcessos"><GerenciamentoAcessos /></LayoutWrapper>} />
               <Route path="/SecureShare" element={<LayoutWrapper currentPageName="SecureShare"><SecureShare /></LayoutWrapper>} />
 
 

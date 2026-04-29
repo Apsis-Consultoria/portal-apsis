@@ -6,8 +6,12 @@ const SUPABASE_URL = "https://ybixbsfmxblaippubtvw.supabase.co";
 const SUPABASE_SERVICE_KEY = import.meta.env.VITE_SUPABASE_SERVICE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliaXhic2ZteGJsYWlwcHVidHZ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTA1MTMwOCwiZXhwIjoyMDkwNjI3MzA4fQ.placeholder";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliaXhic2ZteGJsYWlwcHVidHZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTEzMDgsImV4cCI6MjA5MDYyNzMwOH0.4F72hq_oSLw6BVHISLcGS_IdXeMowE-a7_zFGpAVVP4";
 
+const SERVICE_KEY = import.meta.env.VITE_SUPABASE_SERVICE_KEY && import.meta.env.VITE_SUPABASE_SERVICE_KEY !== "undefined"
+  ? import.meta.env.VITE_SUPABASE_SERVICE_KEY
+  : SUPABASE_ANON_KEY;
+
 // Cliente com service key para operações internas (bypass RLS)
-export const supabaseAdmin = createClient(SUPABASE_URL, import.meta.env.VITE_SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
+export const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_KEY);
 
 // Cliente padrão com anon key
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

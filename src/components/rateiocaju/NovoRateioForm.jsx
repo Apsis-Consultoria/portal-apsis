@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { colaboradoresService } from "@/lib/supabaseColaboradores";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatMes, getDiasUteisNoIntervalo } from "./feriadosUtils";
 import { getDiasUteisParaMes } from "./FeriadosModal";
-import { CalendarDays, ArrowLeft } from "lucide-react";
+import { CalendarDays, ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
 import FeriasColaboradorModal from "./FeriasColaboradorModal";
 
 const fmt = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -126,7 +127,7 @@ function ColaboradorRow({ c, cfg, selecionado, onToggle, diasFerias, diasEfetivo
   );
 }
 
-function SubgrupoColabs({ titulo, cor, colaboradores, selecionados, onToggle, diasUteis, vrDiario, ferias, onFeriasChange, estado, ano, mes, cfg }) {
+function SubgrupoColabs({ titulo, cor, colaboradores, selecionados, onToggle, onSelectAll, onDeselectAll, diasUteis, vrDiario, ferias, onFeriasChange, estado, ano, mes, cfg }) {
   const getDiasEfetivos = (id) => {
     const diasFerias = calcDiasFeriasMes(id, ferias, ano, mes, estado);
     return Math.max(0, diasUteis - diasFerias);
@@ -143,25 +144,37 @@ function SubgrupoColabs({ titulo, cor, colaboradores, selecionados, onToggle, di
   };
 
   const total = colaboradores
-    .filter(c => selecionados.includes(c.id))
+    .filter(c => selecionados.includes(String(c.id)))
     .reduce((acc, c) => acc + vrDiario * getDiasEfetivos(c.id), 0);
 
-  const selCount = colaboradores.filter(c => selecionados.includes(c.id)).length;
+  const selCount = colaboradores.filter(c => selecionados.includes(String(c.id))).length;
 
   return (
     <div className={`rounded-lg border ${cor.borderCls} p-3`}>
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cor.badgeCls}`}>{titulo}</span>
           <span className="text-xs text-gray-400">{fmt(vrDiario)}/dia</span>
         </div>
         <span className={`text-xs font-medium ${cfg.totalCls}`}>{fmt(total)}</span>
       </div>
+      <div className="mb-2">
+        <button
+          onClick={() => {
+            const allSelected = colaboradores.every(c => selecionados.includes(String(c.id)));
+            if (allSelected) onDeselectAll(colaboradores);
+            else onSelectAll(colaboradores);
+          }}
+          className="text-[10px] text-slate-400 hover:text-slate-600 underline underline-offset-2 transition"
+        >
+          {colaboradores.every(c => selecionados.includes(String(c.id))) ? "Desmarcar todos" : "Selecionar todos"}
+        </button>
+      </div>
       <div className="space-y-1">
         {colaboradores.length === 0 && (
           <p className="text-xs text-gray-400 text-center py-2">Nenhum cadastrado</p>
         )}
-        {colaboradores.map(c => {
+        {[...colaboradores].sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR")).map(c => {
           const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
           const diasEfetivos = getDiasEfetivos(c.id);
           return (
@@ -169,7 +182,7 @@ function SubgrupoColabs({ titulo, cor, colaboradores, selecionados, onToggle, di
               key={c.id}
               c={c}
               cfg={cfg}
-              selecionado={selecionados.includes(c.id)}
+              selecionado={selecionados.includes(String(c.id))}
               onToggle={onToggle}
               diasFerias={diasFerias}
               diasEfetivos={diasEfetivos}
@@ -186,13 +199,19 @@ function SubgrupoColabs({ titulo, cor, colaboradores, selecionados, onToggle, di
   );
 }
 
+const COLLAPSED_HEIGHT = 260; // px visíveis quando recolhido
+
 function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUteis, vrDiario, vrEstagiario, ferias, onFeriasChange, ano, mes }) {
   const cfg = UNIDADE_CONFIG[unidade];
   const estado = unidade === "SP" ? "SP" : "RJ";
   const temEstagiarios = unidade === "RJ" || unidade === "SP";
+  const [expandido, setExpandido] = useState(false);
 
-  const clts = temEstagiarios ? colaboradores.filter(c => (c.tipo_contrato || "CLT") === "CLT") : colaboradores;
-  const estagiarios = temEstagiarios ? colaboradores.filter(c => c.tipo_contrato === "Estagiário") : [];
+  // Ordenar colaboradores por nome
+  const sorted = [...colaboradores].sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR"));
+
+  const clts = temEstagiarios ? sorted.filter(c => (c.tipo_vinculo || c.tipo_contrato || "CLT") !== "Estagiário") : sorted;
+  const estagiarios = temEstagiarios ? sorted.filter(c => (c.tipo_vinculo || c.tipo_contrato) === "Estagiário") : [];
 
   const getDiasEfetivos = (id) => {
     const diasFerias = calcDiasFeriasMes(id, ferias, ano, mes, estado);
@@ -200,11 +219,11 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
   };
 
   const totalCLT = clts
-    .filter(c => selecionados.includes(c.id))
+    .filter(c => selecionados.includes(String(c.id)))
     .reduce((acc, c) => acc + vrDiario * getDiasEfetivos(c.id), 0);
 
   const totalEst = estagiarios
-    .filter(c => selecionados.includes(c.id))
+    .filter(c => selecionados.includes(String(c.id)))
     .reduce((acc, c) => acc + (vrEstagiario || vrDiario) * getDiasEfetivos(c.id), 0);
 
   const total = totalCLT + totalEst;
@@ -228,80 +247,122 @@ function UnidadeSection({ unidade, colaboradores, selecionados, onToggle, diasUt
           <Badge className={`${cfg.badgeCls} text-sm font-bold px-3 py-0.5`}>{unidade}</Badge>
           <span className="text-xs text-slate-500 font-medium">{UNIDADE_CONFIG[unidade]?.label || unidade}</span>
         </div>
-        <div className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full ${cfg.infoCls}`}>
-          <CalendarDays size={11} />
-          <span>{diasUteis} dias úteis</span>
+        <div className="flex items-center gap-2">
+          <div className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full ${cfg.infoCls}`}>
+            <CalendarDays size={11} />
+            <span>{diasUteis} dias úteis</span>
+          </div>
+          <span className={`text-sm font-bold ${cfg.totalCls}`}>{fmt(total)}</span>
         </div>
       </div>
 
-      <div className="p-4">
-        {temEstagiarios ? (
-          <div className="space-y-3 mb-4">
-            <SubgrupoColabs
-              titulo="CLT"
-              cor={{ borderCls: cfg.borderCls, badgeCls: cfg.badgeCls }}
-              colaboradores={clts}
-              selecionados={selecionados}
-              onToggle={onToggle}
-              diasUteis={diasUteis}
-              vrDiario={vrDiario}
-              ferias={ferias}
-              onFeriasChange={onFeriasChange}
-              estado={estado}
-              ano={ano}
-              mes={mes}
-              cfg={cfg}
-            />
-            <SubgrupoColabs
-              titulo="Estagiários"
-              cor={{ borderCls: "border-amber-200", badgeCls: "bg-amber-100 text-amber-800" }}
-              colaboradores={estagiarios}
-              selecionados={selecionados}
-              onToggle={onToggle}
-              diasUteis={diasUteis}
-              vrDiario={vrEstagiario || vrDiario}
-              ferias={ferias}
-              onFeriasChange={onFeriasChange}
-              estado={estado}
-              ano={ano}
-              mes={mes}
-              cfg={cfg}
-            />
+      {/* Conteúdo com altura limitada quando recolhido */}
+      <div
+        className="overflow-hidden transition-all duration-300"
+        style={{ maxHeight: expandido ? "9999px" : `${COLLAPSED_HEIGHT}px` }}
+      >
+        <div className="p-4">
+          {temEstagiarios ? (
+            <div className="space-y-3 mb-4">
+              <SubgrupoColabs
+                titulo="CLT"
+                cor={{ borderCls: cfg.borderCls, badgeCls: cfg.badgeCls }}
+                colaboradores={clts}
+                selecionados={selecionados}
+                onToggle={onToggle}
+                onSelectAll={(list) => list.forEach(c => { if (!selecionados.includes(String(c.id))) onToggle(c.id); })}
+                onDeselectAll={(list) => list.forEach(c => { if (selecionados.includes(String(c.id))) onToggle(c.id); })}
+                diasUteis={diasUteis}
+                vrDiario={vrDiario}
+                ferias={ferias}
+                onFeriasChange={onFeriasChange}
+                estado={estado}
+                ano={ano}
+                mes={mes}
+                cfg={cfg}
+              />
+              <SubgrupoColabs
+                titulo="Estagiários"
+                cor={{ borderCls: "border-amber-200", badgeCls: "bg-amber-100 text-amber-800" }}
+                colaboradores={estagiarios}
+                selecionados={selecionados}
+                onToggle={onToggle}
+                onSelectAll={(list) => list.forEach(c => { if (!selecionados.includes(String(c.id))) onToggle(c.id); })}
+                onDeselectAll={(list) => list.forEach(c => { if (selecionados.includes(String(c.id))) onToggle(c.id); })}
+                diasUteis={diasUteis}
+                vrDiario={vrEstagiario || vrDiario}
+                ferias={ferias}
+                onFeriasChange={onFeriasChange}
+                estado={estado}
+                ano={ano}
+                mes={mes}
+                cfg={cfg}
+              />
+            </div>
+          ) : (
+            <div className="space-y-1 mb-4">
+              {sorted.length > 0 && (
+                <div className="mb-2">
+                  <button
+                    onClick={() => {
+                      const allSel = sorted.every(c => selecionados.includes(String(c.id)));
+                      sorted.forEach(c => {
+                        const sel = selecionados.includes(String(c.id));
+                        if (allSel && sel) onToggle(c.id);
+                        if (!allSel && !sel) onToggle(c.id);
+                      });
+                    }}
+                    className="text-[10px] text-slate-400 hover:text-slate-600 underline underline-offset-2 transition"
+                  >
+                    {sorted.every(c => selecionados.includes(String(c.id))) ? "Desmarcar todos" : "Selecionar todos"}
+                  </button>
+                </div>
+              )}
+              {sorted.length === 0 && (
+                <p className="text-xs text-slate-400 text-center py-4">Nenhum colaborador cadastrado</p>
+              )}
+              {sorted.map(c => {
+                const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
+                const diasEfetivos = getDiasEfetivos(c.id);
+                return (
+                  <ColaboradorRow
+                    key={c.id}
+                    c={c}
+                    cfg={cfg}
+                    selecionado={selecionados.includes(String(c.id))}
+                    onToggle={onToggle}
+                    diasFerias={diasFerias}
+                    diasEfetivos={diasEfetivos}
+                    valor={vrDiario * diasEfetivos}
+                    periodos={ferias[c.id] || []}
+                    onAddFerias={handleAddFerias}
+                    onRemoveFerias={handleRemoveFerias}
+                  />
+                );
+              })}
+            </div>
+          )}
+
+          <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
+            <span className="text-xs text-slate-400">
+              {selecionados.length} de {colaboradores.length} selecionados
+            </span>
+            <span className={`text-lg font-bold ${cfg.totalCls}`}>{fmt(total)}</span>
           </div>
+        </div>
+      </div>
+
+      {/* Botão expandir/recolher */}
+      <button
+        onClick={() => setExpandido(e => !e)}
+        className={`w-full flex items-center justify-center gap-1.5 py-2 text-xs font-medium border-t ${cfg.borderCls} ${cfg.hoverCls} transition text-slate-500`}
+      >
+        {expandido ? (
+          <><ChevronUp size={13} /> Recolher</>
         ) : (
-          <div className="space-y-1 mb-4">
-            {colaboradores.length === 0 && (
-              <p className="text-xs text-slate-400 text-center py-4">Nenhum colaborador cadastrado</p>
-            )}
-            {colaboradores.map(c => {
-              const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
-              const diasEfetivos = getDiasEfetivos(c.id);
-              return (
-                <ColaboradorRow
-                  key={c.id}
-                  c={c}
-                  cfg={cfg}
-                  selecionado={selecionados.includes(c.id)}
-                  onToggle={onToggle}
-                  diasFerias={diasFerias}
-                  diasEfetivos={diasEfetivos}
-                  valor={vrDiario * diasEfetivos}
-                  periodos={ferias[c.id] || []}
-                  onAddFerias={handleAddFerias}
-                  onRemoveFerias={handleRemoveFerias}
-                />
-              );
-            })}
-          </div>
+          <><ChevronDown size={13} /> Ver todos ({colaboradores.length})</>
         )}
-
-        <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
-          <span className="text-xs text-slate-400">
-            {selecionados.length} de {colaboradores.length} selecionados
-          </span>
-          <span className={`text-lg font-bold ${cfg.totalCls}`}>{fmt(total)}</span>
-        </div>
-      </div>
+      </button>
     </div>
   );
 }
@@ -376,37 +437,47 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
   };
 
   useEffect(() => {
-    base44.entities.ColaboradorCLT.list().then(data => {
+    colaboradoresService.list().then(data => {
       const ativos = data.filter(c => c.ativo !== false);
       setColaboradores(ativos);
       if (editando) {
-        // pré-seleciona os colaboradores que estavam no rateio salvo
         setSelecionados(extrairSelecionados(rateioExistente));
       } else {
         const init = { RJ: [], SP: [], Carbon: [], REDD: [] };
-        UNIDADES.forEach(u => { init[u] = ativos.filter(c => c.unidade === u).map(c => c.id); });
+        const vinculos = ["CLT", "Estagiário"];
+        UNIDADES.forEach(u => { init[u] = ativos.filter(c => (c.unidade || "").trim().toUpperCase() === u.toUpperCase() && vinculos.includes((c.tipo_vinculo || c.tipo_contrato || "").trim())).map(c => String(c.id)); });
         setSelecionados(init);
       }
     });
   }, []);
 
   const toggleUnidade = (unidade, id) => {
+    const sid = String(id);
     setSelecionados(prev => ({
       ...prev,
-      [unidade]: prev[unidade].includes(id)
-        ? prev[unidade].filter(x => x !== id)
-        : [...prev[unidade], id],
+      [unidade]: prev[unidade].includes(sid)
+        ? prev[unidade].filter(x => x !== sid)
+        : [...prev[unidade], sid],
     }));
   };
 
-  const getColabs = (unidade) => colaboradores.filter(c => c.unidade === unidade);
+  // Normaliza o valor de unidade para comparação (case-insensitive + trim)
+  const normalizeUnidade = (u) => (u || "").trim().toUpperCase();
+  // Apenas CLT e Estagiário participam do rateio Caju
+  const VINCULOS_CAJU = ["CLT", "Estagiário"];
+  const getColabs = (unidade) => colaboradores.filter(c => {
+    if (normalizeUnidade(c.unidade) !== normalizeUnidade(unidade)) return false;
+    const vinculo = (c.tipo_vinculo || c.tipo_contrato || "").trim();
+    return VINCULOS_CAJU.includes(vinculo);
+  });
 
   const handleFeriasChange = (colaboradorId, periodos) => {
     setFerias(prev => ({ ...prev, [colaboradorId]: periodos }));
   };
 
   const getVrColaborador = (unidade, c) => {
-    if ((unidade === "RJ" || unidade === "SP") && c.tipo_contrato === "Estagiário") {
+    const tipo = c.tipo_vinculo || c.tipo_contrato || "CLT";
+    if ((unidade === "RJ" || unidade === "SP") && tipo === "Estagiário") {
       return vrEstagiario[unidade] || vrDiario[unidade];
     }
     return vrDiario[unidade];
@@ -416,7 +487,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
     const dias = getDias(unidade);
     const estado = getEstado(unidade);
     return getColabs(unidade)
-      .filter(c => selecionados[unidade].includes(c.id))
+      .filter(c => selecionados[unidade].includes(String(c.id)))
       .reduce((acc, c) => {
         const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
         const diasEfetivos = Math.max(0, dias - diasFerias);
@@ -434,7 +505,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
       const dias = getDias(u);
       const estado = getEstado(u);
       colabData[u] = getColabs(u)
-        .filter(c => selecionados[u].includes(c.id))
+        .filter(c => selecionados[u].includes(String(c.id)))
         .map(c => {
           const diasFerias = calcDiasFeriasMes(c.id, ferias, ano, mes, estado);
           const diasEfetivos = Math.max(0, dias - diasFerias);
@@ -442,7 +513,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
           return {
             id: c.id,
             nome: c.nome,
-            tipo_contrato: c.tipo_contrato || "CLT",
+            tipo_contrato: c.tipo_vinculo || c.tipo_contrato || "CLT",
             valor_diario: vr,
             dias_ferias: diasFerias,
             dias_efetivos: diasEfetivos,
@@ -558,7 +629,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
                     >
                       <div className="flex items-center gap-1 mb-1.5">
                         <Badge className={`${cfg.badgeCls} text-xs font-bold px-1.5`}>{u}</Badge>
-                        {temEst && <span className="text-[10px] text-slate-400 font-medium">CLT</span>}
+                        <span className="text-[10px] text-slate-400 font-medium">CLT</span>
                       </div>
                       {editingVr === u ? (
                         <input autoFocus
@@ -586,7 +657,7 @@ export default function NovoRateioForm({ onCancel, onSaved, feriasProgramadas = 
                       >
                         <div className="flex items-center gap-1 mb-1.5">
                           <Badge className="bg-amber-100 text-amber-800 text-xs font-bold px-1.5">{u}</Badge>
-                          <span className="text-[10px] text-amber-600 font-medium">Est.</span>
+                          <span className="text-[10px] text-amber-600 font-medium">Estagiário</span>
                         </div>
                         {editingVr === `${u}_est` ? (
                           <input autoFocus

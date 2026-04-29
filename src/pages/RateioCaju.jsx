@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { colaboradoresService } from "@/lib/supabaseColaboradores";
 import { Button } from "@/components/ui/button";
-import { Plus, Settings, TrendingUp, MapPin, CalendarDays, Download, Wallet } from "lucide-react";
+import { Plus, Settings, TrendingUp, MapPin, CalendarDays, Download, Wallet, Trash2 } from "lucide-react";
 import * as XLSX from "xlsx";
 
 import ColaboradoresCLTModal from "@/components/rateiocaju/ColaboradoresCLTModal";
@@ -39,28 +40,37 @@ export default function RateioCaju() {
     setLoading(true);
     const [r, c] = await Promise.all([
       base44.entities.RateioCaju.list("-created_date"),
-      base44.entities.ColaboradorCLT.list(),
+      colaboradoresService.list(),
     ]);
     setRateios(r);
-    setColaboradores(c.filter(c => c.ativo !== false));
+    setColaboradores(c.filter(col => col.ativo !== false));
     setLoading(false);
   };
 
   useEffect(() => { fetchData(); }, []);
 
-  const totalSP     = colaboradores.filter(c => c.unidade === "SP").length;
-  const totalRJ     = colaboradores.filter(c => c.unidade === "RJ").length;
-  const totalCarbon = colaboradores.filter(c => c.unidade === "Carbon").length;
-  const totalREDD   = colaboradores.filter(c => c.unidade === "REDD").length;
-  const totalCLT    = colaboradores.length;
+  const VINCULOS_CAJU = ["CLT", "Estagiário"];
+  const cajuColabs  = colaboradores.filter(c => VINCULOS_CAJU.includes((c.tipo_vinculo || c.tipo_contrato || "").trim()));
+  const totalSP     = cajuColabs.filter(c => c.unidade === "SP").length;
+  const totalRJ     = cajuColabs.filter(c => c.unidade === "RJ").length;
+  const totalCarbon = cajuColabs.filter(c => c.unidade === "Carbon").length;
+  const totalREDD   = cajuColabs.filter(c => c.unidade === "REDD").length;
+  const totalCLT    = cajuColabs.length;
 
   const valoresMensais = rateios.map(r => r.total_geral || 0);
   const mediaMensal    = valoresMensais.length > 0 ? valoresMensais.reduce((a, b) => a + b, 0) / valoresMensais.length : 0;
   const ultimoRateio   = rateios[0];
 
-  const vrPorPessoa = colaboradores.length > 0
-    ? colaboradores.reduce((acc, c) => acc + (c.valor_vr_diario || 0), 0) / colaboradores.length
+  const vrMedioMensal = (valoresMensais.length > 0 && cajuColabs.length > 0)
+    ? (valoresMensais.reduce((a, b) => a + b, 0) / valoresMensais.length) / cajuColabs.length
     : 0;
+
+  const handleDeletarRateio = async (e, id) => {
+    e.stopPropagation();
+    if (!window.confirm("Tem certeza que deseja excluir este rascunho?")) return;
+    await base44.entities.RateioCaju.delete(id);
+    fetchData();
+  };
 
   const handleExportarRateio = (rateio) => {
     const workbook = XLSX.utils.book_new();
@@ -164,13 +174,13 @@ export default function RateioCaju() {
 
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">VR Médio/dia</span>
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">VR Médio/mês</span>
             <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
               <CalendarDays size={15} className="text-blue-600" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-slate-900 leading-none">{fmt(vrPorPessoa)}</p>
-          <p className="text-xs text-slate-400 mt-2">por colaborador</p>
+          <p className="text-2xl font-bold text-slate-900 leading-none">{fmt(vrMedioMensal)}</p>
+          <p className="text-xs text-slate-400 mt-2">por colaborador/mês</p>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
@@ -280,6 +290,17 @@ export default function RateioCaju() {
                   >
                     <Download size={13} /> Exportar
                   </Button>
+
+                  {/* Excluir — apenas para Rascunho */}
+                  {(r.status === "Rascunho" || !r.status) && (
+                    <button
+                      onClick={e => handleDeletarRateio(e, r.id)}
+                      title="Excluir rateio"
+                      className="opacity-0 group-hover:opacity-100 transition p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  )}
                 </div>
               );
             })}

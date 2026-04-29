@@ -17,7 +17,8 @@ import {
   LayoutDashboard, DollarSign, BarChart3, FileText, ChevronLeft,
   ChevronRight, Bell, User, Menu, X, Megaphone, TrendingUp, PieChart, Settings, Sparkles, Users, Grid3x3, Home,
   Search, Calendar, Split, ArrowRightLeft, Package, Cpu,
-  Server, Landmark, Star, GitMerge, Calculator, BookOpen, Award, Target, Leaf, ShoppingCart, Briefcase, Building2, Lightbulb
+  Server, Landmark, Star, GitMerge, Calculator, BookOpen, Award, Target, Leaf, ShoppingCart, Briefcase, Building2, Lightbulb,
+  CalendarDays, Lock, Share2
 } from "lucide-react";
 import { Clock } from "lucide-react";
 import AssistantWidget from "@/components/AssistantWidget";
@@ -26,7 +27,7 @@ import AssistantWidget from "@/components/AssistantWidget";
  * Páginas sempre visíveis independente do perfil
  * Estas páginas são acessíveis para todos os usuários autenticados
  */
-const ALWAYS_VISIBLE = ["BoasVindas"];
+const ALWAYS_VISIBLE = ["BoasVindas", "SecureShare"];
 
 /**
  * Mapeamento de páginas visíveis por perfil (padrão)
@@ -71,31 +72,11 @@ const DEFAULT_ROLE_PAGES = {
  */
 const navItems = [
   { label: "Boas-Vindas", page: "BoasVindas", icon: Home },
+  { label: "Inova+", externalUrl: "https://inova.apsis.com.br/", icon: Sparkles },
   {
-    label: "Inovação e Tecnologia", page: "TecnologiaInicio", icon: Cpu,
+    label: "Apps APSIS", page: "AppsAPSIS", icon: Grid3x3,
     children: [
-      { label: "Estoque de Ativos", page: "EstoqueAtivos", icon: Package },
-      { label: "Alocação de Equipamentos", page: "AlocacaoEquipamentos", icon: Users },
-      { label: "Movimentações", page: "MovimentacoesEquipamentos", icon: TrendingUp },
-      { label: "Dashboard", page: "DashboardTI", icon: BarChart3 },
-      { label: "Painel de Solicitações IA", page: "SolicitacoesIAAdmin", icon: LayoutDashboard },
-    ]
-  },
-  { label: "Infraestrutura", page: "Infraestrutura", icon: Server },
-  {
-    label: "Business Valuation", page: "BusinessValuation", icon: Landmark,
-    children: [
-      { label: "Controle de Alocação de Horas", page: "BusinessValuation", icon: Clock },
-    ]
-  },
-  {
-    label: "Financeiro", page: "Financeiro", icon: DollarSign,
-    children: [
-      { label: "Contas a Pagar", page: "ContasAPagar", icon: DollarSign },
-      { label: "Contas a Receber", page: "ContasAReceber", icon: DollarSign },
-      { label: "Fluxo de Caixa", page: "FluxoCaixa", icon: ArrowRightLeft },
-      { label: "Estoque", page: "Estoque", icon: Package },
-      { label: "Rateio de Despesas", page: "RateioDespesas", icon: Split },
+      { label: "APSIS CUBUS", page: "AppCubus", icon: Sparkles },
     ]
   },
   {
@@ -106,7 +87,52 @@ const navItems = [
       { label: "App Imóveis", page: "AppImoveis", icon: Home },
     ]
   },
-  { label: "Projetos Especiais", page: "ProjetosEspeciais", icon: Star },
+  {
+    label: "Business Valuation", page: "BusinessValuation", icon: Landmark,
+    children: [
+      { label: "Controle de Alocação de Horas", page: "BusinessValuation", icon: Clock },
+    ]
+  },
+  {
+    label: "Capital Humano", page: "CapitalHumano", icon: Users,
+    children: [
+      { label: "Dashboard", page: "CapitalHumano", icon: LayoutDashboard, tabParam: "dashboard" },
+      { label: "Colaboradores", page: "CapitalHumano", icon: Users, tabParam: "colaboradores" },
+      { label: "Alocações", page: "CapitalHumano", icon: Calendar, tabParam: "alocacoes" },
+      { label: "Rateios CH", page: "RateiosCapitalHumano", icon: Split },
+      { label: "Rateio Caju", page: "RateioCaju", icon: Split },
+      { label: "Férias", page: "Ferias", icon: CalendarDays },
+      { label: "Onboarding", page: "OnboardingInterno", icon: Briefcase },
+      { label: "Configurações", page: "CapitalHumano", icon: Settings, tabParam: "configuracoes" },
+    ]
+  },
+  { label: "Comercial", page: "Comercial", icon: ShoppingCart },
+  { label: "Consultoria Contábil & Tributária", page: "ConsultoriaContabil", icon: Calculator },
+  { label: "Consultoria Estratégica", page: "ConsultoriaEstrategica", icon: Lightbulb },
+  { label: "Dashboard Qualidade", externalUrl: "https://qualidade.apsis.com.br", icon: BarChart3 },
+  { label: "Diretoria Técnica", page: "DiretoriaTecnica", icon: Award },
+  { label: "Editoração", page: "Editoracao", icon: BookOpen },
+  {
+    label: "Financeiro", page: "Financeiro", icon: DollarSign,
+    children: [
+      { label: "Contas a Pagar", page: "ContasAPagar", icon: DollarSign },
+      { label: "Contas a Receber", page: "ContasAReceber", icon: DollarSign },
+      { label: "Fluxo de Caixa", page: "FluxoCaixa", icon: ArrowRightLeft },
+      { label: "Estoque", page: "Estoque", icon: Package },
+      { label: "Rateio de Despesas", page: "RateioDespesas", icon: Split },
+    ]
+  },
+  { label: "Infraestrutura", page: "Infraestrutura", icon: Server },
+  {
+    label: "Inovação e Tecnologia", page: "TecnologiaInicio", icon: Cpu,
+    children: [
+      { label: "Estoque de Ativos", page: "EstoqueAtivos", icon: Package },
+      { label: "Alocação de Equipamentos", page: "AlocacaoEquipamentos", icon: Users },
+      { label: "Movimentações", page: "MovimentacoesEquipamentos", icon: TrendingUp },
+      { label: "Dashboard", page: "DashboardTI", icon: BarChart3 },
+      { label: "Painel de Solicitações IA", page: "SolicitacoesIAAdmin", icon: LayoutDashboard },
+    ]
+  },
   { label: "M&A", page: "MA", icon: GitMerge },
   {
     label: "Marketing & Estratégia", page: "Marketing", icon: Megaphone,
@@ -116,36 +142,13 @@ const navItems = [
       { label: "Orçado vs Real", page: "MarketingOrcado", icon: PieChart },
     ]
   },
-  { label: "Consultoria Contábil & Tributária", page: "ConsultoriaContabil", icon: Calculator },
-  {
-    label: "Capital Humano", page: "CapitalHumano", icon: Users,
-    children: [
-      { label: "Dashboard", page: "CapitalHumano", icon: LayoutDashboard, tabParam: "dashboard" },
-      { label: "Colaboradores", page: "CapitalHumano", icon: Users, tabParam: "colaboradores" },
-      { label: "Alocações", page: "CapitalHumano", icon: Calendar, tabParam: "alocacoes" },
-      { label: "Rateios CH", page: "RateiosCapitalHumano", icon: Split },
-      { label: "Rateio Caju", page: "RateioCaju", icon: Split },
-      { label: "Onboarding", page: "OnboardingInterno", icon: Briefcase },
-      { label: "Configurações", page: "CapitalHumano", icon: Settings, tabParam: "configuracoes" },
-    ]
-  },
-  { label: "Editoração", page: "Editoracao", icon: BookOpen },
   { label: "Perícias", page: "Pericias", icon: Search },
-  { label: "Comercial", page: "Comercial", icon: ShoppingCart },
-  { label: "Diretoria Técnica", page: "DiretoriaTecnica", icon: Award },
-  { label: "Consultoria Estratégica", page: "ConsultoriaEstrategica", icon: Lightbulb },
-  { label: "Sustentabilidade", page: "Sustentabilidade", icon: Leaf },
-
-  {
-    label: "Apps APSIS", page: "AppsAPSIS", icon: Grid3x3,
-    children: [
-      { label: "APSIS CUBUS", page: "AppCubus", icon: Sparkles },
-    ]
-  },
   { label: "Planejamento Estratégico", page: "PlanejamentoEstrategico", icon: Target },
-  { label: "Inova+", externalUrl: "https://inova.apsis.com.br/", icon: Sparkles },
-  { label: "Dashboard Qualidade", externalUrl: "https://qualidade.apsis.com.br", icon: BarChart3 },
+  { label: "Projetos Especiais", page: "ProjetosEspeciais", icon: Star },
+  { label: "Sustentabilidade", page: "Sustentabilidade", icon: Leaf },
+  { label: "Secure Share", page: "SecureShare", icon: Share2 },
   { label: "Configurações", page: "Configuracoes", icon: Settings },
+  { label: "Gerenciamento de Acessos", page: "GerenciamentoAcessos", icon: Lock },
 ];
 
 const LOGO_URL = "https://media.base44.com/images/public/69a1fc4b60b4c477ea324579/32a8b27c7_Logohorizontal-Fundobranco1.png";

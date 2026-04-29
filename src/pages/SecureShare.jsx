@@ -2,16 +2,27 @@ import { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import {
-  Plus, Trash2, Eye, EyeOff, Mail, Lock, Building2,
-  FileText, Share2, CheckCircle2, AlertCircle, Loader2,
-  RefreshCw, Paperclip, X, Shield, Users, Calendar
+  Plus, Mail, FileText, Share2, Shield, Users, Calendar,
+  Loader2, CheckCircle2, AlertCircle, X, Paperclip, RefreshCw, Send
 } from "lucide-react";
 
-const AREAS = ["Contábil", "Tributária", "Societária", "M&A", "Projetos Especiais", "Outros"];
+const AREAS = ["M&A", "Business Valuation", "Consultoria Contábil", "Ativos Fixos", "Tributária", "Societária", "Projetos Especiais", "Outros"];
 
 function gerarSenha() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#";
   return Array.from({ length: 12 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+}
+
+function formatApOs(raw) {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length <= 5) return digits ? `AP-${digits}` : "";
+  const part1 = digits.slice(0, 5);
+  const part2 = digits.slice(5, 7);
+  const part3 = digits.slice(7, 10);
+  let result = `AP-${part1}`;
+  if (part2) result += `/${part2}`;
+  if (part3) result += `-${part3}`;
+  return result;
 }
 
 export default function SecureShare() {
@@ -20,16 +31,15 @@ export default function SecureShare() {
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [globalError, setGlobalError] = useState(null);
-  const [showSenhas, setShowSenhas] = useState({});
   const [uploadingArquivos, setUploadingArquivos] = useState(false);
-  const [arquivos, setArquivos] = useState([]); // [{nome, url}]
+  const [arquivos, setArquivos] = useState([]);
   const fileInputRef = useRef();
 
   const [form, setForm] = useState({
     ap_os: "",
     empresa: "",
     area: "",
-    contatos: [{ nome: "", email: "", senha: gerarSenha() }],
+    contatos: [{ nome: "", email: "" }],
   });
 
   const carregarProjetos = async () => {
@@ -46,7 +56,7 @@ export default function SecureShare() {
   useEffect(() => { carregarProjetos(); }, []);
 
   const addContato = () =>
-    setForm(f => ({ ...f, contatos: [...f.contatos, { nome: "", email: "", senha: gerarSenha() }] }));
+    setForm(f => ({ ...f, contatos: [...f.contatos, { nome: "", email: "" }] }));
 
   const removeContato = (i) =>
     setForm(f => ({ ...f, contatos: f.contatos.filter((_, idx) => idx !== i) }));
@@ -57,9 +67,6 @@ export default function SecureShare() {
       contatos[i] = { ...contatos[i], [field]: value };
       return { ...f, contatos };
     });
-
-  const toggleSenha = (i) =>
-    setShowSenhas(prev => ({ ...prev, [i]: !prev[i] }));
 
   const handleArquivoSelecionado = async (e) => {
     const files = Array.from(e.target.files);
@@ -74,7 +81,10 @@ export default function SecureShare() {
   };
 
   const handleSalvar = async () => {
-    const acessos = form.contatos.filter(c => c.email.trim());
+    const acessos = form.contatos
+      .filter(c => c.email.trim())
+      .map(c => ({ ...c, senha: gerarSenha() }));
+
     if (!form.ap_os.trim() || !form.empresa.trim() || acessos.length === 0) {
       setGlobalError("Preencha AP/OS, empresa e pelo menos um e-mail.");
       return;
@@ -94,9 +104,16 @@ export default function SecureShare() {
 
     await carregarProjetos();
     setShowModal(false);
-    setForm({ ap_os: "", empresa: "", area: "", contatos: [{ nome: "", email: "", senha: gerarSenha() }] });
+    setForm({ ap_os: "", empresa: "", area: "", contatos: [{ nome: "", email: "" }] });
     setArquivos([]);
     setSaving(false);
+  };
+
+  const openModal = () => {
+    setForm({ ap_os: "", empresa: "", area: "", contatos: [{ nome: "", email: "" }] });
+    setArquivos([]);
+    setGlobalError(null);
+    setShowModal(true);
   };
 
   const statusColor = {
@@ -113,12 +130,9 @@ export default function SecureShare() {
           <h1 className="text-2xl font-bold text-[#1A4731] flex items-center gap-2">
             <Shield size={22} className="text-[#F47920]" /> Secure Share
           </h1>
-          <p className="text-sm text-slate-500 mt-0.5">Compartilhe projetos com clientes de forma segura e rastreável.</p>
+          <p className="text-sm text-slate-500 mt-0.5">Crie projetos e envie links de acesso seguro para clientes.</p>
         </div>
-        <Button
-          onClick={() => { setShowModal(true); setGlobalError(null); }}
-          className="bg-[#1A4731] hover:bg-[#1A4731]/90 text-white gap-2"
-        >
+        <Button onClick={openModal} className="bg-[#1A4731] hover:bg-[#1A4731]/90 text-white gap-2">
           <Plus size={16} /> Novo Projeto
         </Button>
       </div>
@@ -176,131 +190,109 @@ export default function SecureShare() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-900">Novo Projeto Seguro</h2>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600">
-                <X size={20} />
-              </button>
+
+            <div className="p-6 pb-2">
+              <h2 className="text-xl font-bold text-slate-900">Novo Projeto</h2>
+              <p className="text-sm text-slate-500 mt-0.5">Preencha os dados e enviaremos os acessos automaticamente</p>
             </div>
 
             <div className="p-6 space-y-5">
 
-              {/* AP/OS e Empresa */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">AP / OS *</label>
-                  <input
-                    value={form.ap_os}
-                    onChange={e => setForm(f => ({ ...f, ap_os: e.target.value }))}
-                    placeholder="Ex: AP-2025-042"
-                    className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[#1A4731] bg-slate-50"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Empresa *</label>
-                  <input
-                    value={form.empresa}
-                    onChange={e => setForm(f => ({ ...f, empresa: e.target.value }))}
-                    placeholder="Ex: Empresa XYZ Ltda"
-                    className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[#1A4731] bg-slate-50"
-                  />
-                </div>
+              {/* AP/OS */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">AP/OS</label>
+                <input
+                  value={form.ap_os}
+                  onChange={e => {
+                    const raw = e.target.value.replace(/[^0-9]/g, "");
+                    setForm(f => ({ ...f, ap_os: formatApOs(raw) }));
+                  }}
+                  placeholder="AP-XXXXX/XX-XXX"
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1A4731] focus:ring-2 focus:ring-[#1A4731]/10 bg-white"
+                />
+                <p className="text-xs text-slate-400 mt-1">Digite apenas os números — o formato é aplicado automaticamente</p>
+              </div>
+
+              {/* Empresa */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Nome da Empresa</label>
+                <input
+                  value={form.empresa}
+                  onChange={e => setForm(f => ({ ...f, empresa: e.target.value }))}
+                  placeholder="Ex: Empresa XYZ Ltda"
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1A4731] focus:ring-2 focus:ring-[#1A4731]/10 bg-white"
+                />
               </div>
 
               {/* Área */}
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Área</label>
-                <select
-                  value={form.area}
-                  onChange={e => setForm(f => ({ ...f, area: e.target.value }))}
-                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[#1A4731] bg-slate-50"
-                >
-                  <option value="">Selecione...</option>
-                  {AREAS.map(a => <option key={a} value={a}>{a}</option>)}
-                </select>
-              </div>
-
-              {/* Contatos */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-semibold text-slate-600">Contatos com acesso *</label>
-                  <button onClick={addContato} className="text-xs text-[#1A4731] font-semibold flex items-center gap-1 hover:opacity-70">
-                    <Plus size={13} /> Adicionar
-                  </button>
-                </div>
-                <div className="space-y-3">
-                  {form.contatos.map((c, i) => (
-                    <div key={i} className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
-                      <div className="grid grid-cols-2 gap-2">
-                        <input
-                          value={c.nome}
-                          onChange={e => updateContato(i, "nome", e.target.value)}
-                          placeholder="Nome"
-                          className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#1A4731]"
-                        />
-                        <input
-                          value={c.email}
-                          onChange={e => updateContato(i, "email", e.target.value)}
-                          placeholder="E-mail *"
-                          type="email"
-                          className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#1A4731]"
-                        />
-                      </div>
-                      <div className="flex gap-2 items-center">
-                        <div className="flex-1 relative">
-                          <Lock size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                          <input
-                            value={c.senha}
-                            onChange={e => updateContato(i, "senha", e.target.value)}
-                            type={showSenhas[i] ? "text" : "password"}
-                            className="w-full border border-slate-200 rounded-lg pl-8 pr-8 py-2 text-sm bg-white focus:outline-none focus:border-[#1A4731] font-mono"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => toggleSenha(i)}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                          >
-                            {showSenhas[i] ? <EyeOff size={13} /> : <Eye size={13} />}
-                          </button>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => updateContato(i, "senha", gerarSenha())}
-                          className="p-2 text-slate-400 hover:text-[#1A4731] transition"
-                          title="Gerar nova senha"
-                        >
-                          <RefreshCw size={14} />
-                        </button>
-                        {form.contatos.length > 1 && (
-                          <button onClick={() => removeContato(i)} className="p-2 text-slate-400 hover:text-red-500 transition">
-                            <Trash2 size={14} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Área</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {AREAS.map(a => (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, area: f.area === a ? "" : a }))}
+                      className={`px-3 py-2.5 rounded-xl text-sm font-medium border transition text-left ${
+                        form.area === a
+                          ? "border-[#1A4731] bg-[#1A4731]/5 text-[#1A4731]"
+                          : "border-slate-200 text-slate-600 hover:border-slate-300 bg-white"
+                      }`}
+                    >
+                      {a}
+                    </button>
                   ))}
                 </div>
               </div>
 
+              {/* Contatos */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Contatos de Acesso</label>
+                <div className="space-y-2">
+                  {form.contatos.map((c, i) => (
+                    <div key={i} className="flex gap-2 items-center">
+                      <input
+                        value={c.nome}
+                        onChange={e => updateContato(i, "nome", e.target.value)}
+                        placeholder="Nome da pessoa"
+                        className="flex-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[#1A4731] bg-white"
+                      />
+                      <input
+                        value={c.email}
+                        onChange={e => updateContato(i, "email", e.target.value)}
+                        placeholder="email@empresa.com"
+                        type="email"
+                        className="flex-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[#1A4731] bg-white"
+                      />
+                      {form.contatos.length > 1 && (
+                        <button onClick={() => removeContato(i)} className="text-slate-300 hover:text-red-400 transition flex-shrink-0">
+                          <X size={16} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={addContato}
+                  className="mt-2 text-sm text-slate-500 hover:text-[#1A4731] flex items-center gap-1 transition"
+                >
+                  <Plus size={14} /> Adicionar outro contato
+                </button>
+              </div>
+
               {/* Arquivos */}
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-2">Arquivos para compartilhar</label>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  className="hidden"
-                  onChange={handleArquivoSelecionado}
-                />
+                <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleArquivoSelecionado} />
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingArquivos}
-                  className="flex items-center gap-2 text-xs px-3 py-2.5 border border-dashed border-slate-300 rounded-xl text-slate-600 hover:border-[#1A4731] hover:text-[#1A4731] transition w-full justify-center"
+                  className="flex items-center gap-2 text-sm text-slate-500 hover:text-[#1A4731] transition"
                 >
                   {uploadingArquivos
-                    ? <><RefreshCw size={13} className="animate-spin" /> Enviando...</>
-                    : <><Paperclip size={13} /> Anexar arquivos</>}
+                    ? <><RefreshCw size={13} className="animate-spin" /> Enviando arquivos...</>
+                    : <><Paperclip size={13} /> Anexar arquivos (opcional)</>}
                 </button>
                 {arquivos.length > 0 && (
                   <div className="mt-2 space-y-1.5">
@@ -308,11 +300,7 @@ export default function SecureShare() {
                       <div key={idx} className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
                         <FileText size={12} className="text-slate-400 flex-shrink-0" />
                         <span className="text-xs text-slate-700 flex-1 truncate">{arq.nome}</span>
-                        <button
-                          type="button"
-                          onClick={() => setArquivos(prev => prev.filter((_, i) => i !== idx))}
-                          className="text-slate-400 hover:text-red-500 transition"
-                        >
+                        <button type="button" onClick={() => setArquivos(prev => prev.filter((_, i) => i !== idx))} className="text-slate-400 hover:text-red-500 transition">
                           <X size={12} />
                         </button>
                       </div>
@@ -325,7 +313,7 @@ export default function SecureShare() {
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
                 <p className="text-xs text-blue-700">
                   <Mail size={12} className="inline mr-1" />
-                  Cada e-mail receberá credenciais de acesso e o link do portal de envio de arquivos.
+                  Cada e-mail receberá uma mensagem com credenciais de acesso e o link do portal de envio de arquivos.
                 </p>
               </div>
 
@@ -335,6 +323,7 @@ export default function SecureShare() {
                 </div>
               )}
 
+              {/* Botões */}
               <div className="flex gap-3 pt-1">
                 <Button variant="outline" className="flex-1" onClick={() => setShowModal(false)} disabled={saving}>
                   Cancelar
@@ -344,9 +333,12 @@ export default function SecureShare() {
                   onClick={handleSalvar}
                   disabled={saving || uploadingArquivos}
                 >
-                  {saving ? <><Loader2 size={15} className="animate-spin" /> Salvando...</> : <><CheckCircle2 size={15} /> Criar Projeto</>}
+                  {saving
+                    ? <><Loader2 size={15} className="animate-spin" /> Salvando...</>
+                    : <><Send size={15} /> Criar e Enviar Acessos</>}
                 </Button>
               </div>
+
             </div>
           </div>
         </div>

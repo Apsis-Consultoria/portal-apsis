@@ -1,6 +1,6 @@
 ﻿import { useState, useRef, useEffect } from "react";
 import { useMsal } from "@azure/msal-react";
-import { base44 } from "@/api/base44Client";
+import { supabaseAdmin } from "@/lib/supabaseClient";
 import { uploadToSharePoint } from "@/services/sharePointUpload";
 import { Button } from "@/components/ui/button";
 import {
@@ -46,12 +46,11 @@ export default function SecureShare() {
 
   const carregarProjetos = async () => {
     setLoading(true);
-    try {
-      const res = await base44.functions.invoke("secureShareList", {});
-      setProjetos(res.data?.data || []);
-    } catch {
-      setProjetos([]);
-    }
+    const { data } = await supabaseAdmin
+      .from("inov_secure_share")
+      .select("*")
+      .order("criado_em", { ascending: false });
+    setProjetos(data || []);
     setLoading(false);
   };
 
@@ -106,15 +105,22 @@ export default function SecureShare() {
         });
       }
 
-      await base44.functions.invoke("secureShareCreate", {
+      const statusMap = { ativo: "active", encerrado: "inactive" };
+      const rows = acessos.map(acesso => ({
         ap_os: form.ap_os,
         empresa: form.empresa,
-        emails: JSON.stringify(acessos),
         area: form.area || null,
-        status: "ativo",
+        client_name: acesso.email,
+        name: acesso.nome || acesso.email,
+        access_token: crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, ""),
+        password_hash: acesso.senha,
+        status: statusMap["ativo"],
         criado_em: new Date().toISOString(),
+        emails: acesso.email,
         arquivos: arquivosPayload,
-      });
+      }));
+      const { error: insertError } = await supabaseAdmin.from("inov_secure_share").insert(rows);
+      if (insertError) throw new Error(insertError.message);
 
       await carregarProjetos();
       setShowModal(false);

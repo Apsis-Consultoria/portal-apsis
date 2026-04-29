@@ -1,9 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+﻿import { useState, useRef, useEffect } from "react";
+import { useMsal } from "@azure/msal-react";
 import { base44 } from "@/api/base44Client";
+import { uploadToSharePoint } from "@/services/sharePointUpload";
 import { Button } from "@/components/ui/button";
 import {
   Plus, Mail, FileText, Share2, Shield, Users, Calendar,
-  Loader2, CheckCircle2, AlertCircle, X, Paperclip, RefreshCw, Send
+  Loader2, AlertCircle, X, Paperclip, Send
 } from "lucide-react";
 
 const AREAS = ["M&A", "Business Valuation", "Consultoria Contábil", "Ativos Fixos"];
@@ -26,13 +28,13 @@ function formatApOs(raw) {
 }
 
 export default function SecureShare() {
+  const { instance: msalInstance, accounts } = useMsal();
   const [projetos, setProjetos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [globalError, setGlobalError] = useState(null);
-  const [uploadingArquivos, setUploadingArquivos] = useState(false);
-  const [arquivos, setArquivos] = useState([]);
+  const [arquivos, setArquivos] = useState([]); // File[]
   const fileInputRef = useRef();
 
   const [form, setForm] = useState({
@@ -68,15 +70,10 @@ export default function SecureShare() {
       return { ...f, contatos };
     });
 
-  const handleArquivoSelecionado = async (e) => {
+  const handleArquivoSelecionado = (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
-    setUploadingArquivos(true);
-    for (const file of files) {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setArquivos(prev => [...prev, { nome: file.name, url: file_url }]);
-    }
-    setUploadingArquivos(false);
+    setArquivos(prev => [...prev, ...files]);
     e.target.value = "";
   };
 
@@ -92,20 +89,41 @@ export default function SecureShare() {
     setSaving(true);
     setGlobalError(null);
 
-    await base44.functions.invoke("secureShareCreate", {
-      ap_os: form.ap_os,
-      empresa: form.empresa,
-      emails: JSON.stringify(acessos),
-      area: form.area || null,
-      status: "ativo",
-      criado_em: new Date().toISOString(),
-      arquivos: arquivos.length > 0 ? JSON.stringify(arquivos) : null,
-    });
+    try {
+      let arquivosPayload = null;
+      if (arquivos.length > 0) {
+        const result = await uploadToSharePoint({
+          msalInstance,
+          accounts,
+          apos: form.ap_os,
+          empresa: form.empresa,
+          files: arquivos,
+          onFileProgress: () => {},
+        });
+        arquivosPayload = JSON.stringify({
+          folderUrl: result.folderUrl,
+          files: arquivos.map(f => ({ nome: f.name })),
+        });
+      }
 
-    await carregarProjetos();
-    setShowModal(false);
-    setForm({ ap_os: "", empresa: "", area: "", contatos: [{ nome: "", email: "" }] });
-    setArquivos([]);
+      await base44.functions.invoke("secureShareCreate", {
+        ap_os: form.ap_os,
+        empresa: form.empresa,
+        emails: JSON.stringify(acessos),
+        area: form.area || null,
+        status: "ativo",
+        criado_em: new Date().toISOString(),
+        arquivos: arquivosPayload,
+      });
+
+      await carregarProjetos();
+      setShowModal(false);
+      setForm({ ap_os: "", empresa: "", area: "", contatos: [{ nome: "", email: "" }] });
+      setArquivos([]);
+    } catch (err) {
+      setGlobalError(err.message || "Erro ao salvar projeto.");
+    }
+
     setSaving(false);
   };
 
@@ -172,7 +190,7 @@ export default function SecureShare() {
                     </span>
                     {p.arquivos && (
                       <span className="flex items-center gap-1">
-                        <Paperclip size={11} /> {(() => { try { return JSON.parse(p.arquivos).length; } catch { return 1; } })()} arquivo(s)
+                        <Paperclip size={11} /> {(() => { try { const d = JSON.parse(p.arquivos); return d.files?.length ?? (Array.isArray(d) ? d.length : 1); } catch { return 1; } })()} arquivo(s)
                       </span>
                     )}
                   </div>
@@ -286,19 +304,18 @@ export default function SecureShare() {
                 <label className="block text-sm font-semibold text-slate-700 mb-2">Arquivos</label>
                 <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleArquivoSelecionado} />
                 <div
-                  onClick={() => !uploadingArquivos && fileInputRef.current?.click()}
+                  onClick={() => !saving && fileInputRef.current?.click()}
                   className="border-2 border-dashed border-slate-200 rounded-xl p-5 text-center cursor-pointer hover:border-[#1A4731]/40 hover:bg-slate-50 transition"
                 >
-                  {uploadingArquivos
-                    ? <><RefreshCw size={16} className="animate-spin mx-auto mb-1 text-slate-400" /><p className="text-sm text-slate-400">Enviando arquivos...</p></>
-                    : <><Paperclip size={16} className="mx-auto mb-1 text-slate-400" /><p className="text-sm text-slate-500">Clique para selecionar arquivos</p></>}
+                  <Paperclip size={16} className="mx-auto mb-1 text-slate-400" />
+                  <p className="text-sm text-slate-500">Clique para selecionar arquivos</p>
                 </div>
                 {arquivos.length > 0 && (
                   <div className="mt-2 space-y-1.5">
                     {arquivos.map((arq, idx) => (
                       <div key={idx} className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
                         <FileText size={12} className="text-slate-400 flex-shrink-0" />
-                        <span className="text-xs text-slate-700 flex-1 truncate">{arq.nome}</span>
+                        <span className="text-xs text-slate-700 flex-1 truncate">{arq.name}</span>
                         <button type="button" onClick={() => setArquivos(prev => prev.filter((_, i) => i !== idx))} className="text-slate-400 hover:text-red-500 transition">
                           <X size={12} />
                         </button>
@@ -322,7 +339,7 @@ export default function SecureShare() {
                 <Button
                   className="flex-1 bg-[#1A4731] hover:bg-[#1A4731]/90 text-white gap-2"
                   onClick={handleSalvar}
-                  disabled={saving || uploadingArquivos}
+                  disabled={saving}
                 >
                   {saving
                     ? <><Loader2 size={15} className="animate-spin" /> Salvando...</>

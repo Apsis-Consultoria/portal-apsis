@@ -283,17 +283,16 @@ export default function SecureShare() {
 
               {/* Arquivos */}
               <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Arquivos</label>
                 <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleArquivoSelecionado} />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingArquivos}
-                  className="flex items-center gap-2 text-sm text-slate-500 hover:text-[#1A4731] transition"
+                <div
+                  onClick={() => !uploadingArquivos && fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-slate-200 rounded-xl p-5 text-center cursor-pointer hover:border-[#1A4731]/40 hover:bg-slate-50 transition"
                 >
                   {uploadingArquivos
-                    ? <><RefreshCw size={13} className="animate-spin" /> Enviando arquivos...</>
-                    : <><Paperclip size={13} /> Anexar arquivos</>}
-                </button>
+                    ? <><RefreshCw size={16} className="animate-spin mx-auto mb-1 text-slate-400" /><p className="text-sm text-slate-400">Enviando arquivos...</p></>
+                    : <><Paperclip size={16} className="mx-auto mb-1 text-slate-400" /><p className="text-sm text-slate-500">Clique para selecionar arquivos</p></>}
+                </div>
                 {arquivos.length > 0 && (
                   <div className="mt-2 space-y-1.5">
                     {arquivos.map((arq, idx) => (
@@ -307,14 +306,6 @@ export default function SecureShare() {
                     ))}
                   </div>
                 )}
-              </div>
-
-              {/* Aviso */}
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
-                <p className="text-xs text-blue-700">
-                  <Mail size={12} className="inline mr-1" />
-                  Cada e-mail receberá uma mensagem com credenciais de acesso e o link do portal de envio de arquivos.
-                </p>
               </div>
 
               {globalError && (

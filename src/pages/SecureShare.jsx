@@ -105,7 +105,6 @@ export default function SecureShare() {
         });
       }
 
-      const statusMap = { ativo: "active", encerrado: "inactive" };
       const rows = acessos.map(acesso => ({
         ap_os: form.ap_os,
         empresa: form.empresa,
@@ -114,13 +113,16 @@ export default function SecureShare() {
         name: acesso.nome || acesso.email,
         access_token: crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, ""),
         password_hash: acesso.senha,
-        status: statusMap["ativo"],
-        criado_em: new Date().toISOString(),
+        status: "active",
+        criado_em: new Date().toISOString().split("T")[0],
         emails: acesso.email,
-        arquivos: arquivosPayload,
+        acessos: arquivosPayload,
       }));
       const { error: insertError } = await supabaseAdmin.from("inov_secure_share").insert(rows);
-      if (insertError) throw new Error(insertError.message);
+      if (insertError) {
+        console.error("[Supabase] insert error:", insertError);
+        throw new Error(insertError.message);
+      }
 
       await carregarProjetos();
       setShowModal(false);

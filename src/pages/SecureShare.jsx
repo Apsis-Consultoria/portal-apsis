@@ -6,7 +6,7 @@ import {
   Loader2, CheckCircle2, AlertCircle, X, Paperclip, RefreshCw, Send
 } from "lucide-react";
 
-const AREAS = ["M&A", "Business Valuation", "Consultoria Contábil", "Ativos Fixos", "Tributária", "Societária", "Projetos Especiais", "Outros"];
+const AREAS = ["M&A", "Business Valuation", "Consultoria Contábil", "Ativos Fixos"];
 
 function gerarSenha() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#";

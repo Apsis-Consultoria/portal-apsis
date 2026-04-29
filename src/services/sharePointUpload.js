@@ -115,7 +115,7 @@ export async function uploadToSharePoint({ msalInstance, accounts, apos, empresa
   const token    = await getToken(msalInstance, accounts);
   const siteId   = await getSiteId(token);
   const driveId  = await getDriveId(token, siteId);
-  const folder   = `${apos} - ${empresa}`;
+  const folder   = `${apos.replace(/[/\:*?"<>|]/g, "-")} - ${empresa}`;
 
   await ensureFolder(token, driveId, folder);
 

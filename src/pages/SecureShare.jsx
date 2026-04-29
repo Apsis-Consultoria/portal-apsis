@@ -292,7 +292,7 @@ export default function SecureShare() {
                 >
                   {uploadingArquivos
                     ? <><RefreshCw size={13} className="animate-spin" /> Enviando arquivos...</>
-                    : <><Paperclip size={13} /> Anexar arquivos (opcional)</>}
+                    : <><Paperclip size={13} /> Anexar arquivos</>}
                 </button>
                 {arquivos.length > 0 && (
                   <div className="mt-2 space-y-1.5">
